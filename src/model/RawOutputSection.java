@@ -31,12 +31,15 @@ public class RawOutputSection extends AbstractNode implements IAttrValueElement 
 	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg) {
 		CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer,cfg);
 		if(cfg.isRenderToQString()) {
-			out.append( String.format("%s += %s;\n",cfg.getRenderToQStringVariableName(), expression));
+			out.append( String.format("%s += QString::number(%s);\n",cfg.getRenderToQStringVariableName(), expression));
 		} else {
 			out.append( String.format("FastCgiCout::write(%s);\n",expression));
 		}
 	}
-
+	@Override
+	public void toCppDoubleEscaped(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg) {
+		toCpp(out, directTextOutputBuffer, cfg);
+	}
 	@Override
 	public boolean stringOutput() {
 		return false;

@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.text.StringEscapeUtils;
+
 import config.TemplateConfig;
 
 public class HtmlTag extends AbstractNode{
@@ -104,6 +106,29 @@ public class HtmlTag extends AbstractNode{
 		
 		if (!isVoidTag(tagName) ) {
 			directTextOutputBuffer.append("</").append(tagName).append('>');
+		}
+	}
+	
+	@Override
+	public void toCppDoubleEscaped(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg)  {
+		directTextOutputBuffer.append(StringEscapeUtils.escapeHtml4("<"));
+		directTextOutputBuffer.append(tagName);
+		
+		if (attrs!=null) {
+			for(HtmlAttr a:attrs) {
+				a.toCppDoubleEscaped(out,directTextOutputBuffer,cfg);
+			}
+		}
+		
+		directTextOutputBuffer.append(StringEscapeUtils.escapeHtml4(">"));
+		if (childNodes != null) { 
+			for(AbstractNode n:childNodes) {
+				n.toCppDoubleEscaped(out,directTextOutputBuffer,cfg);
+			}
+		}
+		
+		if (!isVoidTag(tagName) ) {
+			directTextOutputBuffer.append(StringEscapeUtils.escapeHtml4("</")).append(tagName).append('>');
 		}
 	}
 	

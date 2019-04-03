@@ -2,6 +2,8 @@ package model;
 
 import java.io.IOException;
 
+import org.apache.commons.text.StringEscapeUtils;
+
 import config.TemplateConfig;
 import util.ParseUtil;
 
@@ -33,5 +35,9 @@ public class TextNode extends AbstractNode {
 		if (text.trim().length() > 0)
 			directTextOutputBuffer.append(ParseUtil.dropWhitespaces(text) );
 	}
-
+	@Override
+	public void toCppDoubleEscaped(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg) {
+		if (text.trim().length() > 0)
+			directTextOutputBuffer.append(ParseUtil.dropWhitespaces(StringEscapeUtils.escapeHtml4(text)) );
+	}
 }

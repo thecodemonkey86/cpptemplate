@@ -1,5 +1,7 @@
 package model;
 
+import org.apache.commons.text.StringEscapeUtils;
+
 import config.TemplateConfig;
 import io.CppOutput;
 import io.parser.HtmlParser;
@@ -26,7 +28,11 @@ public class TextAttrValueElement implements IAttrValueElement{
 	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg) {
 		CppOutput.addOutChunks(out, ParseUtil.dropWhitespaces(chars), HtmlParser.getLineWidth(),cfg);
 	}
-
+	
+	@Override
+	public void toCppDoubleEscaped(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg) {
+		CppOutput.addOutChunks(out, ParseUtil.dropWhitespaces(StringEscapeUtils.escapeHtml4(chars)), HtmlParser.getLineWidth(),cfg);
+	}
 	@Override
 	public void walkTree(WalkTreeAction action, ParserResult parserResult) {
 		// TODO Auto-generated method stub

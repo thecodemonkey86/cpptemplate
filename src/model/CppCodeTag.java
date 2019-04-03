@@ -45,6 +45,11 @@ public class CppCodeTag extends AbstractNode implements IAttrValueElement {
 		if(trimmed.length()>0)
 			out.append(trimmed).append('\n');
 	}
+	
+	@Override
+	public void toCppDoubleEscaped(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg) {
+		toCpp(out, directTextOutputBuffer, cfg);
+	}
 
 	@Override
 	public boolean stringOutput() {

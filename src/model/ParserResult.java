@@ -114,12 +114,26 @@ public class ParserResult {
 //		this.nodes.add(tag);
 //	}
 //
-	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg) {
+	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg) throws IOException {
 		if(isSimpleTemplate()) {
-			simpleTemplate.toCpp(out,directTextOutputBuffer,cfg);
-			CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer,cfg);
+			if(simpleTemplate != null) {
+				simpleTemplate.toCpp(out,directTextOutputBuffer,cfg);
+				CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer,cfg);
+			}
 		} else {
-			
+			throw new IOException();
+		}
+		
+	}
+	
+	public void toCppDoubleEscaped(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg) throws IOException {
+		if(isSimpleTemplate()) {
+			if(simpleTemplate != null) {
+				simpleTemplate.toCppDoubleEscaped(out,directTextOutputBuffer,cfg);
+				CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer,cfg);
+			}
+		} else {
+			throw new IOException();
 		}
 		
 	}

@@ -48,4 +48,15 @@ public class Template implements ITemplateItem {
 		}
 		
 	}
+	
+	@Override
+	public void toCppDoubleEscaped(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg) {
+		if (this.tags != null) {
+			for(ITemplateItem n:tags) {
+				n.toCppDoubleEscaped(out,directTextOutputBuffer,cfg);
+			}
+			CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
+		}
+		
+	}
 }

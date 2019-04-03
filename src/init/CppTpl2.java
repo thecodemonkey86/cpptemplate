@@ -48,7 +48,7 @@ public class CppTpl2 {
 		Path compiledTemplateDir = TemplateConfig.getDestPath().resolve("compiledtemplate");
 		
 		
-		if(cfg.getSubDir() != null & !cfg.getSubDir().isEmpty()) {
+		if(cfg.getSubDir() != null && !cfg.getSubDir().isEmpty()) {
 			compiledTemplateDir = compiledTemplateDir.resolve(cfg.getSubDir());
 		}
 		
@@ -95,22 +95,24 @@ public class CppTpl2 {
 			}
 			
 		} else {
-			result.getSimpleTemplate().walkTree(new WalkTreeAction() {
-				
-				@Override
-				public void currentNode(AbstractNode node, ParserResult parserResult) throws IOException {
-					if (node instanceof CppRenderSectionTag) {
-						CppRenderSectionTag tpl = (CppRenderSectionTag) node;
-						tpl.setRenderTmpl(result.getTemplateByName(tpl.getAttrByName("name").getStringValue()));
-					} 
+			if(result.getSimpleTemplate()!=null ) {
+				result.getSimpleTemplate().walkTree(new WalkTreeAction() {
 					
-				}
-			}, result);	
-			
-			collectInlineJs.addAll(result.getAllJsIncludes());
-			collectInlineCss.addAll(result.getAllCssIncludes());
-			//CppOutput.insertCode(clsName, cppFile, result, result.getAllCssIncludes(), result.getAllJsIncludes());
-			CppOutput.writeCompiledTemplateFile(result,result, compiledTemplateDir, clsName, cfg);
+					@Override
+					public void currentNode(AbstractNode node, ParserResult parserResult) throws IOException {
+						if (node instanceof CppRenderSectionTag) {
+							CppRenderSectionTag tpl = (CppRenderSectionTag) node;
+							tpl.setRenderTmpl(result.getTemplateByName(tpl.getAttrByName("name").getStringValue()));
+						} 
+						
+					}
+				}, result);	
+				
+				collectInlineJs.addAll(result.getAllJsIncludes());
+				collectInlineCss.addAll(result.getAllCssIncludes());
+				//CppOutput.insertCode(clsName, cppFile, result, result.getAllCssIncludes(), result.getAllJsIncludes());
+				CppOutput.writeCompiledTemplateFile(result,result, compiledTemplateDir, clsName, cfg);
+			}
 		}
 	}
 	

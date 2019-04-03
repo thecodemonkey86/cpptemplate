@@ -189,7 +189,7 @@ public class CppOutput {
 	protected static String getJsAsCpp(String jsSrc) throws IOException, CancelException {
 		StringBuilder sbInlineJs = new StringBuilder();
 		String js = new String(Files.readAllBytes(CssJsProcessor.loadJs(jsSrc)), UTF8 );
-		CppOutput.addOutChunks(sbInlineJs, js, settings.getLineWidth(),null);
+		CppOutput.addOutChunks(sbInlineJs, js+"\n", settings.getLineWidth(),null);
 		sbInlineJs.append('\n');
 		return sbInlineJs.toString();
 	}
@@ -197,7 +197,7 @@ public class CppOutput {
 	protected static String getCssAsCpp(String cssSrc) throws IOException, CancelException {
 		StringBuilder sbInlineCss = new StringBuilder();
 		String css = CssJsProcessor.getInlineCss(cssSrc);;
-		CppOutput.addOutChunks(sbInlineCss, css, settings.getLineWidth(),null);
+		CppOutput.addOutChunks(sbInlineCss, css+"\n", settings.getLineWidth(),null);
 		sbInlineCss.append('\n');
 		return sbInlineCss.toString();
 	}

@@ -16,13 +16,16 @@ import model.CppRenderSubtemplateTag;
 import model.CppRenderSectionTag;
 import model.CppSectionTag;
 import model.CppThenTag;
+import model.DynamicHtmlAttr;
 import model.EmptyHtmlAttr;
 import model.HtmlAttr;
 import model.HtmlBr;
 import model.HtmlTag;
+import model.IAttrValueElement;
 import model.ParserResult;
 import model.QStringHtmlEscapedOutputSection;
 import model.RawOutputSection;
+import model.RenderSubtemplateAttrValue;
 import model.Template;
 import model.TextAttrValueElement;
 import model.TextNode;
@@ -243,6 +246,10 @@ public class HtmlParser {
 		if (currSubstrEquals(HTML_COMMENT_START)) {
 			currentPos = html.indexOf(HTML_COMMENT_END, currentPos + HTML_COMMENT_START.length()) + HTML_COMMENT_END.length() - 1;
 			return true;
+		} else if(currSubstrEquals(String.format("<%s:%s",HtmlParser.CPP_NS, CppCommentTag.TAG_NAME))) {
+			String endOfComment=String.format("</%s:%s>",HtmlParser.CPP_NS, CppCommentTag.TAG_NAME);
+			currentPos = html.indexOf(endOfComment, currentPos + endOfComment.length()) + endOfComment.length() - 1;
+			return true;
 		}
 		return false;
 	}
@@ -286,7 +293,33 @@ public class HtmlParser {
 		}
 		return tag;
 	}
-	
+	protected HtmlAttr parseDynamicAttr() throws IOException {
+		int bracesCount = 0;
+		boolean quot = false;
+		boolean escape = false;
+		next();
+		int start = currentPos;
+		
+		while(!atEnd() && currChar()!='}' && bracesCount == 0) {
+			if(!quot) {
+				if(currChar() == '{') {
+					bracesCount++;
+				} else if(currChar() == '}') {
+					bracesCount--;
+				}
+			} else {
+				if(!escape && currChar() == '\"') {
+					quot = !quot;
+				} else if (!escape && currChar() == '\\') {
+					escape = true;
+				} else if (escape) {
+					escape = false;
+				}
+			}
+			next();
+		}
+		return new DynamicHtmlAttr(html.substring(start,currentPos));
+	}
 	protected HtmlAttr parseAttr() throws IOException {
 		Pair<String, Integer> pEq = ParseUtil.getIndexAndSubstrToNextChar(html, currentPos, '=');
 		int indexEq = pEq.getValue2();
@@ -316,6 +349,11 @@ public class HtmlParser {
 				val.addElement(parseCodeTag());
 				
 				startIndex = currentPos + HtmlParser.CPP_CODE_END_TAG.length();
+			} else if(currSubstrEquals( String.format("<%s:%s", HtmlParser.CPP_NS,CppRenderSubtemplateTag.TAG_NAME))) {	
+				addTextNode(val, startIndex);
+				
+				val.addElement(parseRenderSubtemplateAttributeValue());
+				startIndex = currentPos+1;
 			} else if(currSubstrEquals( HtmlParser.CPP_INLINE_RAW_START )) {
 				addTextNode(val, startIndex);
 				
@@ -339,6 +377,66 @@ public class HtmlParser {
 		}
 		throw new IOException("syntax error. missing closing quote");
 		
+	}
+
+	private IAttrValueElement parseRenderSubtemplateAttributeValue() throws IOException {
+		/*int start = currentPos;
+		CppRenderSubtemplateTag t = new CppRenderSubtemplateTag();
+		while(!atEnd()) {
+			switch (currChar()) {
+			case '=':
+				if(!html.substring(start,currentPos).equals("name")) {
+					throw new IOException("Expected \"name\" tag");
+				}
+				
+				break;
+
+			default:
+				break;
+			}
+			next();
+		}*/
+		Pair<Integer, Character> nextWhitespace = ParseUtil.firstIndexOf(html, new char[]{' ','\t','\r','\n'}, currentPos);
+		currentPos = nextWhitespace.getValue1();
+		Pair<String, Integer> pEq = ParseUtil.getIndexAndSubstrToNextChar(html, currentPos, '=');
+		int indexEq = pEq.getValue2();
+		String attrName = pEq.getValue1().trim();
+		if (!attrName.equals("name")) {
+			throw new IOException("Expected \"name\" tag");
+		}
+		Pair<Integer, Character> pQuot = ParseUtil.firstIndexOf(html, '\"', '\'', indexEq);
+		int indexQuot = pQuot.getValue1();
+		if (indexQuot == -1) {
+			throw new IOException("syntax error. Expected single or double quote");
+		}
+		int end = html.indexOf(pQuot.getValue2(), indexQuot+1);
+		CppRenderSubtemplateTag t = new CppRenderSubtemplateTag();
+		AttrValue v = new AttrValue();
+		v.addElement(new TextAttrValueElement(html.substring(indexQuot+1,end)));
+		t.addAttr(new HtmlAttr(attrName, v, pQuot.getValue2()));
+		RenderSubtemplateAttrValue val = new RenderSubtemplateAttrValue(t);
+		currentPos = end;
+		next();
+		while(!atEnd()) {
+			switch (currChar()) {
+			case '\n':
+			case '\r':
+			case '\t':
+			case ' ':
+				next();
+				continue;
+			case '/':
+				next();
+				if(currChar()=='>') {
+					return val;
+				} else {
+					throw new IOException("syntax error");
+				}
+			default:
+				throw new IOException("syntax error");
+			}
+		}
+		return val;
 	}
 
 	protected HtmlTag parseNode() throws IOException {
@@ -366,8 +464,8 @@ public class HtmlParser {
 					tag = new CppThenTag();
 				} else if (tagName.equals(CppElseTag.TAG_NAME)) {
 					tag = new CppElseTag();
-				} else if (tagName.equals(CppCommentTag.TAG_NAME)) {
-					tag = new CppCommentTag();
+//				} else if (tagName.equals(CppCommentTag.TAG_NAME)) {
+//					tag = new CppCommentTag();
 				} else if (tagName.equals(CppRenderSubtemplateTag.TAG_NAME)) {
 					tag = new CppRenderSubtemplateTag();
 				} 
@@ -402,7 +500,9 @@ public class HtmlParser {
 		
 		next(namespaceTagName.length());
 		while(!atEnd() && currChar() != '>') {
-			if(Character.isAlphabetic(currChar()) || currChar() == '-') {
+			if(currChar() == '{') {
+				tag.addAttr(parseDynamicAttr());
+			}else if(Character.isAlphabetic(currChar()) || currChar() == '-') {
 				tag.addAttr(parseAttr());
 			} else if (currChar() == '/') {
 				tag.setSelfClosing();

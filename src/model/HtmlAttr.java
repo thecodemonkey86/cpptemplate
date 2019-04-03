@@ -1,5 +1,8 @@
 package model;
 
+
+import org.apache.commons.text.StringEscapeUtils;
+
 import config.TemplateConfig;
 import io.CppOutput;
 
@@ -51,8 +54,6 @@ public class HtmlAttr implements ITemplateItem{
 			if (e.stringOutput()) {
 				directTextOutputBuffer.append(e.toString() );
 			} else {
-//				CppOutput.addOutChunks(out, ParseUtil.dropWhitespaces(sb.toString()), HtmlParser.LINE_WIDTH);
-//				sb = new StringBuilder();
 				CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer,cfg);
 				e.toCpp(out,directTextOutputBuffer,cfg);
 			}
@@ -61,8 +62,25 @@ public class HtmlAttr implements ITemplateItem{
 	}
 
 	@Override
+	public void toCppDoubleEscaped(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg)  {
+		directTextOutputBuffer.append(" ");
+		directTextOutputBuffer.append(StringEscapeUtils.escapeHtml4(name) )
+			.append('=')
+			.append("&quot;");
+		
+		for(IAttrValueElement e: value.getElements()) {
+			if (e.stringOutput()) {
+				directTextOutputBuffer.append(StringEscapeUtils.escapeHtml4(e.toString()) );
+			} else {
+				CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer,cfg);
+				e.toCppDoubleEscaped(out,directTextOutputBuffer,cfg);
+			}
+		}
+		directTextOutputBuffer.append("&quot;");
+	}
+	
+	@Override
 	public void walkTree(WalkTreeAction action, ParserResult parserResult) {
-		// TODO Auto-generated method stub
 		
 	}
 

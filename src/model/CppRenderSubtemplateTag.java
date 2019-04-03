@@ -39,5 +39,17 @@ public class CppRenderSubtemplateTag extends HtmlTag {
 		
 	}
 	
+	@Override
+	public void toCppDoubleEscaped(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg) {
+		HtmlParser p = new HtmlParser();
+		try {
+			String html = new String( Files.readAllBytes(basePath.resolve("subtemplates").resolve(getAttrByName("name").getStringValue() +".html")),UTF8 );
+			ParserResult result = p.parse(html);;
+			result.toCppDoubleEscaped(out, directTextOutputBuffer,cfg);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		
+	}
 	
 }
