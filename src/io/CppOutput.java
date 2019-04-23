@@ -202,6 +202,11 @@ public class CppOutput {
 		return sbInlineCss.toString();
 	}
 	
+	public static void writeCompiledTemplateFile2(ParserResult layoutResult,ParserResult result, Path directory, String clsName, TemplateConfig cfg) throws IOException, CancelException {
+		
+	}
+	
+	@Deprecated
 	public static void writeCompiledTemplateFile(ParserResult layoutResult,ParserResult result, Path directory, String clsName, TemplateConfig cfg) throws IOException, CancelException {
 		if (!Files.exists(directory))
 			Files.createDirectories(directory);

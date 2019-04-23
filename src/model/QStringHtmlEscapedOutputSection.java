@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import config.TemplateConfig;
 import io.CppOutput;
+import util.Util;
 
 public class QStringHtmlEscapedOutputSection extends AbstractNode implements IAttrValueElement {
 
@@ -31,7 +32,7 @@ public class QStringHtmlEscapedOutputSection extends AbstractNode implements IAt
 	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg) {
 		CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer,cfg);
 		if(cfg.isRenderToQString()) {
-			out.append( String.format("%s += %s.toHtmlEscaped();\n",cfg.getRenderToQStringVariableName(), expression.startsWith("\"") ? String.format("QStringLiteral(%s)", expression) : expression));
+			out.append( String.format("%s += %s.toHtmlEscaped();\n",cfg.getRenderToQStringVariableName(), expression.startsWith("\"") ? String.format("%s(%s)",Util.getQStringLiteralConstructor(expression,true), expression) : expression));
 		} else {
 			int inlineIfThenIndex = -1;
 			int inlineIfElseIndex = -1;
@@ -63,10 +64,10 @@ public class QStringHtmlEscapedOutputSection extends AbstractNode implements IAt
 				String elseExpression = expression.substring(inlineIfElseIndex+1).trim();
 				
 				if(thenExpression.startsWith("\"")) {
-					thenExpression = String.format("QStringLiteral(%s)", thenExpression);
+					thenExpression = String.format("%s(%s)",Util.getQStringLiteralConstructor(thenExpression,true), thenExpression);
 				}
 				if(elseExpression.startsWith("\"")) {
-					elseExpression = String.format("QStringLiteral(%s)", elseExpression);
+					elseExpression = String.format("%s(%s)",Util.getQStringLiteralConstructor(elseExpression,true), elseExpression);
 				}
 				
 				out.append( String.format("if(%s)\n{\nFastCgiCout::write(%s.toHtmlEscaped());\n}\nelse\n{\nFastCgiCout::write(%s.toHtmlEscaped());\n}\n",
@@ -76,7 +77,7 @@ public class QStringHtmlEscapedOutputSection extends AbstractNode implements IAt
 				String thenExpression = expression.substring(inlineIfThenIndex+1).trim();
 				
 				if(thenExpression.startsWith("\"")) {
-					thenExpression = String.format("QStringLiteral(%s)", thenExpression);
+					thenExpression = String.format("%s(%s)", Util.getQStringLiteralConstructor(thenExpression,true), thenExpression);
 				}
 				
 				out.append( String.format("if(%s)\n{\nFastCgiCout::write(%s.toHtmlEscaped());\n}\n",
@@ -92,7 +93,7 @@ public class QStringHtmlEscapedOutputSection extends AbstractNode implements IAt
 	public void toCppDoubleEscaped(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg) {
 		CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer,cfg);
 		if(cfg.isRenderToQString()) {
-			out.append( String.format("%s += %s.toHtmlEscaped().toHtmlEscaped();\n",cfg.getRenderToQStringVariableName(), expression.startsWith("\"") ? String.format("QStringLiteral(%s)", expression) : expression));
+			out.append( String.format("%s += %s.toHtmlEscaped().toHtmlEscaped();\n",cfg.getRenderToQStringVariableName(), expression.startsWith("\"") ? String.format("%s(%s)",Util.getQStringLiteralConstructor(expression,true), expression) : expression));
 		} else {
 			int inlineIfThenIndex = -1;
 			int inlineIfElseIndex = -1;
@@ -124,10 +125,10 @@ public class QStringHtmlEscapedOutputSection extends AbstractNode implements IAt
 				String elseExpression = expression.substring(inlineIfElseIndex+1).trim();
 				
 				if(thenExpression.startsWith("\"")) {
-					thenExpression = String.format("QStringLiteral(%s)", thenExpression);
+					thenExpression = String.format("%s(%s)",Util.getQStringLiteralConstructor(thenExpression,true), thenExpression);
 				}
 				if(elseExpression.startsWith("\"")) {
-					elseExpression = String.format("QStringLiteral(%s)", elseExpression);
+					elseExpression = String.format("%s(%s)",Util.getQStringLiteralConstructor(elseExpression,true), elseExpression);
 				}
 				
 				out.append( String.format("if(%s)\n{\nFastCgiCout::write(%s.toHtmlEscaped().toHtmlEscaped());\n}\nelse\n{\nFastCgiCout::write(%s.toHtmlEscaped().toHtmlEscaped());\n}\n",
@@ -137,7 +138,7 @@ public class QStringHtmlEscapedOutputSection extends AbstractNode implements IAt
 				String thenExpression = expression.substring(inlineIfThenIndex+1).trim();
 				
 				if(thenExpression.startsWith("\"")) {
-					thenExpression = String.format("QStringLiteral(%s)", thenExpression);
+					thenExpression = String.format("%s(%s)",Util.getQStringLiteralConstructor(thenExpression,true),  thenExpression);
 				}
 				
 				out.append( String.format("if(%s)\n{\nFastCgiCout::write(%s.toHtmlEscaped().toHtmlEscaped());\n}\n",

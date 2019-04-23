@@ -11,6 +11,8 @@ import model.CppCommentTag;
 import model.CppElseIfTag;
 import model.CppElseTag;
 import model.CppForTag;
+import model.CppFormSelect;
+import model.CppFormSelectOption;
 import model.CppIfTag;
 import model.CppRenderSubtemplateTag;
 import model.CppRenderSectionTag;
@@ -464,6 +466,10 @@ public class HtmlParser {
 					tag = new CppThenTag();
 				} else if (tagName.equals(CppElseTag.TAG_NAME)) {
 					tag = new CppElseTag();
+				} else if (tagName.equals(CppFormSelect.TAG_NAME)) {
+					tag = new CppFormSelect();	
+				} else if (tagName.equals(CppFormSelectOption.TAG_NAME)) {
+					tag = new CppFormSelectOption();	
 //				} else if (tagName.equals(CppCommentTag.TAG_NAME)) {
 //					tag = new CppCommentTag();
 				} else if (tagName.equals(CppRenderSubtemplateTag.TAG_NAME)) {

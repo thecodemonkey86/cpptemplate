@@ -6,11 +6,11 @@ import config.TemplateConfig;
 
 public class DynamicHtmlAttr extends HtmlAttr{
 
-	QStringHtmlEscapedOutputSection code;
+	RawOutputSection code;
 	
 	public DynamicHtmlAttr(String code) throws IOException {
 		super(null, null, '\"');
-		this.code = new QStringHtmlEscapedOutputSection(code);
+		this.code = new RawOutputSection(code);
 	}
 
 	@Override
