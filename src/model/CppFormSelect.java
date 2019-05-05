@@ -72,20 +72,20 @@ public class CppFormSelect extends HtmlTag{
 				
 				directTextOutputBuffer.append("<option value=\"");
 				CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
-				CodeUtil.writeLine(out,"FastCgiCout::write("+varKey+ ");");
+				CodeUtil.writeLine(out,"FastCgiOutput::write("+varKey+ ",out);");
 				
 				if(value != null) {
-					CodeUtil.writeLine(out,"FastCgiCout::write('\"');");
+					CodeUtil.writeLine(out,"FastCgiOutput::write('\"',out);");
 					out.append("if ").append(CodeUtil.parentheses(value.getStringValue()+" == "+varKey)).append("{\n");
-					CodeUtil.writeLine(out,"FastCgiCout::write(\"selected=\\\"selected\\\");");
+					CodeUtil.writeLine(out,"FastCgiOutput::write(\"selected=\\\"selected\\\",out);");
 					CodeUtil.writeLine(out, "}");
-					CodeUtil.writeLine(out,"FastCgiCout::write('>');");
+					CodeUtil.writeLine(out,"FastCgiOutput::write('>',out);");
 				} else {
-					CodeUtil.writeLine(out,"FastCgiCout::write(\"\\\">\");");
+					CodeUtil.writeLine(out,"FastCgiOutput::write(\"\\\">\",out);");
 				}
 				
-				CodeUtil.writeLine(out,"FastCgiCout::write("+varValue+");");
-				CodeUtil.writeLine(out,"FastCgiCout::write(\"</option>\");");
+				CodeUtil.writeLine(out,"FastCgiOutput::write("+varValue+",out);");
+				CodeUtil.writeLine(out,"FastCgiOutput::write(\"</option>\",out);");
 				out.append('\n');
 				CodeUtil.writeLine(out, "}");
 			}

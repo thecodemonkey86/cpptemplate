@@ -74,7 +74,7 @@ public class CppOutput {
 				if(cfg !=null && cfg.isRenderToQString()) {
 					out.append(String.format("%s += \"%s\";",cfg.getRenderToQStringVariableName(), getCppEscapedString(outLine.substring(i,i+lineWidth+offset))));
 				} else {
-					out.append("FastCgiCout::write(\""+ getCppEscapedString(outLine.substring(i,i+lineWidth+offset))  + "\");");
+					out.append("FastCgiOutput::write(\""+ getCppEscapedString(outLine.substring(i,i+lineWidth+offset))  + "\",out);");
 				}
 				if(offset>0) {
 					i+=offset;
@@ -87,7 +87,7 @@ public class CppOutput {
 				if(cfg !=null && cfg.isRenderToQString()) {
 					out.append(String.format("%s += \"%s\";",cfg.getRenderToQStringVariableName(), getCppEscapedString(lastChunk)));
 				} else {
-					out.append("FastCgiCout::write(\""+ getCppEscapedString(lastChunk)  + "\");");	
+					out.append("FastCgiOutput::write(\""+ getCppEscapedString(lastChunk)  + "\",out);");	
 				}
 				
 				out.append('\n');
@@ -96,7 +96,7 @@ public class CppOutput {
 			if(cfg !=null && cfg.isRenderToQString()) {
 				out.append(String.format("%s += \"%s\";", cfg.getRenderToQStringVariableName(),getCppEscapedString(outLine)));
 			} else {
-				out.append("FastCgiCout::write(\""+ getCppEscapedString(outLine)  + "\");");
+				out.append("FastCgiOutput::write(\""+ getCppEscapedString(outLine)  + "\",out);");
 			}
 			out.append('\n');
 		}
@@ -249,7 +249,7 @@ public class CppOutput {
 		
 		int i=0;
 		for(String jsSrc : inlineJs) {
-			CodeUtil.writeLine(sbSrc, CodeUtil.sp("InlineJsRenderer::"+getJsOrCssMethodName(jsSrc)+"();", i==inlineJs.size()-1 ? null : "\\"));
+			CodeUtil.writeLine(sbSrc, CodeUtil.sp("InlineJsRenderer::"+getJsOrCssMethodName(jsSrc)+"(out);", i==inlineJs.size()-1 ? null : "\\"));
 			i++;
 		}
 		CodeUtil.writeLine(sbSrc, "#endif");
@@ -260,7 +260,7 @@ public class CppOutput {
 		
 		i=0;
 		for(String cssSrc : inlineCss) {
-			CodeUtil.writeLine(sbSrc, CodeUtil.sp("InlineCssRenderer::"+getJsOrCssMethodName(cssSrc)+"();",  i==inlineCss.size()-1 ? null : "\\"));
+			CodeUtil.writeLine(sbSrc, CodeUtil.sp("InlineCssRenderer::"+getJsOrCssMethodName(cssSrc)+"(out);",  i==inlineCss.size()-1 ? null : "\\"));
 			i++;
 		}
 		
@@ -310,7 +310,7 @@ public class CppOutput {
 		
 		StringBuilder sbHeader = new StringBuilder("#ifndef INLINEJSRENDERER_H\n");
 		sbHeader.append("#define INLINEJSRENDERER_H\n")
-		.append("#include  \"fastcgicout.h\"\n\n")
+		.append("#include  \"core/fastcgioutput.h\"\n\n")
 		.append("class InlineJsRenderer {\n");
 			
 		
@@ -325,10 +325,10 @@ public class CppOutput {
 				methodNames.add(methodname);
 				
 				sbHeader.append("public: static void ")
-				.append(getJsOrCssMethodName(jsSrc)).append("();\n");
+				.append(getJsOrCssMethodName(jsSrc)).append("(FCGX_Stream * out);\n");
 				
 				sbSource.append("void InlineJsRenderer::")
-				.append(methodname).append("() {\n")
+				.append(methodname).append("(FCGX_Stream * out) {\n")
 				.append(getJsAsCpp(jsSrc))
 				.append("\n}\n");
 				;
@@ -355,8 +355,8 @@ sbHeader.append("};\n\n")
 		
 		StringBuilder sbHeader = new StringBuilder("#ifndef INLINECSSRENDERER_H\n");
 		sbHeader.append("#define INLINECSSRENDERER_H\n")
-		.append("#include  \"fastcgicout.h\"\n\n")
-		.append("class InlineCssRenderer {\n");
+		.append("#include  \"core/fastcgioutput.h\"\n\n")
+				.append("class InlineCssRenderer {\n");
 			
 		
 		
@@ -368,10 +368,10 @@ sbHeader.append("};\n\n")
 				methodNames.add(methodname);
 				
 				sbHeader.append("public: static void ")
-				.append(getJsOrCssMethodName(cssSrc)).append("();\n");
+				.append(getJsOrCssMethodName(cssSrc)).append("(FCGX_Stream * out);\n");
 				
 				sbSource.append("void InlineCssRenderer::")
-				.append(methodname).append("() {\n")
+				.append(methodname).append("(FCGX_Stream * out) {\n")
 				.append(getCssAsCpp(cssSrc))
 				.append("\n}\n");
 				;

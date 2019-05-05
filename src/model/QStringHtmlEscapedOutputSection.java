@@ -57,7 +57,7 @@ public class QStringHtmlEscapedOutputSection extends AbstractNode implements IAt
 				}
 			}
 			if(inlineIfThenIndex == -1) {
-				out.append( String.format("FastCgiCout::write(%s.toHtmlEscaped());\n",expression));
+				out.append( String.format("FastCgiOutput::write(%s.toHtmlEscaped(),out);\n",expression));
 			} else if(inlineIfElseIndex > -1){
 				String conditionExpression = expression.substring(0,inlineIfThenIndex).trim();
 				String thenExpression = expression.substring(inlineIfThenIndex+1,inlineIfElseIndex).trim();
@@ -70,7 +70,7 @@ public class QStringHtmlEscapedOutputSection extends AbstractNode implements IAt
 					elseExpression = String.format("%s(%s)",Util.getQStringLiteralConstructor(elseExpression,true), elseExpression);
 				}
 				
-				out.append( String.format("if(%s)\n{\nFastCgiCout::write(%s.toHtmlEscaped());\n}\nelse\n{\nFastCgiCout::write(%s.toHtmlEscaped());\n}\n",
+				out.append( String.format("if(%s)\n{\nFastCgiOutput::write(%s.toHtmlEscaped(),out);\n}\nelse\n{\nFastCgiOutput::write(%s.toHtmlEscaped(),out);\n}\n",
 						conditionExpression,thenExpression,elseExpression));
 			} else {
 				String conditionExpression = expression.substring(0,inlineIfThenIndex).trim();
@@ -80,7 +80,7 @@ public class QStringHtmlEscapedOutputSection extends AbstractNode implements IAt
 					thenExpression = String.format("%s(%s)", Util.getQStringLiteralConstructor(thenExpression,true), thenExpression);
 				}
 				
-				out.append( String.format("if(%s)\n{\nFastCgiCout::write(%s.toHtmlEscaped());\n}\n",
+				out.append( String.format("if(%s)\n{\nFastCgiOutput::write(%s.toHtmlEscaped(),out);\n}\n",
 						conditionExpression,thenExpression));
 			}
 				
@@ -118,7 +118,7 @@ public class QStringHtmlEscapedOutputSection extends AbstractNode implements IAt
 				}
 			}
 			if(inlineIfThenIndex == -1) {
-				out.append( String.format("FastCgiCout::write(%s.toHtmlEscaped().toHtmlEscaped());\n",expression));
+				out.append( String.format("FastCgiOutput::write(%s.toHtmlEscaped().toHtmlEscaped(),out);\n",expression));
 			} else if(inlineIfElseIndex > -1){
 				String conditionExpression = expression.substring(0,inlineIfThenIndex).trim();
 				String thenExpression = expression.substring(inlineIfThenIndex+1,inlineIfElseIndex).trim();
@@ -131,7 +131,7 @@ public class QStringHtmlEscapedOutputSection extends AbstractNode implements IAt
 					elseExpression = String.format("%s(%s)",Util.getQStringLiteralConstructor(elseExpression,true), elseExpression);
 				}
 				
-				out.append( String.format("if(%s)\n{\nFastCgiCout::write(%s.toHtmlEscaped().toHtmlEscaped());\n}\nelse\n{\nFastCgiCout::write(%s.toHtmlEscaped().toHtmlEscaped());\n}\n",
+				out.append( String.format("if(%s)\n{\nFastCgiOutput::write(%s.toHtmlEscaped().toHtmlEscaped(),out);\n}\nelse\n{\nFastCgiOutput::write(%s.toHtmlEscaped().toHtmlEscaped(),out);\n}\n",
 						conditionExpression,thenExpression,elseExpression));
 			} else {
 				String conditionExpression = expression.substring(0,inlineIfThenIndex).trim();
@@ -141,7 +141,7 @@ public class QStringHtmlEscapedOutputSection extends AbstractNode implements IAt
 					thenExpression = String.format("%s(%s)",Util.getQStringLiteralConstructor(thenExpression,true),  thenExpression);
 				}
 				
-				out.append( String.format("if(%s)\n{\nFastCgiCout::write(%s.toHtmlEscaped().toHtmlEscaped());\n}\n",
+				out.append( String.format("if(%s)\n{\nFastCgiOutput::write(%s.toHtmlEscaped().toHtmlEscaped(),out);\n}\n",
 						conditionExpression,thenExpression));
 			}
 				

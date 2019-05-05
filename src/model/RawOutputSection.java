@@ -58,7 +58,7 @@ public class RawOutputSection extends AbstractNode implements IAttrValueElement 
 			if(cfg.isRenderToQString()) {
 				out.append( String.format("%s += QString::number(%s);\n",cfg.getRenderToQStringVariableName(), expression));
 			} else {
-				out.append( String.format("FastCgiCout::write(%s);\n",expression));
+				out.append( String.format("FastCgiOutput::write(%s,out);\n",expression));
 			}
 		} else if(inlineIfElseIndex > -1){
 			String conditionExpression = expression.substring(0,inlineIfThenIndex).trim();
@@ -72,7 +72,7 @@ public class RawOutputSection extends AbstractNode implements IAttrValueElement 
 				elseExpression = String.format("%s(%s)",Util.getQStringLiteralConstructor(elseExpression,false), elseExpression);
 			}
 			
-			out.append( String.format("if(%s)\n{\nFastCgiCout::write(%s);\n}\nelse\n{\nFastCgiCout::write(%s);\n}\n",
+			out.append( String.format("if(%s)\n{\nFastCgiOutput::write(%s,out);\n}\nelse\n{\nFastCgiOutput::write(%s,out);\n}\n",
 					conditionExpression,thenExpression,elseExpression));
 		} else {
 			String conditionExpression = expression.substring(0,inlineIfThenIndex).trim();
@@ -82,7 +82,7 @@ public class RawOutputSection extends AbstractNode implements IAttrValueElement 
 				thenExpression = String.format("%s(%s)",Util.getQStringLiteralConstructor(thenExpression,false), thenExpression);
 			}
 			
-			out.append( String.format("if(%s)\n{\nFastCgiCout::write(%s);\n}\n",
+			out.append( String.format("if(%s)\n{\nFastCgiOutput::write(%s,out);\n}\n",
 					conditionExpression,thenExpression));
 			
 		}
