@@ -8,12 +8,17 @@ import io.parser.HtmlParser;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.time.Instant;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BiConsumer;
 
 import config.TemplateConfig;
 import settings.Settings;
@@ -29,6 +34,8 @@ import model.TplPreprocessorTag;
 import model.WalkTreeAction;
 
 public class CppTpl2 {
+
+	private static final String LASTCHANGE_FILENAME = "template_lastchange.dat";
 
 	private static String readUtf8(Path p) throws IOException {
 		return new String(Files.readAllBytes(p),Charset.forName("UTF-8"));
@@ -116,6 +123,34 @@ public class CppTpl2 {
 		}
 	}
 	
+	/*private static void writeLastChangesDatesFile(Path xmlDir,HashMap<String, Instant> lastChanges) throws IOException {
+		Path lastChangesFile = xmlDir.resolve(LASTCHANGE_FILENAME);
+		StringBuilder sb = new StringBuilder();
+		lastChanges.forEach(new BiConsumer<String, Instant>() {
+
+			@Override
+			public void accept(String p, Instant i) {
+				sb.append(p).append('=').append(i.toString()).append('\n');
+			}
+		});
+		Files.write(lastChangesFile, sb.toString().getBytes(StandardCharsets.UTF_8), StandardOpenOption.WRITE,StandardOpenOption.TRUNCATE_EXISTING,StandardOpenOption.CREATE);
+	}
+	
+	private static HashMap<String, Instant> readLastChangesDatesFile(Path xmlDir) throws IOException {
+		HashMap<String, Instant> lastChanges = new HashMap<>();
+		Path lastChangesFile = xmlDir.resolve(LASTCHANGE_FILENAME);
+		if(Files.exists(lastChangesFile)) {
+			List<String> lines = Files.readAllLines(lastChangesFile);
+			for(String l : lines) {
+				String[] parts = l.split("=");
+				if(parts.length==2) {
+					lastChanges.put(parts[0],Instant.parse(parts[1]));
+				}
+			}
+		}
+		return lastChanges;
+	}*/
+	
 	public static void main(String[] args) {
 		try {
 			
@@ -152,7 +187,7 @@ public class CppTpl2 {
 			
 			String xmlFilePath = null;
 			boolean debugMode = false;
-			boolean forceReloadJsCss = false; 
+			boolean nocache = false; 
 			
 			if(!args[args.length-1].endsWith(".xml")) {
 				throw new IOException("path of xml config file missing");
@@ -165,7 +200,7 @@ public class CppTpl2 {
 					break;
 				case "--force":
 				case "--nocache":
-					forceReloadJsCss = true;
+					nocache = true;
 					break;
 				default:
 					throw new IOException("invalid option " +args[i]);
@@ -177,7 +212,11 @@ public class CppTpl2 {
 			
 			if (xmlFilePath != null) {
 				Path xmlFile = Paths.get(xmlFilePath);
-				XmlCfgReader handler = new XmlCfgReader(xmlFile.getParent());
+				Path xmlDir = xmlFile.getParent();
+				XmlCfgReader handler = new XmlCfgReader(xmlDir);
+			//	HashMap<String, Instant> lastChanges = readLastChangesDatesFile(xmlDir);
+				
+				
 				DefaultXMLReader.read(xmlFile, handler);
 				
 				List<TemplateConfig> xmlConfigs = handler.getXmlConfigs();
@@ -188,9 +227,16 @@ public class CppTpl2 {
 					Path repositoryPath= basePath.resolve("repository");
 					String clsName = cfg.getClsName();
 					Path templatePath = cfg.getTmplPath();
+					//String tplFilePath = templatePath.toString();
+					//if(nocache || (!lastChanges.containsKey(tplFilePath)
+					//		|| Files.getLastModifiedTime(templatePath).toInstant().isAfter(lastChanges.get(tplFilePath)))) {
 					//Path cppFile = xmlConfig.getTplClsFile();
-					compileTemplate(cfg, basePath, repositoryPath, settings, clsName, templatePath,  TemplateConfig.getDestPath(), collectInlineJs,collectInlineCss, debugMode, forceReloadJsCss);
+					compileTemplate(cfg, basePath, repositoryPath, settings, clsName, templatePath,  TemplateConfig.getDestPath(), collectInlineJs,collectInlineCss, debugMode, nocache);
+					
+					//lastChanges.put(tplFilePath, Files.getLastModifiedTime(templatePath).toInstant());
+					//}
 				}
+//				writeLastChangesDatesFile(xmlDir,lastChanges);
 				CppOutput.writeJsCppFile(TemplateConfig.getDestPath().resolve("compiledtemplate"), collectInlineJs);
 				CppOutput.writeCssCppFile(TemplateConfig.getDestPath().resolve("compiledtemplate"), collectInlineCss);
 			}

@@ -332,8 +332,10 @@ public class HtmlParser {
 			if(arr[0].matches("[a-zA-Z-]+")) {
 				currentPos += arr[0].length();
 				return new EmptyHtmlAttr(arr[0]);
+			} else if(arr[0].matches("[a-zA-Z-]+>")) {
+				currentPos += arr[0].length()-2;
+				return new EmptyHtmlAttr(arr[0].substring(0, arr[0].length()-1));
 			}
-			
 			throw new IOException(String.format("syntax error. Attr name [%s] must match [a-zA-Z-]+", attrName));
 		}
 		Pair<Integer, Character> pQuot = ParseUtil.firstIndexOf(html, '\"', '\'', indexEq);
