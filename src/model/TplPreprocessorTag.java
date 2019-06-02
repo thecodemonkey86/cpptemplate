@@ -16,16 +16,20 @@ public class TplPreprocessorTag {
 	public static final String CPP_CSS = "<cpp:css";
 	public static final String CPP_TPl_INCLUDE_END_TAG = "</cpp:include";
 	public static final String CPP_TPl_INCLUDE_START_TAG = "<cpp:include";
+	public static final String CPP_TPl_INCLUDE_HEADER = "<cpp:header";
 	
 	protected String includeLayoutTemplatePath;
 	protected List<String> includeJs;
 	protected List<String> includeCss;
+	protected List<String> includeHeaders;
 	
 	public TplPreprocessorTag(String code, boolean cPreprocessorStyle) throws IOException {
 		this.includeJs = new ArrayList<>();
 		this.includeCss = new ArrayList<>();
+		this.includeHeaders = new ArrayList<>();
 		if(cPreprocessorStyle) {
-			parse(code);
+			//parse(code);
+			throw new RuntimeException("support for this syntax has been removed");
 		} else {
 			parse2(code);
 		}
@@ -76,11 +80,24 @@ public class TplPreprocessorTag {
 				} else {
 					throw new IOException("syntax error");
 				}
+			} else if (l0.startsWith(CPP_TPl_INCLUDE_HEADER)) {
+				int quotStart=l0.indexOf("file=\"",CPP_TPl_INCLUDE_HEADER.length());
+				int quotEnd=l0.indexOf('"',quotStart+6);
+				
+				if (quotStart > CPP_TPl_INCLUDE_HEADER.length() && quotEnd > quotStart) {
+					String h = l0.substring(quotStart+6,quotEnd);
+					if(h.isEmpty()) {
+						throw new IOException("header file path is empty");
+					}
+					includeHeaders.add( h );
+				} else {
+					throw new IOException("syntax error");
+				}
 			} 
 		}
 	}
 
-	private void parse(String code) throws IOException {
+	/*private void parse(String code) throws IOException {
 		String[] lines = code.split("\\r?\\n");
 		
 		for(String l:lines) {
@@ -115,7 +132,7 @@ public class TplPreprocessorTag {
 				}
 			}
 		}
-	}
+	}*/
 
 	public String getIncludeLayoutTemplatePath() {
 		return includeLayoutTemplatePath;
@@ -129,5 +146,8 @@ public class TplPreprocessorTag {
 		return includeJs;
 	}
 	
+	public List<String> getIncludeHeaders() {
+		return includeHeaders;
+	}
 
 }

@@ -31,7 +31,7 @@ public class QStringHtmlEscapedOutputSection extends AbstractNode implements IAt
 	@Override
 	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg) {
 		CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer,cfg);
-		if(cfg.isRenderToQString()) {
+		if(cfg.isRenderToString()) {
 			out.append( String.format("%s += %s.toHtmlEscaped();\n",cfg.getRenderToQStringVariableName(), expression.startsWith("\"") ? String.format("%s(%s)",Util.getQStringLiteralConstructor(expression,true), expression) : expression));
 		} else {
 			int inlineIfThenIndex = -1;
@@ -92,7 +92,7 @@ public class QStringHtmlEscapedOutputSection extends AbstractNode implements IAt
 	@Override
 	public void toCppDoubleEscaped(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg) {
 		CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer,cfg);
-		if(cfg.isRenderToQString()) {
+		if(cfg.isRenderToString()) {
 			out.append( String.format("%s += %s.toHtmlEscaped().toHtmlEscaped();\n",cfg.getRenderToQStringVariableName(), expression.startsWith("\"") ? String.format("%s(%s)",Util.getQStringLiteralConstructor(expression,true), expression) : expression));
 		} else {
 			int inlineIfThenIndex = -1;

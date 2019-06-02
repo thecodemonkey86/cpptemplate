@@ -71,7 +71,7 @@ public class CppOutput {
 				while(outLine.substring(i,i+lineWidth+offset).endsWith("\\")) {
 					offset++;
 				}
-				if(cfg !=null && cfg.isRenderToQString()) {
+				if(cfg !=null && cfg.isRenderToString()) {
 					out.append(String.format("%s += \"%s\";",cfg.getRenderToQStringVariableName(), getCppEscapedString(outLine.substring(i,i+lineWidth+offset))));
 				} else {
 					out.append("FastCgiOutput::write(\""+ getCppEscapedString(outLine.substring(i,i+lineWidth+offset))  + "\",out);");
@@ -84,7 +84,7 @@ public class CppOutput {
 			String lastChunk = outLine.substring(i);
 			if (!lastChunk.isEmpty()) {
 			
-				if(cfg !=null && cfg.isRenderToQString()) {
+				if(cfg !=null && cfg.isRenderToString()) {
 					out.append(String.format("%s += \"%s\";",cfg.getRenderToQStringVariableName(), getCppEscapedString(lastChunk)));
 				} else {
 					out.append("FastCgiOutput::write(\""+ getCppEscapedString(lastChunk)  + "\",out);");	
@@ -93,7 +93,7 @@ public class CppOutput {
 				out.append('\n');
 			}
 		} else if (!outLine.isEmpty()){
-			if(cfg !=null && cfg.isRenderToQString()) {
+			if(cfg !=null && cfg.isRenderToString()) {
 				out.append(String.format("%s += \"%s\";", cfg.getRenderToQStringVariableName(),getCppEscapedString(outLine)));
 			} else {
 				out.append("FastCgiOutput::write(\""+ getCppEscapedString(outLine)  + "\",out);");
@@ -203,11 +203,77 @@ public class CppOutput {
 	}
 	
 	public static void writeCompiledTemplateFile2(ParserResult layoutResult,ParserResult result, Path directory, String clsName, TemplateConfig cfg) throws IOException, CancelException {
+		if (!Files.exists(directory))
+			Files.createDirectories(directory);
 		
+		String compiledTplClassName = clsName +"CompiledTemplate";
+		
+		LinkedHashSet<String> inlineCss = result.getAllCssIncludes();
+		LinkedHashSet<String> inlineJs = result.getAllJsIncludes();
+		LinkedHashSet<String> inlineHeaderFiles = result.getAllHeaderIncludes();
+		
+		StringBuilder sbSrc = new StringBuilder();
+
+		String includeGuard = compiledTplClassName.toUpperCase()+"_H";
+		
+		CodeUtil.writeLine(sbSrc,CodeUtil.sp("#ifndef",includeGuard));
+		CodeUtil.writeLine(sbSrc, CodeUtil.sp("#define",includeGuard));
+		CodeUtil.writeLine(sbSrc, "#include <memory>");
+		CodeUtil.writeLine(sbSrc, "#include \"core/fastcgioutput.h\"");
+		CodeUtil.writeLine(sbSrc, "#include \"core/page/pagemanager.h\"");
+		CodeUtil.writeLine(sbSrc, "#include \"view/compiledtemplate/inlinejsrenderer.h\"");
+		CodeUtil.writeLine(sbSrc, "#include \"view/compiledtemplate/inlinecssrenderer.h\"");
+		
+		for(String includeHeader : inlineHeaderFiles) {
+			CodeUtil.writeLine(sbSrc, "#include \""+includeHeader+"\"");
+		}
+		
+		CodeUtil.writeLine(sbSrc, "using namespace std;");
+		CodeUtil.writeLine(sbSrc, "class "+compiledTplClassName+"{");
+		
+		CodeUtil.writeLine(sbSrc, String.format("public: template<class T> inline static %s renderBody(std::unique_ptr<T> data%s){",cfg.isRenderToString() ? "QString" : "void",cfg.isRenderToString()?"":",FCGX_Stream * out"));
+		if(cfg.isRenderToString()) {
+			CodeUtil.writeLine(sbSrc, String.format("QString %s;",cfg.getRenderToQStringVariableName()));
+		}
+		StringBuilder out = new StringBuilder();
+		StringBuilder directTextOutputBuffer = new StringBuilder();
+		layoutResult.getSimpleTemplate().toCpp(out,directTextOutputBuffer,cfg);
+		
+		CodeUtil.writeLine(sbSrc, out.toString());
+		if(cfg.isRenderToString()) {
+			CodeUtil.writeLine(sbSrc, String.format("return %s;",cfg.getRenderToQStringVariableName()));
+		}
+		CodeUtil.writeLine(sbSrc, "}");
+		
+		
+		CodeUtil.writeLine(sbSrc, "public: inline static void renderInlineJs(FCGX_Stream * out){");
+		
+		
+		int i=0;
+		for(String jsSrc : inlineJs) {
+			CodeUtil.writeLine(sbSrc, CodeUtil.sp("InlineJsRenderer::"+getJsOrCssMethodName(jsSrc)+"(out);", i==inlineJs.size()-1 ? null : "\\"));
+			i++;
+		}
+		CodeUtil.writeLine(sbSrc, "}");
+		
+		CodeUtil.writeLine(sbSrc, "public: inline static void renderInlineCss(FCGX_Stream * out){");
+		
+		
+		i=0;
+		for(String cssSrc : inlineCss) {
+			CodeUtil.writeLine(sbSrc, CodeUtil.sp("InlineCssRenderer::"+getJsOrCssMethodName(cssSrc)+"(out);",  i==inlineCss.size()-1 ? null : "\\"));
+			i++;
+		}
+		
+		CodeUtil.writeLine(sbSrc, "}");
+		CodeUtil.writeLine(sbSrc, "};");
+		CodeUtil.writeLine(sbSrc, "#endif");
+		System.out.println(clsName.toLowerCase()+ "compiledtemplate.h");
+		Files.write(directory.resolve(clsName.toLowerCase()+ "compiledtemplate.h"), sbSrc.toString().getBytes(UTF8), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
 	}
 	
-	@Deprecated
-	public static void writeCompiledTemplateFile(ParserResult layoutResult,ParserResult result, Path directory, String clsName, TemplateConfig cfg) throws IOException, CancelException {
+	
+	/*public static void writeCompiledTemplateFile(ParserResult layoutResult,ParserResult result, Path directory, String clsName, TemplateConfig cfg) throws IOException, CancelException {
 		if (!Files.exists(directory))
 			Files.createDirectories(directory);
 		
@@ -269,7 +335,7 @@ public class CppOutput {
 		Files.write(directory.resolve(clsName.toLowerCase()+ "compiledtemplate.h"), sbSrc.toString().getBytes(UTF8), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
 		//Files.write(directory.resolve(clsName.toLowerCase()+ "compiledtemplate.cpp"), sbSrc.toString().getBytes(UTF8), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
 		
-	}
+	}*/
 	
 	/*protected static String insertJs(String cppCode, String clsName, Set<String> inlineJs) throws IOException, CancelException {
 		

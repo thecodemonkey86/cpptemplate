@@ -7,8 +7,8 @@ public class TemplateConfig {
 	//private Path tplClsFile
 	private Path tmplPath;
 	private static Path srcPath, destPath;
-	private boolean renderToQString;
-	private String renderToQStringVariableName;
+	private boolean renderToString;
+//	private String renderToQStringVariableName;
 	private String subDir;
 	
 	public void setSubDir(String subDir) {
@@ -59,20 +59,34 @@ public class TemplateConfig {
 		TemplateConfig.destPath = destPath;
 	}
 	
-	public void setRenderToQString(boolean renderToQString) {
+	/*public void setRenderToQString(boolean renderToQString) {
 		this.renderToQString = renderToQString;
 	}
 	
 	public boolean isRenderToQString() {
 		return renderToQString;
-	}
+	}*/
 
 	public String getRenderToQStringVariableName() {
-		return renderToQStringVariableName;
+		return "_html";
 	}
 	
-	public void setRenderToQStringVariableName(String renderToQStringVariableName) {
+	/*public void setRenderToQStringVariableName(String renderToQStringVariableName) {
 		this.renderToQStringVariableName = renderToQStringVariableName;
+	}*/
+	
+	public boolean isRenderToString() {
+		return renderToString;
+	}
+	
+	public void setRenderToString(boolean renderToString) {
+		this.renderToString = renderToString;
+	}
+	
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return clsName;
 	}
 	
 	

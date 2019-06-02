@@ -128,9 +128,10 @@ public class XmlCfgReader implements ContentHandler {
 			}
 			currentCfg.setTmplPath(tplPath.resolve(tplName+".html"));
 			
-			if(atts.getValue("renderToVariable") != null ) {
-				currentCfg.setRenderToQString(true);
-				currentCfg.setRenderToQStringVariableName(atts.getValue("renderToVariable"));
+			String renderToString = atts.getValue("renderToString");
+			if(renderToString != null ) {
+				currentCfg.setRenderToString(renderToString.equals("true") || renderToString.equals("1"));
+//				currentCfg.setRenderToQStringVariableName(atts.getValue("renderToVariable"));
 			}
 		default:
 			break;

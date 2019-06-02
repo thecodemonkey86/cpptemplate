@@ -167,6 +167,21 @@ public class ParserResult {
 		}
 		return includeJs;
 	}
+	
+	public LinkedHashSet<String> getAllHeaderIncludes() {
+		LinkedHashSet<String> includeHeaderFiles = null;
+		if(parentParserResult == null) {
+			includeHeaderFiles = new LinkedHashSet<>();
+		} else {
+			includeHeaderFiles = parentParserResult.getAllHeaderIncludes();
+		}
+		for(TplPreprocessorTag t : preprocessorTags) {
+			for(String js : t.getIncludeHeaders()) {
+				includeHeaderFiles.add(js.replace('\\', '/'));
+			}
+		}
+		return includeHeaderFiles;
+	}
 
 /*	public void addSectionTag(CppSectionTag section) {
 		if(	this.sectionTags==null)

@@ -8,18 +8,12 @@ import io.parser.HtmlParser;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.time.Instant;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.BiConsumer;
-
 import config.TemplateConfig;
 import settings.Settings;
 import util.Util;
@@ -35,7 +29,7 @@ import model.WalkTreeAction;
 
 public class CppTpl2 {
 
-	private static final String LASTCHANGE_FILENAME = "template_lastchange.dat";
+//	private static final String LASTCHANGE_FILENAME = "template_lastchange.dat";
 
 	private static String readUtf8(Path p) throws IOException {
 		return new String(Files.readAllBytes(p),Charset.forName("UTF-8"));
@@ -98,7 +92,7 @@ public class CppTpl2 {
 				collectInlineCss.addAll(result.getAllCssIncludes());
 			//	CppOutput.insertCode(clsName, cppFile, layoutResult, result.getAllCssIncludes(), allJsIncludes);
 				
-				CppOutput.writeCompiledTemplateFile(layoutResult,result,compiledTemplateDir , clsName, cfg);
+				CppOutput.writeCompiledTemplateFile2(layoutResult,result,compiledTemplateDir , clsName, cfg);
 			}
 			
 		} else {
@@ -118,7 +112,9 @@ public class CppTpl2 {
 				collectInlineJs.addAll(result.getAllJsIncludes());
 				collectInlineCss.addAll(result.getAllCssIncludes());
 				//CppOutput.insertCode(clsName, cppFile, result, result.getAllCssIncludes(), result.getAllJsIncludes());
-				CppOutput.writeCompiledTemplateFile(result,result, compiledTemplateDir, clsName, cfg);
+				CppOutput.writeCompiledTemplateFile2(result,result, compiledTemplateDir, clsName, cfg);
+			} else {
+				throw new IOException();
 			}
 		}
 	}
