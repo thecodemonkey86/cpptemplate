@@ -31,7 +31,7 @@ import model.RenderSubtemplateAttrValue;
 import model.Template;
 import model.TextAttrValueElement;
 import model.TextNode;
-import model.TplPreprocessorTag;
+import model.CppIncludeTag;
 
 public class HtmlParser {
 
@@ -165,7 +165,7 @@ public class HtmlParser {
 					result.addNode(parseCodeTag());
 					startIndex = currentPos+HtmlParser.CPP_CODE_END_TAG.length(); 
 				}
-			} else if(currSubstrEquals(TplPreprocessorTag.CPP_TPl_INCLUDE_START_TAG)) {
+			} else if(currSubstrEquals(CppIncludeTag.CPP_TPl_INCLUDE_START_TAG)) {
 				result.addPreprocessorTag(parseCppIncludeTag());
 				startIndex = currentPos; 
 				
@@ -262,16 +262,16 @@ public class HtmlParser {
 			val.addElement(new TextAttrValueElement(text));
 	}
 	
-	protected TplPreprocessorTag parseCppIncludeTag() throws IOException {
-		next(TplPreprocessorTag.CPP_TPl_INCLUDE_END_TAG.length() + 1);
+	protected CppIncludeTag parseCppIncludeTag() throws IOException {
+		next(CppIncludeTag.CPP_TPl_INCLUDE_END_TAG.length() + 1);
 		int startIndex = currentPos;
 		
 		boolean quot = false;
 		boolean escape = false;
 		while(!atEnd()) {
-			if (!quot && currSubstrEquals(TplPreprocessorTag.CPP_TPl_INCLUDE_END_TAG)) {
-				TplPreprocessorTag tag = new TplPreprocessorTag(html.substring(startIndex,currentPos),false);
-				next(TplPreprocessorTag.CPP_TPl_INCLUDE_END_TAG.length());
+			if (!quot && currSubstrEquals(CppIncludeTag.CPP_TPl_INCLUDE_END_TAG)) {
+				CppIncludeTag tag = new CppIncludeTag(html.substring(startIndex,currentPos),false);
+				next(CppIncludeTag.CPP_TPl_INCLUDE_END_TAG.length());
 				while(!atEnd()&&currChar()!='>') {
 					next();
 				}
@@ -289,7 +289,7 @@ public class HtmlParser {
 			}
 			next();
 		}
-		TplPreprocessorTag tag = new TplPreprocessorTag(html.substring(startIndex),false);
+		CppIncludeTag tag = new CppIncludeTag(html.substring(startIndex),false);
 		if(tag.getIncludeLayoutTemplatePath()!=null) {
 			result.setHasLayoutTemplate();
 		}
@@ -656,7 +656,7 @@ public class HtmlParser {
 		} 
 	}
 	
-	protected TplPreprocessorTag parseCppPreprocessorCodeSection() throws IOException {
+	protected CppIncludeTag parseCppPreprocessorCodeSection() throws IOException {
 		next(HtmlParser.CPP_CODE_TAG.length() + 1);
 		int startIndex = currentPos;
 		
@@ -664,7 +664,7 @@ public class HtmlParser {
 		boolean escape = false;
 		while(!atEnd()) {
 			if (!quot && currSubstrEquals(HtmlParser.CPP_CODE_END_TAG)) {
-				TplPreprocessorTag tag = new TplPreprocessorTag(html.substring(startIndex,currentPos),true);
+				CppIncludeTag tag = new CppIncludeTag(html.substring(startIndex,currentPos),true);
 				if(tag.getIncludeLayoutTemplatePath()!=null) {
 					result.setHasLayoutTemplate();
 				}
@@ -679,7 +679,7 @@ public class HtmlParser {
 			}
 			next();
 		}
-		TplPreprocessorTag tag = new TplPreprocessorTag(html.substring(startIndex),true);
+		CppIncludeTag tag = new CppIncludeTag(html.substring(startIndex),true);
 		if(tag.getIncludeLayoutTemplatePath()!=null) {
 			result.setHasLayoutTemplate();
 		}

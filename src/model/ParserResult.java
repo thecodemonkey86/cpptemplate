@@ -10,7 +10,7 @@ import io.CppOutput;
 
 public class ParserResult {
 
-	protected List<TplPreprocessorTag> preprocessorTags;
+	protected List<CppIncludeTag> preprocessorTags;
 	protected List<CppSectionTag> templateRegionTags; // if layout template referencing multiple template regions
 	protected Template simpleTemplate;  // if simple template
 //	protected List<CppSectionTag> sectionTags;
@@ -22,11 +22,11 @@ public class ParserResult {
 		templateRegionTags = null;
 	}
 	
-	public void addPreprocessorTag(TplPreprocessorTag ppTag) {
+	public void addPreprocessorTag(CppIncludeTag ppTag) {
 		this.preprocessorTags.add(ppTag);
 	}
 	
-	public List<TplPreprocessorTag> getPreprocessorTags() {
+	public List<CppIncludeTag> getPreprocessorTags() {
 		return preprocessorTags;
 	}
 	
@@ -145,7 +145,7 @@ public class ParserResult {
 		} else {
 			includeCss = parentParserResult.getAllCssIncludes();
 		}
-		for(TplPreprocessorTag t : preprocessorTags) {
+		for(CppIncludeTag t : preprocessorTags) {
 			for(String css : t.getIncludeCss()) {
 				includeCss.add(css.replace('\\', '/'));
 			}
@@ -153,19 +153,49 @@ public class ParserResult {
 		return includeCss;
 	}
 	
-	public LinkedHashSet<String> getAllJsIncludes() {
+	public LinkedHashSet<String> getAllJsInlineIncludes() {
 		LinkedHashSet<String> includeJs = null;
 		if(parentParserResult == null) {
 			includeJs = new LinkedHashSet<>();
 		} else {
-			includeJs = parentParserResult.getAllJsIncludes();
+			includeJs = parentParserResult.getAllJsInlineIncludes();
 		}
-		for(TplPreprocessorTag t : preprocessorTags) {
-			for(String js : t.getIncludeJs()) {
+		for(CppIncludeTag t : preprocessorTags) {
+			for(String js : t.getIncludeInlineJs()) {
 				includeJs.add(js.replace('\\', '/'));
 			}
 		}
 		return includeJs;
+	}
+	
+	public LinkedHashSet<String> getAllJsLinkIncludes() {
+		LinkedHashSet<String> includeJs = null;
+		if(parentParserResult == null) {
+			includeJs = new LinkedHashSet<>();
+		} else {
+			includeJs = parentParserResult.getAllJsLinkIncludes();
+		}
+		for(CppIncludeTag t : preprocessorTags) {
+			for(String js : t.getIncludeJsLinks()) {
+				includeJs.add(js.replace('\\', '/'));
+			}
+		}
+		return includeJs;
+	}
+	
+	public LinkedHashSet<String> getAllCssLinkIncludes() {
+		LinkedHashSet<String> includeCss = null;
+		if(parentParserResult == null) {
+			includeCss = new LinkedHashSet<>();
+		} else {
+			includeCss = parentParserResult.getAllCssLinkIncludes();
+		}
+		for(CppIncludeTag t : preprocessorTags) {
+			for(String js : t.getIncludeCssLinks()) {
+				includeCss.add(js.replace('\\', '/'));
+			}
+		}
+		return includeCss;
 	}
 	
 	public LinkedHashSet<String> getAllHeaderIncludes() {
@@ -175,7 +205,7 @@ public class ParserResult {
 		} else {
 			includeHeaderFiles = parentParserResult.getAllHeaderIncludes();
 		}
-		for(TplPreprocessorTag t : preprocessorTags) {
+		for(CppIncludeTag t : preprocessorTags) {
 			for(String js : t.getIncludeHeaders()) {
 				includeHeaderFiles.add(js.replace('\\', '/'));
 			}

@@ -4,12 +4,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TplPreprocessorTag {
+public class CppIncludeTag {
 
 	
-	static final String PP_TEMPLATE = "#includetemplate";
-	static final String PP_JAVASCRIPT = "#includejs";
-	static final String PP_CSS = "#includecss";
+//	static final String PP_TEMPLATE = "#includetemplate";
+//	static final String PP_JAVASCRIPT = "#includejs";
+//	static final String PP_CSS = "#includecss";
 	
 	public static final String CPP_TEMPLATE = "<cpp:baseTemplate";
 	public static final String CPP_JAVASCRIPT = "<cpp:js";
@@ -20,12 +20,16 @@ public class TplPreprocessorTag {
 	
 	protected String includeLayoutTemplatePath;
 	protected List<String> includeJs;
+	protected List<String> includeJsLinks;
 	protected List<String> includeCss;
+	protected List<String> includeCssLinks;
 	protected List<String> includeHeaders;
 	
-	public TplPreprocessorTag(String code, boolean cPreprocessorStyle) throws IOException {
+	public CppIncludeTag(String code, boolean cPreprocessorStyle) throws IOException {
 		this.includeJs = new ArrayList<>();
+		this.includeJsLinks = new ArrayList<>();
 		this.includeCss = new ArrayList<>();
+		this.includeCssLinks = new ArrayList<>();
 		this.includeHeaders = new ArrayList<>();
 		if(cPreprocessorStyle) {
 			//parse(code);
@@ -63,20 +67,45 @@ public class TplPreprocessorTag {
 				}
 				
 			} else if (l0.startsWith(CPP_JAVASCRIPT)) {
-				int quotStart=l0.indexOf("src=\"",CPP_JAVASCRIPT.length());
-				int quotEnd=l0.indexOf('"',quotStart+5);
+				int quotStart=l0.indexOf("includeType=\"",CPP_JAVASCRIPT.length());
+				int quotEnd=l0.indexOf('"',quotStart+13);
+				boolean inlineJs = true;
+				if(quotStart > -1) {
+					String includeType = l0.substring(quotStart+13,quotEnd);
+					inlineJs = includeType.equals("inline");
+				}
+				
+				quotStart=l0.indexOf("src=\"",CPP_JAVASCRIPT.length());
+				quotEnd=l0.indexOf('"',quotStart+5);
 				
 				if (quotStart > CPP_JAVASCRIPT.length() && quotEnd > quotStart) {
-					includeJs.add( l0.substring(quotStart+5,quotEnd) );
+					if(inlineJs) {
+						includeJs.add( l0.substring(quotStart+5,quotEnd) );
+					} else {
+						includeJsLinks.add( l0.substring(quotStart+5,quotEnd) );
+					}
+					
 				} else {
 					throw new IOException("syntax error");
 				}
 			} else if (l0.startsWith(CPP_CSS)) {
-				int quotStart=l0.indexOf("src=\"",CPP_CSS.length());
-				int quotEnd=l0.indexOf('"',quotStart+5);
+				int quotStart=l0.indexOf("includeType=\"",CPP_JAVASCRIPT.length());
+				int quotEnd=l0.indexOf('"',quotStart+13);
+				boolean inlineCss = true;
+				if(quotStart > -1) {
+					String includeType = l0.substring(quotStart+13,quotEnd);
+					inlineCss = includeType.equals("inline");
+				}
+				
+				quotStart=l0.indexOf("src=\"",CPP_CSS.length());
+				quotEnd=l0.indexOf('"',quotStart+5);
 				
 				if (quotStart > CPP_CSS.length() && quotEnd > quotStart) {
-					includeCss.add( l0.substring(quotStart+5,quotEnd) );
+					if(inlineCss) {
+						includeCss.add( l0.substring(quotStart+5,quotEnd) );
+					} else {
+						includeCssLinks.add( l0.substring(quotStart+5,quotEnd) );
+					}
 				} else {
 					throw new IOException("syntax error");
 				}
@@ -142,8 +171,16 @@ public class TplPreprocessorTag {
 		return includeCss;
 	}
 	
-	public List<String> getIncludeJs() {
+	public List<String> getIncludeInlineJs() {
 		return includeJs;
+	}
+	
+	public List<String> getIncludeJsLinks() {
+		return includeJsLinks;
+	}
+	
+	public List<String> getIncludeCssLinks() {
+		return includeCssLinks;
 	}
 	
 	public List<String> getIncludeHeaders() {

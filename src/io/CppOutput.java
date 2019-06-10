@@ -203,13 +203,14 @@ public class CppOutput {
 	}
 	
 	public static void writeCompiledTemplateFile2(ParserResult layoutResult,ParserResult result, Path directory, String clsName, TemplateConfig cfg) throws IOException, CancelException {
-		if (!Files.exists(directory))
-			Files.createDirectories(directory);
+		
 		
 		String compiledTplClassName = clsName +"CompiledTemplate";
 		
 		LinkedHashSet<String> inlineCss = result.getAllCssIncludes();
-		LinkedHashSet<String> inlineJs = result.getAllJsIncludes();
+		LinkedHashSet<String> cssLinks = result.getAllCssLinkIncludes();
+		LinkedHashSet<String> inlineJs = result.getAllJsInlineIncludes();
+		LinkedHashSet<String> jsLinks = result.getAllJsLinkIncludes();
 		LinkedHashSet<String> inlineHeaderFiles = result.getAllHeaderIncludes();
 		
 		StringBuilder sbSrc = new StringBuilder();
@@ -223,6 +224,7 @@ public class CppOutput {
 		CodeUtil.writeLine(sbSrc, "#include \"core/page/pagemanager.h\"");
 		CodeUtil.writeLine(sbSrc, "#include \"view/compiledtemplate/inlinejsrenderer.h\"");
 		CodeUtil.writeLine(sbSrc, "#include \"view/compiledtemplate/inlinecssrenderer.h\"");
+		CodeUtil.writeLine(sbSrc, "#include \"mvc/view/html/htmltemplate.h\"");
 		
 		for(String includeHeader : inlineHeaderFiles) {
 			CodeUtil.writeLine(sbSrc, "#include \""+includeHeader+"\"");
@@ -244,28 +246,45 @@ public class CppOutput {
 			CodeUtil.writeLine(sbSrc, String.format("return %s;",cfg.getRenderToQStringVariableName()));
 		}
 		CodeUtil.writeLine(sbSrc, "}");
-		
-		
-		CodeUtil.writeLine(sbSrc, "public: inline static void renderInlineJs(FCGX_Stream * out){");
-		
-		
-		int i=0;
-		for(String jsSrc : inlineJs) {
-			CodeUtil.writeLine(sbSrc, CodeUtil.sp("InlineJsRenderer::"+getJsOrCssMethodName(jsSrc)+"(out);", i==inlineJs.size()-1 ? null : "\\"));
-			i++;
-		}
-		CodeUtil.writeLine(sbSrc, "}");
-		
-		CodeUtil.writeLine(sbSrc, "public: inline static void renderInlineCss(FCGX_Stream * out){");
-		
-		
-		i=0;
-		for(String cssSrc : inlineCss) {
-			CodeUtil.writeLine(sbSrc, CodeUtil.sp("InlineCssRenderer::"+getJsOrCssMethodName(cssSrc)+"(out);",  i==inlineCss.size()-1 ? null : "\\"));
-			i++;
+		if(!jsLinks.isEmpty()) {
+			CodeUtil.writeLine(sbSrc, "public: inline static void addExternalJs(HtmlTemplate * htmlTemplate){");
+			for(String jsLink : jsLinks) {
+				CodeUtil.writeLine(sbSrc, "htmlTemplate->addJsFile"+CodeUtil.parentheses(CodeUtil.quote(jsLink))+";");
+			}
+			CodeUtil.writeLine(sbSrc, "}");
 		}
 		
-		CodeUtil.writeLine(sbSrc, "}");
+		
+		if(!inlineJs.isEmpty()) {
+			CodeUtil.writeLine(sbSrc, "public: inline static void renderInlineJs(FCGX_Stream * out){");
+			
+			
+			int i=0;
+			for(String jsSrc : inlineJs) {
+				CodeUtil.writeLine(sbSrc, CodeUtil.sp("InlineJsRenderer::"+getJsOrCssMethodName(jsSrc)+"(out);", i==inlineJs.size()-1 ? null : "\\"));
+				i++;
+			}
+			CodeUtil.writeLine(sbSrc, "}");
+		}
+		
+		if(!cssLinks.isEmpty()) {
+			CodeUtil.writeLine(sbSrc, "public: inline static void addExternalCss(HtmlTemplate * htmlTemplate){");
+			for(String cssLink : cssLinks) {
+				CodeUtil.writeLine(sbSrc, "htmlTemplate->addCssFile"+CodeUtil.parentheses(CodeUtil.quote(cssLink))+";");
+			}
+			CodeUtil.writeLine(sbSrc, "}");
+		}
+		
+		if(!inlineCss.isEmpty()) {
+			CodeUtil.writeLine(sbSrc, "public: inline static void renderInlineCss(FCGX_Stream * out){");
+			int i=0;
+			for(String cssSrc : inlineCss) {
+				CodeUtil.writeLine(sbSrc, CodeUtil.sp("InlineCssRenderer::"+getJsOrCssMethodName(cssSrc)+"(out);",  i==inlineCss.size()-1 ? null : "\\"));
+				i++;
+			}
+			
+			CodeUtil.writeLine(sbSrc, "}");
+		}
 		CodeUtil.writeLine(sbSrc, "};");
 		CodeUtil.writeLine(sbSrc, "#endif");
 		System.out.println(clsName.toLowerCase()+ "compiledtemplate.h");
@@ -369,10 +388,9 @@ public class CppOutput {
 		return templateClass;
 	}
 	*/
+	
 	public static void writeJsCppFile(Path directory, Set<String> inlineJs) throws IOException, CancelException {
 	
-		if (!Files.exists(directory))
-			Files.createDirectories(directory);
 		
 		StringBuilder sbHeader = new StringBuilder("#ifndef INLINEJSRENDERER_H\n");
 		sbHeader.append("#define INLINEJSRENDERER_H\n")
@@ -398,9 +416,7 @@ public class CppOutput {
 				.append(getJsAsCpp(jsSrc))
 				.append("\n}\n");
 				;
-			//} else {
-			//	System.out.println(inlineJs);
-			//	throw new IOException("duplicate method " +methodname+" (" + jsSrc+")");
+			
 			}
 		}
 sbHeader.append("};\n\n")
@@ -455,184 +471,4 @@ sbHeader.append("};\n\n")
 		Files.write(directory.resolve("inlinecssrenderer.cpp"), sbSource.toString().getBytes(UTF8), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
 		
 	}
-	
-//	public static final String BEGIN_COMPILED_TEMPLATE_INLINE_CSS = "/*BEGIN_COMPILED_TEMPLATE_INLINE_CSS*/";
-//	public static final String END_COMPILED_TEMPLATE_INLINE_CSS = "/*END_COMPILED_TEMPLATE_INLINE_CSS*/";
-//	public static final String BEGIN_COMPILED_TEMPLATE_INLINE_JS = "/*BEGIN_COMPILED_TEMPLATE_INLINE_JS*/";
-//	public static final String END_COMPILED_TEMPLATE_INLINE_JS = "/*END_COMPILED_TEMPLATE_INLINE_JS*/";
-//	public static final String BEGIN_COMPILED_TEMPLATE = "/*BEGIN_COMPILED_TEMPLATE*/";
-//	public static final String END_COMPILED_TEMPLATE = "/*END_COMPILED_TEMPLATE*/";
-//	public static final Charset UTF8 = Charset.forName("UTF-8");
-//	protected static Settings settings;
-//	
-//	public static void setSettings(Settings settings) {
-//		CppOutput.settings = settings;
-//	}
-//	
-//	protected static String getJsMethodName(String jsInclude) throws IOException {
-//		int start = 0;
-//		
-//		if (jsInclude.startsWith("https://")) {
-//			start = "https://".length();
-//		} else if  (jsInclude.startsWith("http://")) {
-//			start = "http://".length();
-//		}
-//		
-//		StringBuilder sb = new StringBuilder();
-//		for(int i = start; i < jsInclude.length(); i++) {
-//			if (jsInclude.charAt(i) >= 'a' && jsInclude.charAt(i) <= 'z' ||
-//					jsInclude.charAt(i) >= 'A' && jsInclude.charAt(i) <= 'Z' ||
-//					jsInclude.charAt(i) >= '0' && jsInclude.charAt(i) <= '9'
-//					) {
-//				sb.append(jsInclude.charAt(i));
-//			} else if (jsInclude.charAt(i) == '.') {
-//				sb.append("dot");
-//			}
-//		}
-//		if (sb.length() <= 256)
-//			return sb.toString();
-//		else {
-//			try {
-//				MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
-//				return "js"+ DatatypeConverter.printHexBinary( sha256.digest(sb.toString().getBytes()));
-//			} catch (Exception e) {
-//				throw new IOException(e);
-//			}
-//			
-//		}
-//	}
-//	
-//	
-//	
-//	protected static String insertCss(String cppCode, String clsName, Set<String> inlineCss) throws IOException, CancelException {
-//		StringBuilder sbInlineCss = new StringBuilder();
-//		for(String cssSrc : inlineCss) {
-//			String css = CssJsProcessor.getInlineCss(cssSrc);
-//			CppOutput.addOutChunks(sbInlineCss,"\n"+ css, settings.getLineWidth());
-//			sbInlineCss.append('\n');
-//		}
-//		String templateClass = cppCode;
-//		int markerRenderInlineCssBeginIndex = templateClass.indexOf(BEGIN_COMPILED_TEMPLATE_INLINE_CSS)+BEGIN_COMPILED_TEMPLATE_INLINE_CSS.length();
-//		int markerRenderInlineCssEndIndex = templateClass.indexOf(END_COMPILED_TEMPLATE_INLINE_CSS);
-//		
-//		
-//		if (markerRenderInlineCssBeginIndex > -1 && markerRenderInlineCssEndIndex > -1) {
-//			templateClass = templateClass.substring(0,markerRenderInlineCssBeginIndex)+"\nvoid "+clsName+"::renderInlineCss() const {\n" + sbInlineCss.toString() +"\n}\n"+ templateClass.substring(markerRenderInlineCssEndIndex);
-//			
-//		}
-//		return templateClass;
-//	}
-//	
-//	protected static String insertTemplate(String cppCode, String clsName, ParserResult layoutParserResult) {
-//		StringBuilder out = new StringBuilder();
-//		StringBuilder directTextOutputBuffer = new StringBuilder();
-//		layoutParserResult.toCpp(out,directTextOutputBuffer,cfg);
-//		String templateClass = cppCode;
-//		int markerRenderInlineCssBeginIndex = templateClass.indexOf(BEGIN_COMPILED_TEMPLATE)+BEGIN_COMPILED_TEMPLATE.length();
-//		int markerRenderInlineCssEndIndex = templateClass.indexOf(END_COMPILED_TEMPLATE);
-//		
-//		
-//		if (markerRenderInlineCssBeginIndex > -1 && markerRenderInlineCssEndIndex > -1) {
-//			templateClass = templateClass.substring(0,markerRenderInlineCssBeginIndex)+"\nvoid "+clsName+"::renderBody(unique_ptr<" + clsName.substring(0,clsName.length()-4) +"MvcMessage> data) const {\n" + out.toString() +"\n}\n"+ templateClass.substring(markerRenderInlineCssEndIndex);
-//			
-//		}
-//		return templateClass;
-//	}
-//	
-//	protected static String getJsAsCpp(Set<String> inlineJs) throws IOException, CancelException {
-//		StringBuilder sbInlineJs = new StringBuilder();
-//		for(String jsSrc : inlineJs) {
-//			String js = new String(Files.readAllBytes(CssJsProcessor.loadJs(jsSrc)), UTF8 );
-//			CppOutput.addOutChunks(sbInlineJs, js, settings.getLineWidth());
-//			sbInlineJs.append('\n');
-//		}
-//		return sbInlineJs.toString();
-//	}
-//	
-//	protected static String getJsAsCpp(String inlineJs) throws IOException, CancelException {
-//		StringBuilder sbInlineJs = new StringBuilder();
-//		String js = new String(Files.readAllBytes(CssJsProcessor.loadJs(inlineJs)), UTF8 );
-//		CppOutput.addOutChunks(sbInlineJs, "\n"+ js, settings.getLineWidth());
-//		sbInlineJs.append('\n');
-//		return sbInlineJs.toString();
-//	}
-//	
-////	protected static String insertJs(String cppCode, String clsName, Set<String> inlineJs) throws IOException, CancelException {
-////		
-////		String templateClass = cppCode;
-////		int markerRenderInlineCssBeginIndex = templateClass.indexOf(BEGIN_COMPILED_TEMPLATE_INLINE_JS)+BEGIN_COMPILED_TEMPLATE_INLINE_JS.length();
-////		int markerRenderInlineCssEndIndex = templateClass.indexOf(END_COMPILED_TEMPLATE_INLINE_JS);
-////		
-////		
-////		if (markerRenderInlineCssBeginIndex > -1 && markerRenderInlineCssEndIndex > -1) {
-////			templateClass = templateClass.substring(0,markerRenderInlineCssBeginIndex)+"\nvoid "+clsName+"::renderInlineJs() {\n" + getJsAsCpp(inlineJs) +"\n}\n"+ templateClass.substring(markerRenderInlineCssEndIndex);
-////			
-////		}
-////		return templateClass;
-////	}
-//	
-//	protected static String insertJsAsMethodCall(String cppCode, String clsName, Set<String> inlineJs) throws IOException {
-//		String templateClass = cppCode;
-//		int markerRenderInlineCssBeginIndex = templateClass.indexOf(BEGIN_COMPILED_TEMPLATE_INLINE_JS)+BEGIN_COMPILED_TEMPLATE_INLINE_JS.length();
-//		int markerRenderInlineCssEndIndex = templateClass.indexOf(END_COMPILED_TEMPLATE_INLINE_JS);
-//		StringBuilder sbInlineJs = new StringBuilder();
-//		for(String jsSrc : inlineJs) {
-//			sbInlineJs.append("InlineJsRenderer::")
-//			.append(getJsMethodName(jsSrc)).append("();");
-//			sbInlineJs.append('\n');
-//		}
-//		
-//		if (markerRenderInlineCssBeginIndex > -1 && markerRenderInlineCssEndIndex > -1) {
-//			templateClass = templateClass.substring(0,markerRenderInlineCssBeginIndex)+"\nvoid "+clsName+"::renderInlineJs() const {\n" + sbInlineJs.toString() +"\n}\n"+ templateClass.substring(markerRenderInlineCssEndIndex);
-//			
-//		}
-//		return templateClass;
-//	}
-//	
-//	public static void writeJsCppFile(Path directory, Set<String> inlineJs) throws IOException, CancelException {
-//		
-//		if (!Files.exists(directory))
-//			Files.createDirectories(directory);
-//		
-//		StringBuilder sbHeader = new StringBuilder("#ifndef INLINEJSRENDERER_H\n");
-//		sbHeader.append("#define INLINEJSRENDERER_H\n")
-//		.append("#include  \"fastcgicout.h\"\n\n")
-//		.append("class InlineJsRenderer {\n");
-//		for(String jsSrc : inlineJs) {
-//			sbHeader.append("public: static void ")
-//			.append(getJsMethodName(jsSrc)).append("();\n");
-//		}
-//		
-//		sbHeader.append("};\n\n")
-//		
-//		.append("#endif //INLINEJSRENDERER_H");
-//		
-//		StringBuilder sbSource = new StringBuilder("#include \"inlinejsrenderer.h\"\n\n");
-//		
-//		for(String jsSrc : inlineJs) {
-//			sbSource.append("void InlineJsRenderer::")
-//			.append(getJsMethodName(jsSrc)).append("() {\n")
-//			.append(getJsAsCpp(jsSrc))
-//			.append("\n}\n");
-//			;
-//		}
-//		
-//		
-//		Files.write(directory.resolve("inlinejsrenderer.h"), sbHeader.toString().getBytes(UTF8), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
-//		Files.write(directory.resolve("inlinejsrenderer.cpp"), sbSource.toString().getBytes(UTF8), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
-//		
-//	}
-//	
-//	public static void insertCode(String clsName, Path cppFile, ParserResult layoutParserResult,  Set<String> includeCss,  Set<String> includeJs) throws IOException, CancelException {
-//		String cppCode = new String(Files.readAllBytes(cppFile), UTF8);
-//		
-//		
-//		cppCode = insertCss(cppCode, clsName, includeCss);
-//		cppCode = insertJsAsMethodCall(cppCode, clsName, includeJs);
-//		cppCode = insertTemplate(cppCode, clsName, layoutParserResult);
-//		
-//		
-//		
-//		Files.write(cppFile,cppCode.getBytes(UTF8)  , StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
-//	}
 }

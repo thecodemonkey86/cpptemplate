@@ -24,7 +24,7 @@ import model.CppSectionTag;
 import model.CppRenderSubtemplateTag;
 import model.CppRenderSectionTag;
 import model.ParserResult;
-import model.TplPreprocessorTag;
+import model.CppIncludeTag;
 import model.WalkTreeAction;
 
 public class CppTpl2 {
@@ -53,6 +53,9 @@ public class CppTpl2 {
 			compiledTemplateDir = compiledTemplateDir.resolve(cfg.getSubDir());
 		}
 		
+		if (!Files.exists(compiledTemplateDir))
+			Files.createDirectories(compiledTemplateDir);
+		
 		if (result.hasLayoutTemplate()) {
 			
 			for(CppSectionTag rt: result.getTemplateRegionTags()) {
@@ -69,7 +72,7 @@ public class CppTpl2 {
 				}, result);	
 			}
 			
-			for(TplPreprocessorTag pp: result.getPreprocessorTags()) {
+			for(CppIncludeTag pp: result.getPreprocessorTags()) {
 				ParserResult layoutResult = p.parse(readUtf8(basePath.resolve(pp.getIncludeLayoutTemplatePath())));
 				result.setParentParserResult(layoutResult);
 				System.out.println(layoutResult);
@@ -80,17 +83,13 @@ public class CppTpl2 {
 						if (node instanceof CppRenderSectionTag) {
 							CppRenderSectionTag tpl = (CppRenderSectionTag) node;
 							tpl.setRenderTmpl(result.getTemplateByName(tpl.getAttrByName("name").getStringValue()));
-//						} else if(node instanceof CppRenderSectionTag) {
-//							CppRenderSectionTag section = (CppRenderSectionTag) node;
-//							section.setSection(parserResult.getSection(section.getAttrByName("name").getStringValue()));
 						}
 						
 					}
 				}, layoutResult);				
 				
-				collectInlineJs.addAll(result.getAllJsIncludes());
+				collectInlineJs.addAll(result.getAllJsInlineIncludes());
 				collectInlineCss.addAll(result.getAllCssIncludes());
-			//	CppOutput.insertCode(clsName, cppFile, layoutResult, result.getAllCssIncludes(), allJsIncludes);
 				
 				CppOutput.writeCompiledTemplateFile2(layoutResult,result,compiledTemplateDir , clsName, cfg);
 			}
@@ -109,7 +108,7 @@ public class CppTpl2 {
 					}
 				}, result);	
 				
-				collectInlineJs.addAll(result.getAllJsIncludes());
+				collectInlineJs.addAll(result.getAllJsInlineIncludes());
 				collectInlineCss.addAll(result.getAllCssIncludes());
 				//CppOutput.insertCode(clsName, cppFile, result, result.getAllCssIncludes(), result.getAllJsIncludes());
 				CppOutput.writeCompiledTemplateFile2(result,result, compiledTemplateDir, clsName, cfg);
@@ -119,41 +118,10 @@ public class CppTpl2 {
 		}
 	}
 	
-	/*private static void writeLastChangesDatesFile(Path xmlDir,HashMap<String, Instant> lastChanges) throws IOException {
-		Path lastChangesFile = xmlDir.resolve(LASTCHANGE_FILENAME);
-		StringBuilder sb = new StringBuilder();
-		lastChanges.forEach(new BiConsumer<String, Instant>() {
-
-			@Override
-			public void accept(String p, Instant i) {
-				sb.append(p).append('=').append(i.toString()).append('\n');
-			}
-		});
-		Files.write(lastChangesFile, sb.toString().getBytes(StandardCharsets.UTF_8), StandardOpenOption.WRITE,StandardOpenOption.TRUNCATE_EXISTING,StandardOpenOption.CREATE);
-	}
 	
-	private static HashMap<String, Instant> readLastChangesDatesFile(Path xmlDir) throws IOException {
-		HashMap<String, Instant> lastChanges = new HashMap<>();
-		Path lastChangesFile = xmlDir.resolve(LASTCHANGE_FILENAME);
-		if(Files.exists(lastChangesFile)) {
-			List<String> lines = Files.readAllLines(lastChangesFile);
-			for(String l : lines) {
-				String[] parts = l.split("=");
-				if(parts.length==2) {
-					lastChanges.put(parts[0],Instant.parse(parts[1]));
-				}
-			}
-		}
-		return lastChanges;
-	}*/
 	
 	public static void main(String[] args) {
 		try {
-			
-			//Path basePath = Paths.get("D:\\Bernhard\\netbeans_workspace\\marketplace\\public_html");
-			//Path templatePath = basePath.resolve("templates\\product\\ProductList.html");
-			//Path templatePath = basePath.resolve("templates\\product\\Test.html");
-			//Path cppFile = Paths.get("D:\\Temp\\test.cpp");
 			
 			URL u=ClassLoader.getSystemClassLoader().getResource("manifest.dat");
 			if (u == null) {
@@ -163,8 +131,6 @@ public class CppTpl2 {
 			Path execPath = manifestPath.getParent();
 			Settings settings = null;
 			List<String> linesManifest = Files.readAllLines(manifestPath);
-			
-			//String clsName = "ProductList";
 			
 			for (String line : linesManifest) {
 				String[] lineParts = line.split("=");
@@ -227,14 +193,15 @@ public class CppTpl2 {
 					//if(nocache || (!lastChanges.containsKey(tplFilePath)
 					//		|| Files.getLastModifiedTime(templatePath).toInstant().isAfter(lastChanges.get(tplFilePath)))) {
 					//Path cppFile = xmlConfig.getTplClsFile();
-					compileTemplate(cfg, basePath, repositoryPath, settings, clsName, templatePath,  TemplateConfig.getDestPath(), collectInlineJs,collectInlineCss, debugMode, nocache);
+					compileTemplate(cfg, basePath, repositoryPath, settings, clsName, templatePath,  TemplateConfig.getDestPath(), collectInlineJs, collectInlineCss, debugMode, nocache);
 					
 					//lastChanges.put(tplFilePath, Files.getLastModifiedTime(templatePath).toInstant());
 					//}
 				}
 //				writeLastChangesDatesFile(xmlDir,lastChanges);
-				CppOutput.writeJsCppFile(TemplateConfig.getDestPath().resolve("compiledtemplate"), collectInlineJs);
-				CppOutput.writeCssCppFile(TemplateConfig.getDestPath().resolve("compiledtemplate"), collectInlineCss);
+				Path pathCompiledTemplate = TemplateConfig.getDestPath().resolve("compiledtemplate");
+				CppOutput.writeJsCppFile(pathCompiledTemplate, collectInlineJs);
+				CppOutput.writeCssCppFile(pathCompiledTemplate, collectInlineCss);
 			}
 			
 			
