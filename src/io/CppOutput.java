@@ -232,7 +232,9 @@ public class CppOutput {
 		
 		CodeUtil.writeLine(sbSrc, "using namespace std;");
 		CodeUtil.writeLine(sbSrc, "class "+compiledTplClassName+"{");
-		
+		if(compiledTplClassName.equals("DocumentPrepareMoveDialogViewCompiledTemplate")) {
+			System.out.println();
+		}
 		CodeUtil.writeLine(sbSrc, String.format("public: template<class T> inline static %s renderBody(std::unique_ptr<T> data%s){",cfg.isRenderToString() ? "QString" : "void",cfg.isRenderToString()?"":",FCGX_Stream * out"));
 		if(cfg.isRenderToString()) {
 			CodeUtil.writeLine(sbSrc, String.format("QString %s;",cfg.getRenderToQStringVariableName()));

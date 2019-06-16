@@ -33,7 +33,9 @@ public class CppFormSelectOption extends HtmlTag{
 				if(this.selectedValueExpression != null) {
 					HtmlAttr optionValue = getAttrByName("value");
 					out.append("if ").append(CodeUtil.parentheses(selectedValueExpression+" == '"+ optionValue.getStringValue()+'\'')).append(" {\n");
-					CodeUtil.writeLine(out,"echo ' selected=\"selected\"';");
+					
+					directTextOutputBuffer.append(" selected=\"selected\"");
+					
 					out.append('\n');
 					CodeUtil.writeLine(out, "}");
 				}

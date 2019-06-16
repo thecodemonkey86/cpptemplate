@@ -6,6 +6,7 @@ import codegen.CodeUtil;
 import config.TemplateConfig;
 import io.CppOutput;
 import io.parser.HtmlParser;
+import util.TemplateCodeUtil;
 
 public class CppFormSelect extends HtmlTag{
 	public static final String TAG_NAME = "select" ;
@@ -72,20 +73,20 @@ public class CppFormSelect extends HtmlTag{
 				
 				directTextOutputBuffer.append("<option value=\"");
 				CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
-				CodeUtil.writeLine(out,"FastCgiOutput::write("+varKey+ ",out);");
+				TemplateCodeUtil.writeExpression(out,varKey,cfg);
 				
 				if(value != null) {
-					CodeUtil.writeLine(out,"FastCgiOutput::write('\"',out);");
+					TemplateCodeUtil.writeExpression(out,"'\"'",cfg);
 					out.append("if ").append(CodeUtil.parentheses(value.getStringValue()+" == "+varKey)).append("{\n");
-					CodeUtil.writeLine(out,"FastCgiOutput::write(\"selected=\\\"selected\\\",out);");
+					directTextOutputBuffer.append(" selected=\"selected\"");
 					CodeUtil.writeLine(out, "}");
-					CodeUtil.writeLine(out,"FastCgiOutput::write('>',out);");
+					TemplateCodeUtil.writeExpression(out,"'>'",cfg);
 				} else {
-					CodeUtil.writeLine(out,"FastCgiOutput::write(\"\\\">\",out);");
+					TemplateCodeUtil.writeExpression(out,"\"\\\">\"",cfg);;
 				}
 				
-				CodeUtil.writeLine(out,"FastCgiOutput::write("+varValue+",out);");
-				CodeUtil.writeLine(out,"FastCgiOutput::write(\"</option>\",out);");
+				TemplateCodeUtil.writeExpression(out,varValue,cfg);
+				TemplateCodeUtil.writeExpression(out,"\"</option>\"",cfg);
 				out.append('\n');
 				CodeUtil.writeLine(out, "}");
 			}
