@@ -226,6 +226,13 @@ public class CppOutput {
 		CodeUtil.writeLine(sbSrc, "#include \"view/compiledtemplate/inlinecssrenderer.h\"");
 		CodeUtil.writeLine(sbSrc, "#include \"mvc/view/html/htmltemplate.h\"");
 		
+		StringBuilder out = new StringBuilder();
+		StringBuilder directTextOutputBuffer = new StringBuilder();
+		layoutResult.getSimpleTemplate().toCpp(out,directTextOutputBuffer,cfg);
+		
+		if(cfg.isIncludeTranslations())
+			CodeUtil.writeLine(sbSrc, "#include \"translation/compiled/translation.h\"");
+		
 		for(String includeHeader : inlineHeaderFiles) {
 			CodeUtil.writeLine(sbSrc, "#include \""+includeHeader+"\"");
 		}
@@ -235,13 +242,11 @@ public class CppOutput {
 		if(compiledTplClassName.equals("DocumentPrepareMoveDialogViewCompiledTemplate")) {
 			System.out.println();
 		}
-		CodeUtil.writeLine(sbSrc, String.format("public: template<class T> inline static %s renderBody(std::unique_ptr<T> data%s){",cfg.isRenderToString() ? "QString" : "void",cfg.isRenderToString()?"":",FCGX_Stream * out"));
+		CodeUtil.writeLine(sbSrc, String.format("public: template<class T> inline static %s renderBody(std::unique_ptr<T> data%s%s){",cfg.isRenderToString() ? "QString" : "void",!cfg.isIncludeTranslations() ?"":",shared_ptr<Translation> translation", cfg.isRenderToString()?"":",FCGX_Stream * out"));
 		if(cfg.isRenderToString()) {
 			CodeUtil.writeLine(sbSrc, String.format("QString %s;",cfg.getRenderToQStringVariableName()));
 		}
-		StringBuilder out = new StringBuilder();
-		StringBuilder directTextOutputBuffer = new StringBuilder();
-		layoutResult.getSimpleTemplate().toCpp(out,directTextOutputBuffer,cfg);
+	
 		
 		CodeUtil.writeLine(sbSrc, out.toString());
 		if(cfg.isRenderToString()) {

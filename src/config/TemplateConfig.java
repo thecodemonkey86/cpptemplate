@@ -10,6 +10,15 @@ public class TemplateConfig {
 	private boolean renderToString;
 //	private String renderToQStringVariableName;
 	private String subDir;
+	private boolean includeTranslations;
+	
+	public void setIncludeTranslations(boolean includeTranslations) {
+		this.includeTranslations = includeTranslations;
+	}
+	
+	public boolean isIncludeTranslations() {
+		return includeTranslations;
+	}
 	
 	public void setSubDir(String subDir) {
 		this.subDir = subDir;

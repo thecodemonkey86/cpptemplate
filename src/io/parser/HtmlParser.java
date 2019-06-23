@@ -18,6 +18,7 @@ import model.CppRenderSubtemplateTag;
 import model.CppRenderSectionTag;
 import model.CppSectionTag;
 import model.CppThenTag;
+import model.CppTranslate;
 import model.DynamicHtmlAttr;
 import model.EmptyHtmlAttr;
 import model.HtmlAttr;
@@ -472,8 +473,8 @@ public class HtmlParser {
 					tag = new CppFormSelect();	
 				} else if (tagName.equals(CppFormSelectOption.TAG_NAME)) {
 					tag = new CppFormSelectOption();	
-//				} else if (tagName.equals(CppCommentTag.TAG_NAME)) {
-//					tag = new CppCommentTag();
+				} else if (tagName.equals(CppTranslate.TAG_NAME)) {
+					tag = new CppTranslate();
 				} else if (tagName.equals(CppRenderSubtemplateTag.TAG_NAME)) {
 					tag = new CppRenderSubtemplateTag();
 				} 
