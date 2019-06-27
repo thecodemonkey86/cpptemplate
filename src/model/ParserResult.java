@@ -198,6 +198,21 @@ public class ParserResult {
 		return includeCss;
 	}
 	
+	public LinkedHashSet<String> getAllFontIncludes() {
+		LinkedHashSet<String> includeFonts = null;
+		if(parentParserResult == null) {
+			includeFonts = new LinkedHashSet<>();
+		} else {
+			includeFonts = parentParserResult.getAllFontIncludes();
+		}
+		for(CppIncludeTag t : preprocessorTags) {
+			for(String js : t.getIncludeFontLinks()) {
+				includeFonts.add(js.replace('\\', '/'));
+			}
+		}
+		return includeFonts;
+	}
+	
 	public LinkedHashSet<String> getAllHeaderIncludes() {
 		LinkedHashSet<String> includeHeaderFiles = null;
 		if(parentParserResult == null) {

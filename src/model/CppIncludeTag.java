@@ -14,6 +14,7 @@ public class CppIncludeTag {
 	public static final String CPP_TEMPLATE = "<cpp:baseTemplate";
 	public static final String CPP_JAVASCRIPT = "<cpp:js";
 	public static final String CPP_CSS = "<cpp:css";
+	public static final String CPP_FONT = "<cpp:font";
 	public static final String CPP_TPl_INCLUDE_END_TAG = "</cpp:include";
 	public static final String CPP_TPl_INCLUDE_START_TAG = "<cpp:include";
 	public static final String CPP_TPl_INCLUDE_HEADER = "<cpp:header";
@@ -23,6 +24,7 @@ public class CppIncludeTag {
 	protected List<String> includeJsLinks;
 	protected List<String> includeCss;
 	protected List<String> includeCssLinks;
+	protected List<String> includeFontLinks;
 	protected List<String> includeHeaders;
 	
 	public CppIncludeTag(String code, boolean cPreprocessorStyle) throws IOException {
@@ -31,6 +33,7 @@ public class CppIncludeTag {
 		this.includeCss = new ArrayList<>();
 		this.includeCssLinks = new ArrayList<>();
 		this.includeHeaders = new ArrayList<>();
+		this.includeFontLinks = new ArrayList<>();
 		if(cPreprocessorStyle) {
 			//parse(code);
 			throw new RuntimeException("support for this syntax has been removed");
@@ -89,7 +92,7 @@ public class CppIncludeTag {
 					throw new IOException("syntax error");
 				}
 			} else if (l0.startsWith(CPP_CSS)) {
-				int quotStart=l0.indexOf("includeType=\"",CPP_JAVASCRIPT.length());
+				int quotStart=l0.indexOf("includeType=\"",CPP_CSS.length());
 				int quotEnd=l0.indexOf('"',quotStart+13);
 				boolean inlineCss = true;
 				if(quotStart > -1) {
@@ -106,6 +109,15 @@ public class CppIncludeTag {
 					} else {
 						includeCssLinks.add( l0.substring(quotStart+5,quotEnd) );
 					}
+				} else {
+					throw new IOException("syntax error");
+				}
+			} else if (l0.startsWith(CPP_FONT)) {
+				int quotStart=l0.indexOf("src=\"",CPP_FONT.length());
+				int quotEnd=l0.indexOf('"',quotStart+5);
+				
+				if (quotStart > CPP_FONT.length() && quotEnd > quotStart) {
+					includeFontLinks.add( l0.substring(quotStart+5,quotEnd) );
 				} else {
 					throw new IOException("syntax error");
 				}
@@ -185,6 +197,10 @@ public class CppIncludeTag {
 	
 	public List<String> getIncludeHeaders() {
 		return includeHeaders;
+	}
+	
+	public List<String> getIncludeFontLinks() {
+		return includeFontLinks;
 	}
 
 }

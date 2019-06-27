@@ -16,7 +16,7 @@ public class CppTranslate extends HtmlTag {
 	@Override
 	public void toCpp(StringBuilder out, StringBuilder directTextOutputBuffer, TemplateConfig cfg) {
 		CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
-		CodeUtil.writeLine(out, "FastCgiOutput::write"+CodeUtil.parentheses("translation->"+ getAttrByName("key").getStringValue()+"().toHtmlEscaped(), out")+";");
+		CodeUtil.writeLine(out, "FastCgiOutput::write"+CodeUtil.parentheses("translations->"+ getAttrByName("key").getStringValue()+"().toHtmlEscaped(), out")+";");
 		cfg.setIncludeTranslations(true);
 	}
 
