@@ -254,17 +254,17 @@ public class CppOutput {
 			
 			if(!jsLinks.isEmpty()) {
 				for(String jsLink : jsLinks) {
-					CodeUtil.writeLine(sbSrc, "addJsFile"+CodeUtil.parentheses(CodeUtil.quote(jsLink))+";");
+					CodeUtil.writeLine(sbSrc, "addJsFile"+CodeUtil.parentheses("QStringLiteral"+CodeUtil.parentheses(CodeUtil.quote(jsLink)))+";");
 				}
 			}
 			if(!cssLinks.isEmpty()) {
 				for(String cssLink : cssLinks) {
-					CodeUtil.writeLine(sbSrc, "addCssFile"+CodeUtil.parentheses(CodeUtil.quote(cssLink))+";");
+					CodeUtil.writeLine(sbSrc, "addCssFile"+CodeUtil.parentheses("QStringLiteral"+CodeUtil.parentheses(CodeUtil.quote(cssLink)))+";");
 				}
 			}
 			if(!fontLinks.isEmpty()) {
 				for(String fontLink : fontLinks) {
-					CodeUtil.writeLine(sbSrc, "addFont"+CodeUtil.parentheses(CodeUtil.quote(fontLink))+";");
+					CodeUtil.writeLine(sbSrc, "addFont"+CodeUtil.parentheses("QStringLiteral"+CodeUtil.parentheses(CodeUtil.quote(fontLink)))+";");
 				}
 			}
 			CodeUtil.writeLine(sbSrc, "this->renderHeader();");
