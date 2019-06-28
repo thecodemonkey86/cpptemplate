@@ -18,11 +18,14 @@ import javax.xml.bind.DatatypeConverter;
 import codegen.CodeUtil;
 import config.TemplateConfig;
 import io.parser.HtmlParser;
+import model.HtmlLinkTag;
+import model.HtmlMetaTag;
 import model.ParserResult;
 import settings.Settings;
 import util.Pair;
 import util.ParseUtil;
 import util.StringUtil;
+import util.Util;
 import util.exception.CancelException;
 
 
@@ -213,7 +216,8 @@ public class CppOutput {
 		LinkedHashSet<String> jsLinks = result.getAllJsLinkIncludes();
 		LinkedHashSet<String> fontLinks = result.getAllFontIncludes();
 		LinkedHashSet<String> inlineHeaderFiles = result.getAllHeaderIncludes();
-		
+		LinkedHashSet<HtmlMetaTag> metaTags = result.getAllMetaTags();
+		LinkedHashSet<HtmlLinkTag> linkTags = result.getAllLinkTags();
 		StringBuilder sbSrc = new StringBuilder();
 
 		String includeGuard = compiledTplClassName.toUpperCase()+"_H";
@@ -254,17 +258,28 @@ public class CppOutput {
 			
 			if(!jsLinks.isEmpty()) {
 				for(String jsLink : jsLinks) {
-					CodeUtil.writeLine(sbSrc, "addJsFile"+CodeUtil.parentheses("QStringLiteral"+CodeUtil.parentheses(CodeUtil.quote(jsLink)))+";");
+					CodeUtil.writeLine(sbSrc, "addJsFile"+CodeUtil.parentheses(Util.qStringLiteral(jsLink))+";");
 				}
 			}
 			if(!cssLinks.isEmpty()) {
 				for(String cssLink : cssLinks) {
-					CodeUtil.writeLine(sbSrc, "addCssFile"+CodeUtil.parentheses("QStringLiteral"+CodeUtil.parentheses(CodeUtil.quote(cssLink)))+";");
+					CodeUtil.writeLine(sbSrc, "addCssFile"+CodeUtil.parentheses(Util.qStringLiteral(cssLink))+";");
 				}
 			}
 			if(!fontLinks.isEmpty()) {
 				for(String fontLink : fontLinks) {
-					CodeUtil.writeLine(sbSrc, "addFont"+CodeUtil.parentheses("QStringLiteral"+CodeUtil.parentheses(CodeUtil.quote(fontLink)))+";");
+					CodeUtil.writeLine(sbSrc, "addFont"+CodeUtil.parentheses(Util.qStringLiteral(fontLink))+";");
+				}
+			}
+			
+			if(!metaTags.isEmpty()) {
+				for(HtmlMetaTag metaTag : metaTags) {
+					CodeUtil.writeLine(sbSrc, "addMetaTag"+CodeUtil.parentheses(metaTag.toCppConstructor())+";");
+				}
+			}
+			if(!linkTags.isEmpty()) {
+				for(HtmlLinkTag linkTag : linkTags) {
+					CodeUtil.writeLine(sbSrc, "addLinkTag"+CodeUtil.parentheses(linkTag.toCppConstructor())+";");
 				}
 			}
 			CodeUtil.writeLine(sbSrc, "this->renderHeader();");

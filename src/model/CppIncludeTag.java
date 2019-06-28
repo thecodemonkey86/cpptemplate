@@ -18,6 +18,8 @@ public class CppIncludeTag {
 	public static final String CPP_TPl_INCLUDE_END_TAG = "</cpp:include";
 	public static final String CPP_TPl_INCLUDE_START_TAG = "<cpp:include";
 	public static final String CPP_TPl_INCLUDE_HEADER = "<cpp:header";
+	public static final String CPP_META = "<cpp:meta";
+	public static final String CPP_LINK = "<cpp:link";
 	
 	protected String includeLayoutTemplatePath;
 	protected List<String> includeJs;
@@ -26,6 +28,8 @@ public class CppIncludeTag {
 	protected List<String> includeCssLinks;
 	protected List<String> includeFontLinks;
 	protected List<String> includeHeaders;
+	protected List<HtmlMetaTag> metaTags;
+	protected List<HtmlLinkTag> linkTags;
 	
 	public CppIncludeTag(String code, boolean cPreprocessorStyle) throws IOException {
 		this.includeJs = new ArrayList<>();
@@ -34,6 +38,8 @@ public class CppIncludeTag {
 		this.includeCssLinks = new ArrayList<>();
 		this.includeHeaders = new ArrayList<>();
 		this.includeFontLinks = new ArrayList<>();
+		this.metaTags = new ArrayList<>();
+		this.linkTags = new ArrayList<>();
 		if(cPreprocessorStyle) {
 			//parse(code);
 			throw new RuntimeException("support for this syntax has been removed");
@@ -121,6 +127,47 @@ public class CppIncludeTag {
 				} else {
 					throw new IOException("syntax error");
 				}
+			} else if (l0.startsWith(CPP_META)) {
+				HtmlMetaTag meta = new HtmlMetaTag();
+				metaTags.add(meta);
+				int quotStart=l0.indexOf("name=\"",CPP_META.length());
+				int quotEnd=l0.indexOf('"',quotStart+6);
+				if(quotStart > -1) {
+					meta.addAttr(new HtmlAttr("name", new AttrValue(l0.substring(quotStart+6,quotEnd)), '"')) ;
+				}
+				
+				quotStart=l0.indexOf("content=\"",CPP_CSS.length());
+				quotEnd=l0.indexOf('"',quotStart+9);
+				
+				if (quotStart > CPP_CSS.length() && quotEnd > quotStart) {
+					meta.addAttr(new HtmlAttr("content", new AttrValue(l0.substring(quotStart+9,quotEnd)), '"')) ;
+				} else {
+					throw new IOException("syntax error");
+				}
+			} else if (l0.startsWith(CPP_LINK)) {
+				HtmlLinkTag link = new HtmlLinkTag();
+				linkTags.add(link);
+				int quotStart=l0.indexOf("href=\"",CPP_LINK.length());
+				int quotEnd=l0.indexOf('"',quotStart+6);
+				if(quotStart > -1) {
+					link.addAttr(new HtmlAttr("href", new AttrValue(l0.substring(quotStart+6,quotEnd)), '"')) ;
+				}
+				
+				quotStart=l0.indexOf("rel=\"",CPP_CSS.length());
+				quotEnd=l0.indexOf('"',quotStart+5);
+				
+				if (quotStart > CPP_CSS.length() && quotEnd > quotStart) {
+					link.addAttr(new HtmlAttr("rel", new AttrValue(l0.substring(quotStart+5,quotEnd)), '"')) ;
+				} else {
+					throw new IOException("syntax error");
+				}
+				
+				quotStart=l0.indexOf("type=\"",CPP_CSS.length());
+				quotEnd=l0.indexOf('"',quotStart+6);
+				
+				if (quotStart > CPP_CSS.length() && quotEnd > quotStart) {
+					link.addAttr(new HtmlAttr("type", new AttrValue(l0.substring(quotStart+6,quotEnd)), '"')) ;
+				} 
 			} else if (l0.startsWith(CPP_TPl_INCLUDE_HEADER)) {
 				int quotStart=l0.indexOf("file=\"",CPP_TPl_INCLUDE_HEADER.length());
 				int quotEnd=l0.indexOf('"',quotStart+6);
@@ -201,6 +248,14 @@ public class CppIncludeTag {
 	
 	public List<String> getIncludeFontLinks() {
 		return includeFontLinks;
+	}
+	
+	public List<HtmlMetaTag> getMetaTags() {
+		return metaTags;
+	}
+	
+	public List<HtmlLinkTag> getLinkTags() {
+		return linkTags;
 	}
 
 }

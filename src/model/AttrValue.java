@@ -11,6 +11,16 @@ public class AttrValue {
 		elements = new ArrayList<>();
 	}
 	
+	public AttrValue(IAttrValueElement e) {
+		this();
+		elements.add(e);
+	}
+	
+	public AttrValue(String s) {
+		this();
+		elements.add(new TextAttrValueElement( s));
+	}
+	
 	public void addElement(IAttrValueElement element) {
 		this.elements.add(element);
 	}

@@ -213,6 +213,36 @@ public class ParserResult {
 		return includeFonts;
 	}
 	
+	public LinkedHashSet<HtmlMetaTag> getAllMetaTags() {
+		LinkedHashSet<HtmlMetaTag> metaTags = null;
+		if(parentParserResult == null) {
+			metaTags = new LinkedHashSet<>();
+		} else {
+			metaTags = parentParserResult.getAllMetaTags();
+		}
+		for(CppIncludeTag t : preprocessorTags) {
+			for(HtmlMetaTag meta : t.getMetaTags()) {
+				metaTags.add(meta);
+			}
+		}
+		return metaTags;
+	}
+	
+	public LinkedHashSet<HtmlLinkTag> getAllLinkTags() {
+		LinkedHashSet<HtmlLinkTag> linkTags = null;
+		if(parentParserResult == null) {
+			linkTags = new LinkedHashSet<>();
+		} else {
+			linkTags = parentParserResult.getAllLinkTags();
+		}
+		for(CppIncludeTag t : preprocessorTags) {
+			for(HtmlLinkTag link : t.getLinkTags()) {
+				linkTags.add(link);
+			}
+		}
+		return linkTags;
+	}
+	
 	public LinkedHashSet<String> getAllHeaderIncludes() {
 		LinkedHashSet<String> includeHeaderFiles = null;
 		if(parentParserResult == null) {
