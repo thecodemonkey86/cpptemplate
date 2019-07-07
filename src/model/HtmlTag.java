@@ -151,6 +151,10 @@ public class HtmlTag extends AbstractNode{
 		throw new RuntimeException("no such attribute: "+name);
 	}
 	
+	public String getAttrStringValue(String name) {
+		return getAttrByName(name).getStringValue();
+	}
+	
 	public boolean hasAttr(String name) {
 		if(attrs != null) {
 			for(HtmlAttr a:attrs) {
