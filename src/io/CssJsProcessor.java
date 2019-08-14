@@ -102,7 +102,7 @@ public class CssJsProcessor {
 			}
 			
 			if (!Files.exists(file)) {
-				throw new IOException(String.format("error %s processing", ext));
+				throw new IOException(String.format("error %s processing: " + file, ext));
 			}
 			return file;
 		} catch (IOException e ) {
