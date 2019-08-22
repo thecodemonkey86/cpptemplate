@@ -378,8 +378,13 @@ public class CppOutput {
 		
 		CodeUtil.writeLine(sbSrc, "};");
 		CodeUtil.writeLine(sbSrc, "#endif");
-		System.out.println(clsName.toLowerCase()+ "compiledtemplate.h");
-		Files.write(directory.resolve(clsName.toLowerCase()+ "compiledtemplate.h"), sbSrc.toString().getBytes(UTF8), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+		 
+		byte[] bytes = sbSrc.toString().getBytes(UTF8);
+		String filename = clsName.toLowerCase()+ "compiledtemplate.h";
+		
+		if(!Files.exists(directory.resolve(filename)) || !Arrays.equals(bytes, Files.readAllBytes(directory.resolve(filename)))) {
+			Files.write(directory.resolve(filename), bytes, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+		}
 	}
 	
 	
@@ -514,9 +519,19 @@ sbHeader.append("};\n\n")
 		
 		.append("#endif //INLINEJSRENDERER_H");
 		
-		Files.write(directory.resolve("inlinejsrenderer.h"), sbHeader.toString().getBytes(UTF8), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
-		Files.write(directory.resolve("inlinejsrenderer.cpp"), sbSource.toString().getBytes(UTF8), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
 		
+		
+		byte[] headerBytes = sbHeader.toString().getBytes(UTF8);
+		byte[] sourceBytes = sbSource.toString().getBytes(UTF8);
+		String headerFilename = "inlinejsrenderer.h";
+		String sourceFileName = "inlinejsrenderer.cpp";
+		
+		if(!Files.exists(directory.resolve(headerFilename)) && !Arrays.equals(headerBytes, Files.readAllBytes(directory.resolve(headerFilename)))) {
+			Files.write(directory.resolve(headerFilename), headerBytes, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+		}
+		if(!Files.exists(directory.resolve(sourceFileName)) && !Arrays.equals(sourceBytes, Files.readAllBytes(directory.resolve(sourceFileName)))) {
+			Files.write(directory.resolve(sourceFileName), sourceBytes, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+		}
 	}
 	
 	public static void writeCssCppFile(Path directory, Set<String> inlineCss) throws IOException, CancelException {
@@ -558,8 +573,17 @@ sbHeader.append("};\n\n")
 		
 		.append("#endif //INLINECSSRENDERER_H");
 		
-		Files.write(directory.resolve("inlinecssrenderer.h"), sbHeader.toString().getBytes(UTF8), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
-		Files.write(directory.resolve("inlinecssrenderer.cpp"), sbSource.toString().getBytes(UTF8), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+		byte[] headerBytes = sbHeader.toString().getBytes(UTF8);
+		byte[] sourceBytes = sbSource.toString().getBytes(UTF8);
+		String headerFilename = "inlinecssrenderer.h";
+		String sourceFileName = "inlinecssrenderer.cpp";
+		
+		if(!Files.exists(directory.resolve(headerFilename)) || !Arrays.equals(headerBytes, Files.readAllBytes(directory.resolve(headerFilename)))) {
+			Files.write(directory.resolve(headerFilename), headerBytes, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+		}
+		if(!Files.exists(directory.resolve(sourceFileName)) || !Arrays.equals(sourceBytes, Files.readAllBytes(directory.resolve(sourceFileName)))) {
+			Files.write(directory.resolve(sourceFileName), sourceBytes, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+		}
 		
 	}
 }

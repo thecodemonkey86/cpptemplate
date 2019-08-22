@@ -87,7 +87,7 @@ public class HtmlParser {
 	}
 	protected char currChar() throws IOException {
 		if(atEnd()) {
-			throw new IOException("syntax error");
+			throw new IOException("syntax error at position "+currentPos+" in html "+html);
 		}
 		return html.charAt(currentPos);
 	}
@@ -320,6 +320,9 @@ public class HtmlParser {
 				}
 			}
 			next();
+		}
+		if(quot) {
+			throw new IOException("unterminated quote near position "+currentPos + " in html "+html);
 		}
 		return new DynamicHtmlAttr(html.substring(start,currentPos));
 	}

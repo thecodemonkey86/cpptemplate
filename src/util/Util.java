@@ -29,7 +29,7 @@ public class Util {
 	public static String getQStringLiteralConstructor(String s, boolean toHtmlEscapedRequired) {
 		byte[] bytesUtf8 = s.getBytes(StandardCharsets.UTF_8);
 		byte[] bytesLatin1 = s.getBytes(StandardCharsets.ISO_8859_1);
-		return !toHtmlEscapedRequired && Arrays.equals(bytesUtf8, bytesLatin1) ? "QLatin1Literal" : "QStringLiteral";
+		return !toHtmlEscapedRequired && Arrays.equals(bytesUtf8, bytesLatin1) ? "QLatin1String" : "QStringLiteral";
 	}
 	
 	public static String commaSep(Object...tokens) {

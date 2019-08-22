@@ -8,6 +8,8 @@ import io.parser.HtmlParser;
 public class CppFormSelectOption extends HtmlTag{
 
 	public static final String TAG_NAME = "option" ;
+	
+	CppFormSelect parent;
 	private String selectedValueExpression;
 	
 	public void setSelectedValueExpression(String selectedValueExpression) {
@@ -17,6 +19,10 @@ public class CppFormSelectOption extends HtmlTag{
 	public CppFormSelectOption() {
 		super(TAG_NAME);
 		setNs(HtmlParser.CPP_NS);
+	}
+	
+	public void setParent(CppFormSelect parent) {
+		this.parent = parent;
 	}
 	
 	@Override
@@ -32,10 +38,30 @@ public class CppFormSelectOption extends HtmlTag{
 				CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
 				if(this.selectedValueExpression != null) {
 					HtmlAttr optionValue = getAttrByName("value");
-					out.append("if ").append(CodeUtil.parentheses(selectedValueExpression+" == '"+ optionValue.getStringValue()+'\'')).append(" {\n");
+					
+					CppFormSelect.ValueType valueType = CppFormSelect.ValueType.QString;
+					
+					if(parent.hasAttr("valueType")) {
+						HtmlAttr optionValueType = parent.getAttrByName("valueType");
+						switch (optionValueType.getStringValue()) {
+						case "QString":
+							valueType = CppFormSelect.ValueType.QString;
+							break;
+						case "int":
+							valueType = CppFormSelect.ValueType.Int;
+							break;
+						case "bool":
+							valueType = CppFormSelect.ValueType.Bool;
+							break;
+						default:
+							break;
+						}
+					}
+					
+					out.append("if ").append(CodeUtil.parentheses(valueType.toCppCondition(selectedValueExpression,optionValue))).append(" {\n");
 					
 					directTextOutputBuffer.append(" selected=\"selected\"");
-					
+					CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
 					out.append('\n');
 					CodeUtil.writeLine(out, "}");
 				}

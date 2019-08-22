@@ -7,12 +7,34 @@ import config.TemplateConfig;
 import io.CppOutput;
 import io.parser.HtmlParser;
 import util.TemplateCodeUtil;
+import util.Util;
 
 public class CppFormSelect extends HtmlTag{
+	public static enum ValueType{QString, Bool,Int;
+
+	public String toCppCondition(String selectedValueExpression, HtmlAttr optionValue) {
+		switch(this) {
+		case QString:
+			return selectedValueExpression+" == "+Util.qStringLiteral( optionValue.getStringValue());
+		case Bool:
+			return optionValue.getStringValue().equals("1") ? selectedValueExpression : "!"+selectedValueExpression;
+		case Int:
+			return selectedValueExpression+" == "+ optionValue.getStringValue();
+		}
+		throw new IllegalArgumentException();
+	}} 
 	public static final String TAG_NAME = "select" ;
 	public CppFormSelect() {
 		super(TAG_NAME);
 		setNs(HtmlParser.CPP_NS);
+	}
+	
+	@Override
+	public void addChildNode(AbstractNode node) {
+		if(node instanceof CppFormSelectOption) {
+			((CppFormSelectOption)node).setParent(this);
+		}
+		super.addChildNode(node);
 	}
 	
 	@Override
