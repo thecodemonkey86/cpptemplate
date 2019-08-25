@@ -66,12 +66,19 @@ public class QStringHtmlEscapedOutputSection extends AbstractNode implements IAt
 				if(thenExpression.startsWith("\"")) {
 					thenExpression = String.format("%s(%s)",Util.getQStringLiteralConstructor(thenExpression,true), thenExpression);
 				}
-				if(elseExpression.startsWith("\"")) {
-					elseExpression = String.format("%s(%s)",Util.getQStringLiteralConstructor(elseExpression,true), elseExpression);
+				
+				out.append( String.format("if(%s)\n{\nFastCgiOutput::write(%s.toHtmlEscaped(),out);\n}",
+						conditionExpression,thenExpression));
+				
+				if(!elseExpression.equals("\"\"")) {
+					if(elseExpression.startsWith("\"")) {
+						elseExpression = String.format("%s(%s)",Util.getQStringLiteralConstructor(elseExpression,true), elseExpression);
+					}
+					out.append( String.format("\nelse\n{\nFastCgiOutput::write(%s.toHtmlEscaped(),out);\n}\n",elseExpression));
+				} else {
+					out.append("\n"); 
 				}
 				
-				out.append( String.format("if(%s)\n{\nFastCgiOutput::write(%s.toHtmlEscaped(),out);\n}\nelse\n{\nFastCgiOutput::write(%s.toHtmlEscaped(),out);\n}\n",
-						conditionExpression,thenExpression,elseExpression));
 			} else {
 				String conditionExpression = expression.substring(0,inlineIfThenIndex).trim();
 				String thenExpression = expression.substring(inlineIfThenIndex+1).trim();
