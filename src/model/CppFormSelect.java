@@ -86,10 +86,22 @@ public class CppFormSelect extends HtmlTag{
 			
 		
 		} else {
-			String var = "_selectkey";
-			String varKey =var+".first";
-			String varValue =var+".second";
+			
 			if(hasAttr("options")) {
+				String var;
+				String varValue;
+				String varKey;
+				if(hasAttr("valueGetter") && hasAttr("displayGetter")) {
+					HtmlAttr valueGetter = getAttrByName("valueGetter");
+					HtmlAttr displayGetter = getAttrByName("displayGetter");
+					var = "_option";
+					varKey =var+"->"+valueGetter.getStringValue();
+					varValue =var+"->"+displayGetter.getStringValue();
+				} else {
+					var = "_selectkey";
+					varKey =var+".first";
+					varValue =var+".second";
+				}
 				HtmlAttr options = getAttrByName("options");
 				out.append("for (const auto & ").append(var+" : "+options.getStringValue()).append(") {\n");
 				
@@ -111,7 +123,9 @@ public class CppFormSelect extends HtmlTag{
 				TemplateCodeUtil.writeExpression(out,"\"</option>\"",cfg);
 				out.append('\n');
 				CodeUtil.writeLine(out, "}");
-			}
+			} 
+			
+		 
 		}
 		
 		directTextOutputBuffer.append("</").append(tagName).append('>');

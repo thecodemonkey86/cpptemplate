@@ -22,6 +22,7 @@ import model.HtmlLinkTag;
 import model.HtmlMetaTag;
 import model.ParserResult;
 import settings.Settings;
+import util.FileUtil2;
 import util.Pair;
 import util.ParseUtil;
 import util.StringUtil;
@@ -382,9 +383,7 @@ public class CppOutput {
 		byte[] bytes = sbSrc.toString().getBytes(UTF8);
 		String filename = clsName.toLowerCase()+ "compiledtemplate.h";
 		
-		if(!Files.exists(directory.resolve(filename)) || !Arrays.equals(bytes, Files.readAllBytes(directory.resolve(filename)))) {
-			Files.write(directory.resolve(filename), bytes, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
-		}
+		FileUtil2.writeFileIfContentChanged(directory.resolve(filename), bytes, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
 	}
 	
 	
@@ -526,12 +525,9 @@ sbHeader.append("};\n\n")
 		String headerFilename = "inlinejsrenderer.h";
 		String sourceFileName = "inlinejsrenderer.cpp";
 		
-		if(!Files.exists(directory.resolve(headerFilename)) && !Arrays.equals(headerBytes, Files.readAllBytes(directory.resolve(headerFilename)))) {
-			Files.write(directory.resolve(headerFilename), headerBytes, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
-		}
-		if(!Files.exists(directory.resolve(sourceFileName)) && !Arrays.equals(sourceBytes, Files.readAllBytes(directory.resolve(sourceFileName)))) {
-			Files.write(directory.resolve(sourceFileName), sourceBytes, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
-		}
+		FileUtil2.writeFileIfContentChanged(directory.resolve(headerFilename), headerBytes);
+	 
+		FileUtil2.writeFileIfContentChanged(directory.resolve(sourceFileName), sourceBytes);
 	}
 	
 	public static void writeCssCppFile(Path directory, Set<String> inlineCss) throws IOException, CancelException {
@@ -578,12 +574,8 @@ sbHeader.append("};\n\n")
 		String headerFilename = "inlinecssrenderer.h";
 		String sourceFileName = "inlinecssrenderer.cpp";
 		
-		if(!Files.exists(directory.resolve(headerFilename)) || !Arrays.equals(headerBytes, Files.readAllBytes(directory.resolve(headerFilename)))) {
-			Files.write(directory.resolve(headerFilename), headerBytes, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
-		}
-		if(!Files.exists(directory.resolve(sourceFileName)) || !Arrays.equals(sourceBytes, Files.readAllBytes(directory.resolve(sourceFileName)))) {
-			Files.write(directory.resolve(sourceFileName), sourceBytes, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
-		}
+		FileUtil2.writeFileIfContentChanged(directory.resolve(headerFilename), headerBytes, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+		FileUtil2.writeFileIfContentChanged(directory.resolve(sourceFileName), sourceBytes, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
 		
 	}
 }
