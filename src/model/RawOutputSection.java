@@ -81,9 +81,14 @@ public class RawOutputSection extends AbstractNode implements IAttrValueElement 
 			if(thenExpression.startsWith("\"")) {
 				thenExpression = String.format("%s(%s)",Util.getQStringLiteralConstructor(thenExpression,false), thenExpression);
 			}
+			if(cfg.isRenderToString()) {
+				out.append( String.format("if(%s)\n{\n%s += %s;\n}\n",
+						conditionExpression,cfg.getRenderToQStringVariableName(),thenExpression));
+			} else {
+				out.append( String.format("if(%s)\n{\nFastCgiOutput::write(%s,out);\n}\n",
+						conditionExpression,thenExpression));
+			}
 			
-			out.append( String.format("if(%s)\n{\nFastCgiOutput::write(%s,out);\n}\n",
-					conditionExpression,thenExpression));
 			
 		}
 		
