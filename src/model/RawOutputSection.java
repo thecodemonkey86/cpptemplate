@@ -56,7 +56,7 @@ public class RawOutputSection extends AbstractNode implements IAttrValueElement 
 		}
 		if(inlineIfThenIndex == -1) {
 			if(cfg.isRenderToString()) {
-				out.append( String.format("%s += QString::number(%s);\n",cfg.getRenderToQStringVariableName(), expression));
+				out.append( String.format("FastCgiOutput::writeToBuffer(%s,%s);\n", expression,cfg.getRenderToQStringVariableName()));
 			} else {
 				out.append( String.format("FastCgiOutput::write(%s,out);\n",expression));
 			}
