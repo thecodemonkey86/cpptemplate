@@ -158,8 +158,10 @@ public class HtmlTag extends AbstractNode{
 	public boolean hasAttr(String name) {
 		if(attrs != null) {
 			for(HtmlAttr a:attrs) {
-				if(a.getName().equals(name)) {
-					return true;
+				if(a.getName() != null) {
+					if(a.getName().equals(name)) {
+						return true;
+					}
 				}
 			}
 		}
