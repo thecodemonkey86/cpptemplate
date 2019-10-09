@@ -13,12 +13,12 @@ public class RenderSubtemplateAttrValue implements IAttrValueElement{
 	}
 
 	@Override
-	public void toCpp(StringBuilder out, StringBuilder directTextOutputBuffer, TemplateConfig cfg) {
-		renderSubtemplate.toCppDoubleEscaped(out, directTextOutputBuffer, cfg);
+	public void toCpp(StringBuilder out, StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {
+		renderSubtemplate.toCppDoubleEscaped(out, directTextOutputBuffer, cfg, mainParserResult);
 	}
 	@Override
-	public void toCppDoubleEscaped(StringBuilder out, StringBuilder directTextOutputBuffer, TemplateConfig cfg) {
-		toCpp(out, directTextOutputBuffer, cfg);
+	public void toCppDoubleEscaped(StringBuilder out, StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {
+		toCpp(out, directTextOutputBuffer, cfg,mainParserResult);
 	}
 	@Override
 	public void walkTree(WalkTreeAction action, ParserResult parserResult) throws IOException {

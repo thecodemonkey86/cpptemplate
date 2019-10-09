@@ -32,7 +32,7 @@ public class CppElseIfTag extends HtmlTag {
 	}
 
 	@Override
-	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg) {
+	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {
 		CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
 		out.append("else if ").append(CodeUtil.parentheses(getAttrByName("cond").getStringValue()));
 	
@@ -41,7 +41,7 @@ public class CppElseIfTag extends HtmlTag {
 				out.append("{\n");
 			}
 			for(AbstractNode n:childNodes) {
-				n.toCpp(out,directTextOutputBuffer,cfg);
+				n.toCpp(out,directTextOutputBuffer,cfg, mainParserResult);
 			}
 		} else {
 			out.append("{\n");

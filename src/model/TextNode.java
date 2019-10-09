@@ -31,12 +31,12 @@ public class TextNode extends AbstractNode {
 	}
 
 	@Override
-	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg) {
+	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {
 		if (text.trim().length() > 0)
 			directTextOutputBuffer.append(ParseUtil.dropWhitespaces(text) );
 	}
 	@Override
-	public void toCppDoubleEscaped(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg) {
+	public void toCppDoubleEscaped(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {
 		if (text.trim().length() > 0)
 			directTextOutputBuffer.append(ParseUtil.dropWhitespaces(StringEscapeUtils.escapeHtml4(text)) );
 	}

@@ -19,7 +19,7 @@ public class CppForTag extends HtmlTag {
 	}
 
 	@Override
-	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg ) {
+	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult ) {
 		CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
 		
 		if(hasAttr("each")) {
@@ -30,7 +30,7 @@ public class CppForTag extends HtmlTag {
 			.append("{\n");
 			if (childNodes != null) { 
 				for(AbstractNode n:childNodes) {
-					n.toCpp(out,directTextOutputBuffer,cfg);
+					n.toCpp(out,directTextOutputBuffer,cfg, mainParserResult);
 				}
 			}
 		} else {
@@ -39,7 +39,7 @@ public class CppForTag extends HtmlTag {
 			.append("{\n");
 			if (childNodes != null) { 
 				for(AbstractNode n:childNodes) {
-					n.toCpp(out,directTextOutputBuffer,cfg);
+					n.toCpp(out,directTextOutputBuffer,cfg, mainParserResult);
 				}
 			}
 		}

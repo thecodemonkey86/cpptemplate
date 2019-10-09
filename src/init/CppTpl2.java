@@ -7,7 +7,6 @@ import io.parser.HtmlParser;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -31,9 +30,9 @@ public class CppTpl2 {
 
 //	private static final String LASTCHANGE_FILENAME = "template_lastchange.dat";
 
-	private static String readUtf8(Path p) throws IOException {
-		return new String(Files.readAllBytes(p),Charset.forName("UTF-8"));
-	}
+//	private static String readUtf8(Path p) throws IOException {
+//		return new String(Files.readAllBytes(p),StandardCharsets.UTF_8);
+//	}
 	
 	private static void compileTemplate(TemplateConfig cfg, Path basePath, Path repositoryPath,Settings settings, String clsName, Path templatePath,  Path destBasePath, Set<String> collectInlineJs, Set<String> collectInlineCss,boolean debugMode,boolean nocache) throws IOException, CancelException {
 		CssJsProcessor.setBasePath(basePath);
@@ -45,7 +44,7 @@ public class CppTpl2 {
 		CppOutput.setSettings(settings);
 		HtmlParser.setLineWidth(settings.getLineWidth());
 		HtmlParser p=new HtmlParser();
-		ParserResult result = p.parse(readUtf8(templatePath));
+		ParserResult result = p.parse(cfg,templatePath);
 		Path compiledTemplateDir = TemplateConfig.getDestPath().resolve("compiledtemplate");
 		
 		
@@ -73,7 +72,7 @@ public class CppTpl2 {
 			}
 			
 			for(CppIncludeTag pp: result.getPreprocessorTags()) {
-				ParserResult layoutResult = p.parse(readUtf8(basePath.resolve(pp.getIncludeLayoutTemplatePath())));
+				ParserResult layoutResult = p.parse(cfg,basePath.resolve(pp.getIncludeLayoutTemplatePath()));
 				result.setParentParserResult(layoutResult);
 				System.out.println(layoutResult);
 				layoutResult.getSimpleTemplate().walkTree(new WalkTreeAction() {

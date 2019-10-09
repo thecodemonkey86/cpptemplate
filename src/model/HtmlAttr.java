@@ -44,7 +44,7 @@ public class HtmlAttr implements ITemplateItem{
 	}
 
 	@Override
-	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg)  {
+	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {
 		directTextOutputBuffer.append(" ");
 		directTextOutputBuffer.append(name)
 			.append('=')
@@ -55,25 +55,25 @@ public class HtmlAttr implements ITemplateItem{
 				directTextOutputBuffer.append(e.toString() );
 			} else {
 				CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer,cfg);
-				e.toCpp(out,directTextOutputBuffer,cfg);
+				e.toCpp(out,directTextOutputBuffer,cfg, mainParserResult);
 			}
 		}
 		directTextOutputBuffer.append(valueSeparatorChar);
 	}
 
 	@Override
-	public void toCppDoubleEscaped(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg)  {
+	public void toCppDoubleEscaped(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {
 		directTextOutputBuffer.append(" ");
 		directTextOutputBuffer.append(StringEscapeUtils.escapeHtml4(name) )
 			.append('=')
 			.append("&quot;");
-		
+		 
 		for(IAttrValueElement e: value.getElements()) {
 			if (e.stringOutput()) {
 				directTextOutputBuffer.append(StringEscapeUtils.escapeHtml4(e.toString()) );
 			} else {
 				CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer,cfg);
-				e.toCppDoubleEscaped(out,directTextOutputBuffer,cfg);
+				e.toCppDoubleEscaped(out,directTextOutputBuffer,cfg, mainParserResult);
 			}
 		}
 		directTextOutputBuffer.append("&quot;");

@@ -32,7 +32,7 @@ public abstract class AbstractNode implements ITemplateItem{
 	 * @param out
 	 * @throws IOException 
 	 */
-	public abstract void toCpp(StringBuilder out, StringBuilder directTextOutputBuffer, TemplateConfig cfg) ;
+	public abstract void toCpp(StringBuilder out, StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) ;
 	
 	public void walkTree(WalkTreeAction action,ParserResult parserResult) throws IOException {
 		action.currentNode(this, parserResult);

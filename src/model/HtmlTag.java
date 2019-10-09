@@ -87,20 +87,20 @@ public class HtmlTag extends AbstractNode{
 
 
 	@Override
-	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg)  {
+	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {
 		directTextOutputBuffer.append("<");
 		directTextOutputBuffer.append(tagName);
 		
 		if (attrs!=null) {
 			for(HtmlAttr a:attrs) {
-				a.toCpp(out,directTextOutputBuffer,cfg);
+				a.toCpp(out,directTextOutputBuffer,cfg, mainParserResult);
 			}
 		}
 		
 		directTextOutputBuffer.append(">");
 		if (childNodes != null) { 
 			for(AbstractNode n:childNodes) {
-				n.toCpp(out,directTextOutputBuffer,cfg);
+				n.toCpp(out,directTextOutputBuffer,cfg, mainParserResult);
 			}
 		}
 		
@@ -110,20 +110,20 @@ public class HtmlTag extends AbstractNode{
 	}
 	
 	@Override
-	public void toCppDoubleEscaped(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg)  {
+	public void toCppDoubleEscaped(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {
 		directTextOutputBuffer.append(StringEscapeUtils.escapeHtml4("<"));
 		directTextOutputBuffer.append(tagName);
 		
 		if (attrs!=null) {
 			for(HtmlAttr a:attrs) {
-				a.toCppDoubleEscaped(out,directTextOutputBuffer,cfg);
+				a.toCppDoubleEscaped(out,directTextOutputBuffer,cfg, mainParserResult);
 			}
 		}
 		
 		directTextOutputBuffer.append(StringEscapeUtils.escapeHtml4(">"));
 		if (childNodes != null) { 
 			for(AbstractNode n:childNodes) {
-				n.toCppDoubleEscaped(out,directTextOutputBuffer,cfg);
+				n.toCppDoubleEscaped(out,directTextOutputBuffer,cfg, mainParserResult);
 			}
 		}
 		

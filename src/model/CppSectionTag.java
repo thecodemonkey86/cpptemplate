@@ -14,7 +14,7 @@ public class CppSectionTag extends HtmlTag {
 	}
 	
 	@Override
-	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg) {
+	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {
 		if (childNodes != null) { 
 			boolean hasAttr = hasAttr("args");
 			if(hasAttr) {
@@ -27,15 +27,15 @@ public class CppSectionTag extends HtmlTag {
 				for(int i = 0; i < arguments.length; i++) {
 					sb.append(String.format("auto %s = %s;\n", arguments[i], passedArgs[i]));
 				}
-				new CppCodeTag("{").toCpp(out, directTextOutputBuffer, cfg);
+				new CppCodeTag("{").toCpp(out, directTextOutputBuffer, cfg, mainParserResult);
 				CppCodeTag code = new CppCodeTag(sb.toString());
-				code.toCpp(out, directTextOutputBuffer, cfg);
+				code.toCpp(out, directTextOutputBuffer, cfg, mainParserResult);
 			}
 			for(AbstractNode n:childNodes) {
-				n.toCpp(out,directTextOutputBuffer,cfg);
+				n.toCpp(out,directTextOutputBuffer,cfg, mainParserResult);
 			}
 			if(hasAttr) {
-				new CppCodeTag("}").toCpp(out, directTextOutputBuffer, cfg);
+				new CppCodeTag("}").toCpp(out, directTextOutputBuffer, cfg, mainParserResult);
 			}
 		}
 	}

@@ -12,7 +12,7 @@ public class CppStringFormatTag extends HtmlTag {
 	}
 	
 	@Override
-	public void toCpp(StringBuilder out, StringBuilder directTextOutputBuffer, TemplateConfig cfg) {
+	public void toCpp(StringBuilder out, StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {
 		/*CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
 		
 		if(childNodes.size() == 1) {

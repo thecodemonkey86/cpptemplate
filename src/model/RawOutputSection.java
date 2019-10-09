@@ -29,7 +29,7 @@ public class RawOutputSection extends AbstractNode implements IAttrValueElement 
 	
 
 	@Override
-	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg) {
+	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {
 		CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer,cfg);
 		
 		int inlineIfThenIndex = -1;
@@ -95,8 +95,8 @@ public class RawOutputSection extends AbstractNode implements IAttrValueElement 
 		
 	}
 	@Override
-	public void toCppDoubleEscaped(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg) {
-		toCpp(out, directTextOutputBuffer, cfg);
+	public void toCppDoubleEscaped(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {
+		toCpp(out, directTextOutputBuffer, cfg, mainParserResult);
 	}
 	@Override
 	public boolean stringOutput() {

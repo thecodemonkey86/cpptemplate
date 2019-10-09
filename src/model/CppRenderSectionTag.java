@@ -18,14 +18,14 @@ public class CppRenderSectionTag extends HtmlTag {
 	}
 
 	@Override
-	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg) {
+	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {
 		if (this.renderTmpl == null) {
 			throw new RuntimeException("illegal state");
 		}
 		if(hasAttr("args")) {
 			renderTmpl.setPassedArgs(getAttrByName("args").getStringValue().split(","));
 		}
-		renderTmpl.toCpp(out,directTextOutputBuffer,cfg);
+		renderTmpl.toCpp(out,directTextOutputBuffer,cfg, mainParserResult);
 	}
 	
 	public void setRenderTmpl(CppSectionTag renderTmpl) {

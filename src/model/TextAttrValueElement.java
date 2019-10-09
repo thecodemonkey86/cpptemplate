@@ -25,12 +25,12 @@ public class TextAttrValueElement implements IAttrValueElement{
 	}
 
 	@Override
-	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg) {
+	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {
 		CppOutput.addOutChunks(out, ParseUtil.dropWhitespaces(chars), HtmlParser.getLineWidth(),cfg);
 	}
 	
 	@Override
-	public void toCppDoubleEscaped(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg) {
+	public void toCppDoubleEscaped(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {
 		CppOutput.addOutChunks(out, ParseUtil.dropWhitespaces(StringEscapeUtils.escapeHtml4(chars)), HtmlParser.getLineWidth(),cfg);
 	}
 	@Override

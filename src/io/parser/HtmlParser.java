@@ -1,7 +1,10 @@
 package io.parser;
 
 import java.io.IOException;
-
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import config.TemplateConfig;
 import util.Pair;
 import util.ParseUtil;
 import model.AbstractNode;
@@ -17,6 +20,7 @@ import model.CppIfTag;
 import model.CppRenderSubtemplateTag;
 import model.CppRenderSectionTag;
 import model.CppSectionTag;
+import model.CppSubtemplateTag;
 import model.CppThenTag;
 import model.CppTranslate;
 import model.DynamicHtmlAttr;
@@ -29,6 +33,7 @@ import model.ParserResult;
 import model.QStringHtmlEscapedOutputSection;
 import model.RawOutputSection;
 import model.RenderSubtemplateAttrValue;
+import model.Subtemplate;
 import model.Template;
 import model.TextAttrValueElement;
 import model.TextNode;
@@ -60,12 +65,15 @@ public class HtmlParser {
 	protected String html;
 	protected int currentPos;
 	protected ParserResult result;
+	protected Path filePath;
+	protected TemplateConfig cfg;
 	
 	
-	
-	public ParserResult parse(String html) throws IOException {
+	public ParserResult parse(TemplateConfig cfg,Path filePath) throws IOException {
+		this.filePath = filePath;
+		this.cfg = cfg;
 		this.currentPos = 0;
-		this.html = html;
+		this.html = new String(Files.readAllBytes(filePath),StandardCharsets.UTF_8);
 		this.result=new ParserResult();
 		parseRoot();
 		
@@ -388,23 +396,53 @@ public class HtmlParser {
 	}
 
 	private IAttrValueElement parseRenderSubtemplateAttributeValue() throws IOException {
-		/*int start = currentPos;
+		int start = currentPos;
 		CppRenderSubtemplateTag t = new CppRenderSubtemplateTag();
-		while(!atEnd()) {
-			switch (currChar()) {
-			case '=':
-				if(!html.substring(start,currentPos).equals("name")) {
-					throw new IOException("Expected \"name\" tag");
-				}
+		RenderSubtemplateAttrValue val = new RenderSubtemplateAttrValue(t);
+		boolean escape = false;
 				
-				break;
-
-			default:
-				break;
+		while(!atEnd()) {
+			if(!escape) {
+				switch (currChar()) {
+				case '\\':
+					escape = true;
+					break;
+				case '=':
+					Pair<Integer, Character> pQuot = ParseUtil.firstIndexOf(html, '\"', '\'', currentPos);
+					int indexQuotEnd = html.indexOf(pQuot.getValue2(),pQuot.getValue1()+1);
+					AttrValue v = new AttrValue();
+					v.addElement(new TextAttrValueElement(html.substring(pQuot.getValue1()+1,indexQuotEnd).replace("\\\\", "\\").replace("\\\"", "\"").replace("\\\'", "\'")));
+					String attrName =html.substring(start,currentPos);
+					if(!attrName.equals("name") && !attrName.equals("args")) {
+						throw new IOException("Expected \"name\" or \"args\" tag");
+					}
+					t.addAttr(new HtmlAttr(attrName, v, pQuot.getValue2()));
+					currentPos = indexQuotEnd;
+					start = indexQuotEnd;
+					break;
+				case '/':
+					next();
+					if(currChar()=='>') {
+						return val;
+					} else {
+						throw new IOException("syntax error");
+					}
+				case ' ':
+				case '\n':
+				case '\r':
+				case '\t':
+					start = currentPos+1;
+					break;
+				default:
+					break;
+				}
+			} else {
+				escape = false;
 			}
 			next();
-		}*/
-		Pair<Integer, Character> nextWhitespace = ParseUtil.firstIndexOf(html, new char[]{' ','\t','\r','\n'}, currentPos);
+		}
+		throw new IOException("syntax error");
+		/*Pair<Integer, Character> nextWhitespace = ParseUtil.firstIndexOf(html, new char[]{' ','\t','\r','\n'}, currentPos);
 		currentPos = nextWhitespace.getValue1();
 		Pair<String, Integer> pEq = ParseUtil.getIndexAndSubstrToNextChar(html, currentPos, '=');
 		int indexEq = pEq.getValue2();
@@ -444,7 +482,7 @@ public class HtmlParser {
 				throw new IOException("syntax error");
 			}
 		}
-		return val;
+		return val;*/
 	}
 
 	protected HtmlTag parseNode() throws IOException {
@@ -480,6 +518,9 @@ public class HtmlParser {
 					tag = new CppTranslate();
 				} else if (tagName.equals(CppRenderSubtemplateTag.TAG_NAME)) {
 					tag = new CppRenderSubtemplateTag();
+				} else if (tagName.equals(CppSubtemplateTag.TAG_NAME)) {
+					tag = new CppSubtemplateTag(TemplateConfig.getSrcPath().resolve(TemplateConfig.DIR_SUBTEMPLATES).relativize(filePath).toString());
+					Subtemplate.addSubtemplatesFunctionHeader((CppSubtemplateTag) tag);
 				} 
 			}
 		} else {

@@ -17,7 +17,7 @@ public class CppCommentTag extends HtmlTag {
 	}
 
 	@Override
-	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg) {
+	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {
 //		out.append("/*");
 //		super.toCpp(out);
 //		out.append("*/");

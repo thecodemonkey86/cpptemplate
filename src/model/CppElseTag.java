@@ -18,12 +18,12 @@ public class CppElseTag extends HtmlTag {
 	}
 
 	@Override
-	public void toCpp(StringBuilder out, StringBuilder directTextOutputBuffer, TemplateConfig cfg) {
+	public void toCpp(StringBuilder out, StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {
 		CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
 		out.append("else {\n");
 		if (childNodes != null) { 
 			for(AbstractNode n:childNodes) {
-				n.toCpp(out,directTextOutputBuffer,cfg);
+				n.toCpp(out,directTextOutputBuffer,cfg, mainParserResult);
 			}
 		}
 		CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);

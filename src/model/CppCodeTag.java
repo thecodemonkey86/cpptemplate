@@ -29,7 +29,7 @@ public class CppCodeTag extends AbstractNode implements IAttrValueElement {
 	}
 
 	@Override
-	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg) {
+	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {
 		String[] lines = code.split("\n");
 		StringBuilder sbTrimmed = new StringBuilder(code.length());
 		if(lines.length > 0) {
@@ -47,8 +47,8 @@ public class CppCodeTag extends AbstractNode implements IAttrValueElement {
 	}
 	
 	@Override
-	public void toCppDoubleEscaped(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg) {
-		toCpp(out, directTextOutputBuffer, cfg);
+	public void toCppDoubleEscaped(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {
+		toCpp(out, directTextOutputBuffer, cfg, mainParserResult);
 	}
 
 	@Override

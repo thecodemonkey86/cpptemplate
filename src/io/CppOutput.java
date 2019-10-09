@@ -21,6 +21,7 @@ import io.parser.HtmlParser;
 import model.HtmlLinkTag;
 import model.HtmlMetaTag;
 import model.ParserResult;
+import model.Subtemplate;
 import settings.Settings;
 import util.FileUtil2;
 import util.Pair;
@@ -234,7 +235,7 @@ public class CppOutput {
 		
 		StringBuilder out = new StringBuilder();
 		StringBuilder directTextOutputBuffer = new StringBuilder();
-		layoutResult.getSimpleTemplate().toCpp(out,directTextOutputBuffer,cfg);
+		layoutResult.getSimpleTemplate().toCpp(out,directTextOutputBuffer,cfg, result);
 		
 		if(cfg.isIncludeTranslations())
 			CodeUtil.writeLine(sbSrc, "#include \"translations/compiled/translations.h\"");
@@ -248,6 +249,15 @@ public class CppOutput {
 		if(!cfg.isRenderToString()) {
 			CodeUtil.writeLine(sbSrc, "class "+compiledTplClassName+" : public HtmlTemplate{");
 			 
+			if(result.hasSubtemplatesAsFunction()) {
+				for(Pair<Subtemplate, Boolean> p:result.getSubtemplatesAsFunctions()) {
+					if(p.getValue2())
+						p.getValue1().toCppDoubleEscaped(sbSrc, directTextOutputBuffer, cfg, result);
+					else
+						p.getValue1().toCpp(sbSrc, directTextOutputBuffer, cfg, result);
+					
+				}
+			}
 			
 			CodeUtil.writeLine(sbSrc, "public: template<class T> inline void renderBody(std::unique_ptr<T> data){");
 			if(cfg.isIncludeTranslations()) {
@@ -316,9 +326,17 @@ public class CppOutput {
 			}
 		} else {
 			CodeUtil.writeLine(sbSrc, "class "+compiledTplClassName+"{");
-			if(compiledTplClassName.equals("DocumentPrepareMoveDialogViewCompiledTemplate")) {
-				System.out.println();
+			 
+			if(result.hasSubtemplatesAsFunction()) {
+				for(Pair<Subtemplate, Boolean> p:result.getSubtemplatesAsFunctions()) {
+					if(p.getValue2())
+						p.getValue1().toCppDoubleEscaped(sbSrc, directTextOutputBuffer, cfg, result);
+					else
+						p.getValue1().toCpp(sbSrc, directTextOutputBuffer, cfg, result);
+					
+				}
 			}
+			
 			CodeUtil.writeLine(sbSrc, String.format("public: template<class T> inline static %s renderBody(std::unique_ptr<T> data%s){",cfg.isRenderToString() ? "QString" : "void" , cfg.isRenderToString()?"":",FCGX_Stream * out"));
 			if(cfg.isIncludeTranslations()) {
 				CodeUtil.writeLine(sbSrc, "auto translations = data->getTranslations();");

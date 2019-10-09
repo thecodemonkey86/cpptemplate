@@ -26,7 +26,7 @@ public class CppFormSelectOption extends HtmlTag{
 	}
 	
 	@Override
-	public void toCpp(StringBuilder out, StringBuilder directTextOutputBuffer, TemplateConfig cfg) {
+	public void toCpp(StringBuilder out, StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {
 		
 		directTextOutputBuffer.append("<");
 		directTextOutputBuffer.append(tagName);
@@ -34,7 +34,7 @@ public class CppFormSelectOption extends HtmlTag{
 		if (attrs!=null) {
 			for(HtmlAttr a:attrs) {
 				
-				a.toCpp(out,directTextOutputBuffer,cfg);
+				a.toCpp(out,directTextOutputBuffer,cfg, mainParserResult);
 				CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
 				if(this.selectedValueExpression != null) {
 					HtmlAttr optionValue = getAttrByName("value");
@@ -72,7 +72,7 @@ public class CppFormSelectOption extends HtmlTag{
 		directTextOutputBuffer.append(">");
 		if (childNodes != null) { 
 			for(AbstractNode n:childNodes) {
-				n.toCpp(out,directTextOutputBuffer,cfg);
+				n.toCpp(out,directTextOutputBuffer,cfg, mainParserResult);
 			}
 		}
 		

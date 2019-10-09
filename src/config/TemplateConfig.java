@@ -3,6 +3,7 @@ import java.nio.file.Path;
 
 
 public class TemplateConfig {
+	public static final String DIR_SUBTEMPLATES = "subtemplates";
 	private String clsName; 
 	//private Path tplClsFile
 	private Path tmplPath;

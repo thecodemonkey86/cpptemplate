@@ -39,10 +39,10 @@ public class Template implements ITemplateItem {
 	}
 
 	@Override
-	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg) {
+	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {
 		if (this.tags != null) {
 			for(ITemplateItem n:tags) {
-				n.toCpp(out,directTextOutputBuffer,cfg);
+				n.toCpp(out,directTextOutputBuffer,cfg, mainParserResult);
 			}
 			CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
 		}
@@ -50,10 +50,10 @@ public class Template implements ITemplateItem {
 	}
 	
 	@Override
-	public void toCppDoubleEscaped(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg) {
+	public void toCppDoubleEscaped(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {
 		if (this.tags != null) {
 			for(ITemplateItem n:tags) {
-				n.toCppDoubleEscaped(out,directTextOutputBuffer,cfg);
+				n.toCppDoubleEscaped(out,directTextOutputBuffer,cfg, mainParserResult);
 			}
 			CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
 		}

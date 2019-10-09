@@ -14,7 +14,7 @@ public class EmptyHtmlAttr extends HtmlAttr{
 	}
 
 	@Override
-	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer,TemplateConfig cfg) {
+	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer,TemplateConfig cfg,ParserResult mainParserResult) {
 		directTextOutputBuffer.append(" ");
 		directTextOutputBuffer.append(name) ;
 	}

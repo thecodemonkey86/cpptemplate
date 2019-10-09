@@ -7,6 +7,7 @@ import java.util.List;
 
 import config.TemplateConfig;
 import io.CppOutput;
+import util.Pair;
 
 public class ParserResult {
 
@@ -16,6 +17,7 @@ public class ParserResult {
 //	protected List<CppSectionTag> sectionTags;
 	protected ParserResult parentParserResult;
 	protected boolean hasLayoutTemplate;
+	protected List<Pair<Subtemplate,Boolean>> subtemplatesAsFunctions; // if subtemplates have arguments their rendering must be extracted as function
 	
 	public ParserResult() {
 		preprocessorTags = new ArrayList<>();
@@ -114,10 +116,10 @@ public class ParserResult {
 //		this.nodes.add(tag);
 //	}
 //
-	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg) throws IOException {
+	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) throws IOException {
 		if(isSimpleTemplate()) {
 			if(simpleTemplate != null) {
-				simpleTemplate.toCpp(out,directTextOutputBuffer,cfg);
+				simpleTemplate.toCpp(out,directTextOutputBuffer,cfg, mainParserResult);
 				CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer,cfg);
 			}
 		} else {
@@ -126,10 +128,10 @@ public class ParserResult {
 		
 	}
 	
-	public void toCppDoubleEscaped(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg) throws IOException {
+	public void toCppDoubleEscaped(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) throws IOException {
 		if(isSimpleTemplate()) {
 			if(simpleTemplate != null) {
-				simpleTemplate.toCppDoubleEscaped(out,directTextOutputBuffer,cfg);
+				simpleTemplate.toCppDoubleEscaped(out,directTextOutputBuffer,cfg, mainParserResult);
 				CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer,cfg);
 			}
 		} else {
@@ -257,7 +259,33 @@ public class ParserResult {
 		}
 		return includeHeaderFiles;
 	}
+	
+	
+	
+	
+	public void addSubtemplatesAsFunction(Subtemplate t,boolean doubleEncode) {
+		if(this.subtemplatesAsFunctions==null) {
+			this.subtemplatesAsFunctions = new ArrayList<>();
+		}
+		boolean found=false;
+		
+		for(Pair<Subtemplate, Boolean> p : subtemplatesAsFunctions) {
+			if(p.getValue1().getSubtemplateIdentifier().equals(t.getSubtemplateIdentifier()) && p.getValue2().equals(doubleEncode)) {
+				found = true;
+				break;
+			}
+		}
+		if(!found)
+			this.subtemplatesAsFunctions.add(new Pair<Subtemplate, Boolean>(t, doubleEncode) );
+	}
+	
+	public boolean hasSubtemplatesAsFunction() {
+		return subtemplatesAsFunctions != null && !subtemplatesAsFunctions.isEmpty();
+	}
 
+	public List<Pair<Subtemplate, Boolean>> getSubtemplatesAsFunctions() {
+		return subtemplatesAsFunctions;
+	}
 /*	public void addSectionTag(CppSectionTag section) {
 		if(	this.sectionTags==null)
 			this.sectionTags = new ArrayList<>();
