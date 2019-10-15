@@ -8,7 +8,11 @@ import util.Util;
 
 public class QStringHtmlEscapedOutputSection extends AbstractNode implements IAttrValueElement {
 
-	String expression;
+	private String expression;
+	
+	public String getExpression() {
+		return expression;
+	}
 	
 	public QStringHtmlEscapedOutputSection(String expression) throws IOException {
 		this.expression = expression.trim();
