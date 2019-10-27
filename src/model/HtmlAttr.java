@@ -3,8 +3,10 @@ package model;
 
 import org.apache.commons.text.StringEscapeUtils;
 
+import codegen.CodeUtil;
 import config.TemplateConfig;
 import io.CppOutput;
+import io.parser.HtmlParser;
 
 public class HtmlAttr implements ITemplateItem{
 
@@ -45,20 +47,36 @@ public class HtmlAttr implements ITemplateItem{
 
 	@Override
 	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {
-		directTextOutputBuffer.append(" ");
-		directTextOutputBuffer.append(name)
-			.append('=')
-			.append(valueSeparatorChar);
 		
-		for(IAttrValueElement e: value.getElements()) {
-			if (e.stringOutput()) {
-				directTextOutputBuffer.append(e.toString() );
-			} else {
-				CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer,cfg);
-				e.toCpp(out,directTextOutputBuffer,cfg, mainParserResult);
+		if(!name.startsWith(HtmlParser.CPP_NS+":")) {
+			directTextOutputBuffer.append(" ");
+			directTextOutputBuffer.append(name)
+				.append('=')
+				.append(valueSeparatorChar);
+			
+			for(IAttrValueElement e: value.getElements()) {
+				if (e.stringOutput()) {
+					directTextOutputBuffer.append(e.toString() );
+				} else {
+					CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer,cfg);
+					e.toCpp(out,directTextOutputBuffer,cfg, mainParserResult);
+				}
 			}
+			directTextOutputBuffer.append(valueSeparatorChar);
+		} else {
+			String[] parts = name.split(":");
+			if(parts.length==2) {
+				if(parts[1].equals("disabled") || parts[1].equals("checked")) {
+					CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
+					CodeUtil.writeLine(out, "if("+ getStringValue()+") {");
+					directTextOutputBuffer.append(" ").append(parts[1]);
+					CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
+					CodeUtil.writeLine(out, "}");
+				}
+			}
+			
 		}
-		directTextOutputBuffer.append(valueSeparatorChar);
+		
 	}
 
 	@Override

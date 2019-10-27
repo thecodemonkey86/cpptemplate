@@ -9,6 +9,7 @@ import util.Pair;
 import util.ParseUtil;
 import model.AbstractNode;
 import model.AttrValue;
+import model.CppButtonTag;
 import model.CppCodeTag;
 import model.CppCommentTag;
 import model.CppElseIfTag;
@@ -38,6 +39,7 @@ import model.Template;
 import model.TextAttrValueElement;
 import model.TextNode;
 import model.CppIncludeTag;
+import model.CppInputTag;
 
 public class HtmlParser {
 
@@ -338,13 +340,13 @@ public class HtmlParser {
 		Pair<String, Integer> pEq = ParseUtil.getIndexAndSubstrToNextChar(html, currentPos, '=');
 		int indexEq = pEq.getValue2();
 		String attrName = pEq.getValue1().trim();
-		if (!attrName.matches("[a-zA-Z-]+")) {
+		if (!attrName.matches("[a-zA-Z-:]+")) {
 			String[] arr = attrName.split("\\s");
 			
-			if(arr[0].matches("[a-zA-Z-]+")) {
+			if(arr[0].matches("[a-zA-Z-:]+")) {
 				currentPos += arr[0].length();
 				return new EmptyHtmlAttr(arr[0]);
-			} else if(arr[0].matches("[a-zA-Z-]+>")) {
+			} else if(arr[0].matches("[a-zA-Z-:]+>")) {
 				currentPos += arr[0].length()-2;
 				return new EmptyHtmlAttr(arr[0].substring(0, arr[0].length()-1));
 			}
@@ -512,6 +514,10 @@ public class HtmlParser {
 					tag = new CppElseTag();
 				} else if (tagName.equals(CppFormSelect.TAG_NAME)) {
 					tag = new CppFormSelect();	
+				} else if (tagName.equals(CppInputTag.TAG_NAME)) {
+					tag = new CppInputTag();	
+				} else if (tagName.equals(CppButtonTag.TAG_NAME)) {
+					tag = new CppButtonTag();	
 				} else if (tagName.equals(CppFormSelectOption.TAG_NAME)) {
 					tag = new CppFormSelectOption();	
 				} else if (tagName.equals(CppTranslate.TAG_NAME)) {
