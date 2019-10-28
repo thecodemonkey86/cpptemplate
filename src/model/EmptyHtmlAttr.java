@@ -1,10 +1,12 @@
 package model;
 
+import java.io.IOException;
+
 import config.TemplateConfig;
 
 public class EmptyHtmlAttr extends HtmlAttr{
 
-	public EmptyHtmlAttr(String name) {
+	public EmptyHtmlAttr(String name) throws IOException {
 		super(name, null, ' ');
 	}
 	
