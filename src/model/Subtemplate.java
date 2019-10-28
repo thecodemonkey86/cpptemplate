@@ -40,12 +40,13 @@ public class Subtemplate {
 	}
 	
 	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) throws IOException {
-		String[] templateArgsDef = new String[arguments.length];
-		String[] templateArgsDecl = new String[arguments.length];
-		
 		CppSubtemplateTag subtemplatesFunctionHeader = getSubtemplatesFunctionHeaderByIdentifier(getSubtemplateIdentifier());
 		
-		for(int i=0;i<arguments.length;i++) {
+		int argCount = subtemplatesFunctionHeader.getArgumentCount();
+		String[] templateArgsDef = new String[argCount];
+		String[] templateArgsDecl = new String[argCount];
+		
+		for(int i=0;i<subtemplatesFunctionHeader.getArgumentCount();i++) {
 			String type="A"+i;
 			templateArgsDef[i] = "class "+type;
 			templateArgsDecl[i] = CodeUtil.sp(type,subtemplatesFunctionHeader.getArgument(i));
@@ -78,22 +79,25 @@ public class Subtemplate {
 
 
 	public static CppSubtemplateTag getSubtemplatesFunctionHeaderByIdentifier(String identifier) throws IOException {
-		for(CppSubtemplateTag t : subtemplatesFunctionsHeaders) {
-			if(t.getSubtemplateIdentifier().equals(identifier)) {
-				return t;
+		if(subtemplatesFunctionsHeaders != null) {
+			for(CppSubtemplateTag t : subtemplatesFunctionsHeaders) {
+				if(t.getSubtemplateIdentifier().equals(identifier)) {
+					return t;
+				}
 			}
 		}
-		throw new IOException("no such subtemplate function");
+		throw new IOException("no such subtemplate function: "+identifier);
 	}
 	
 	public void toCppDoubleEscaped(StringBuilder out, StringBuilder directTextOutputBuffer, TemplateConfig cfg,
 			ParserResult mainParserResult) throws IOException {
-		String[] templateArgsDef = new String[arguments.length];
-		String[] templateArgsDecl = new String[arguments.length];
+		
 		
 		CppSubtemplateTag subtemplatesFunctionHeader = getSubtemplatesFunctionHeaderByIdentifier(getSubtemplateIdentifier());
-		
-		for(int i=0;i<arguments.length;i++) {
+		int argCount = subtemplatesFunctionHeader.getArgumentCount();
+		String[] templateArgsDef = new String[argCount];
+		String[] templateArgsDecl = new String[argCount];
+		for(int i=0;i<argCount;i++) {
 			String type="A"+i;
 			templateArgsDef[i] = "class "+type;
 			templateArgsDecl[i] = CodeUtil.sp(type,subtemplatesFunctionHeader.getArgument(i));

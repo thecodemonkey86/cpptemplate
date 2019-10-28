@@ -50,4 +50,9 @@ public class CppSubtemplateTag extends HtmlTag {
 			}
 		}
 	}
+
+
+	public int getArgumentCount() {
+		return  getAttrStringValue("args").split(",").length;
+	}
 }
