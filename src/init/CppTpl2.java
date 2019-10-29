@@ -212,6 +212,7 @@ public class CppTpl2 {
 //			Files.write(Paths.get("D:\\Temp\\test.cpp"),out.toString().getBytes(Charset.forName("UTF-8"))  , StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
 		} catch (Exception e) {
 			e.printStackTrace();
+			System.exit(1);
 		}
 		
 	}

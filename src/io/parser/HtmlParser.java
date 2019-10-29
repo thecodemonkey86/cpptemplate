@@ -28,6 +28,7 @@ import model.DynamicHtmlAttr;
 import model.EmptyHtmlAttr;
 import model.HtmlAttr;
 import model.HtmlBr;
+import model.HtmlStyleTag;
 import model.HtmlTag;
 import model.IAttrValueElement;
 import model.ParserResult;
@@ -548,6 +549,22 @@ public class HtmlParser {
 					next();
 				}
 				return tag;
+			} else if (tagName.equals(HtmlStyleTag.TAG_NAME)) {
+				HtmlStyleTag styleTag = new HtmlStyleTag();
+				next(HtmlStyleTag.TAG_NAME.length());
+				while(!atEnd() && currChar() != '>') {
+					if(Character.isAlphabetic(currChar()) || currChar() == '-') {
+						styleTag.addAttr(parseAttr());
+					}  
+					next();
+				}
+				 
+				next();
+				String endTag = String.format("</%s>",HtmlStyleTag.TAG_NAME);
+				Pair<String, Integer> pair = ParseUtil.getIndexAndSubstrToNextString(html, currentPos, endTag);
+				styleTag.setCss(pair.getValue1());
+				currentPos = pair.getValue2()+endTag.length()-1;
+				return styleTag;
 			} else {
 				tag=new HtmlTag(tagName);
 			}

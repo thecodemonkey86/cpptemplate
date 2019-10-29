@@ -102,6 +102,17 @@ public class ParseUtil {
 	public static String dropWhitespaces(String string) {
 		return StringUtil.dropAll(StringUtil.dropAll(string, '\r','\n','\t'),"  ");
 	}
+
+	public static Pair<String,Integer> getIndexAndSubstrToNextString(String html, int offset, String next) throws IOException {
+		int index = html.indexOf(next, offset);
+		if(index > -1) {
+			return new Pair<String, Integer>( html.substring(offset, index), index);
+		} else {
+			throw new IOException("syntax error. Expected "+next);
+		}
+		
+	}
+
 	
 	
 	
