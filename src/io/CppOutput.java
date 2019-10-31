@@ -247,83 +247,107 @@ public class CppOutput {
 		CodeUtil.writeLine(sbSrc, "using namespace std;");
 		
 		if(!cfg.isRenderToString()) {
-			CodeUtil.writeLine(sbSrc, "class "+compiledTplClassName+" : public HtmlTemplate{");
-			 
-			if(result.hasSubtemplatesAsFunction()) {
-				for(Pair<Subtemplate, Boolean> p:result.getSubtemplatesAsFunctions()) {
-					if(p.getValue2())
-						p.getValue1().toCppDoubleEscaped(sbSrc, directTextOutputBuffer, cfg, result);
-					else
-						p.getValue1().toCpp(sbSrc, directTextOutputBuffer, cfg, result);
+			if(!cfg.isRenderStatic()) {
+				CodeUtil.writeLine(sbSrc, "class "+compiledTplClassName+" : public HtmlTemplate{");
+				 
+				if(result.hasSubtemplatesAsFunction()) {
+					for(Pair<Subtemplate, Boolean> p:result.getSubtemplatesAsFunctions()) {
+						if(p.getValue2())
+							p.getValue1().toCppDoubleEscaped(sbSrc, directTextOutputBuffer, cfg, result);
+						else
+							p.getValue1().toCpp(sbSrc, directTextOutputBuffer, cfg, result);
+						
+					}
+				}
+				
+				CodeUtil.writeLine(sbSrc, "public: template<class T> inline void renderBody(std::unique_ptr<T> data){");
+				if(cfg.isIncludeTranslations()) {
+					CodeUtil.writeLine(sbSrc, "auto translations = data->getTranslations();");
+				}
+				CodeUtil.writeLine(sbSrc, out.toString());
+				CodeUtil.writeLine(sbSrc, "}");
+				CodeUtil.writeLine(sbSrc, "public: template<class T> inline void render(std::unique_ptr<T> data){");
+				
+				if(!jsLinks.isEmpty()) {
+					for(String jsLink : jsLinks) {
+						CodeUtil.writeLine(sbSrc, "addJsFile"+CodeUtil.parentheses(Util.qStringLiteral(jsLink))+";");
+					}
+				}
+				if(!cssLinks.isEmpty()) {
+					for(String cssLink : cssLinks) {
+						CodeUtil.writeLine(sbSrc, "addCssFile"+CodeUtil.parentheses(Util.qStringLiteral(cssLink))+";");
+					}
+				}
+				if(!fontLinks.isEmpty()) {
+					for(String fontLink : fontLinks) {
+						CodeUtil.writeLine(sbSrc, "addFont"+CodeUtil.parentheses(Util.qStringLiteral(fontLink))+";");
+					}
+				}
+				
+				if(!metaTags.isEmpty()) {
+					for(HtmlMetaTag metaTag : metaTags) {
+						CodeUtil.writeLine(sbSrc, "addMetaTag"+CodeUtil.parentheses(metaTag.toCppConstructor())+";");
+					}
+				}
+				if(!linkTags.isEmpty()) {
+					for(HtmlLinkTag linkTag : linkTags) {
+						CodeUtil.writeLine(sbSrc, "addLinkTag"+CodeUtil.parentheses(linkTag.toCppConstructor())+";");
+					}
+				}
+				CodeUtil.writeLine(sbSrc, "this->renderHeader();");
+				CodeUtil.writeLine(sbSrc, "this->renderBody(std::move(data));");
+				CodeUtil.writeLine(sbSrc, "this->renderFooter();");
+				CodeUtil.writeLine(sbSrc, "}");
+				
+				
+				
+				if(!inlineJs.isEmpty()) {
+					CodeUtil.writeLine(sbSrc, "public: virtual void renderInlineJs() const override{");
 					
+					
+					int i=0;
+					for(String jsSrc : inlineJs) {
+						CodeUtil.writeLine(sbSrc, CodeUtil.sp("InlineJsRenderer::"+getJsOrCssMethodName(jsSrc)+"(out);", i==inlineJs.size()-1 ? null : "\\"));
+						i++;
+					}
+					CodeUtil.writeLine(sbSrc, "}");
 				}
-			}
-			
-			CodeUtil.writeLine(sbSrc, "public: template<class T> inline void renderBody(std::unique_ptr<T> data){");
-			if(cfg.isIncludeTranslations()) {
-				CodeUtil.writeLine(sbSrc, "auto translations = data->getTranslations();");
-			}
-			CodeUtil.writeLine(sbSrc, out.toString());
-			CodeUtil.writeLine(sbSrc, "}");
-			CodeUtil.writeLine(sbSrc, "public: template<class T> inline void render(std::unique_ptr<T> data){");
-			
-			if(!jsLinks.isEmpty()) {
-				for(String jsLink : jsLinks) {
-					CodeUtil.writeLine(sbSrc, "addJsFile"+CodeUtil.parentheses(Util.qStringLiteral(jsLink))+";");
-				}
-			}
-			if(!cssLinks.isEmpty()) {
-				for(String cssLink : cssLinks) {
-					CodeUtil.writeLine(sbSrc, "addCssFile"+CodeUtil.parentheses(Util.qStringLiteral(cssLink))+";");
-				}
-			}
-			if(!fontLinks.isEmpty()) {
-				for(String fontLink : fontLinks) {
-					CodeUtil.writeLine(sbSrc, "addFont"+CodeUtil.parentheses(Util.qStringLiteral(fontLink))+";");
-				}
-			}
-			
-			if(!metaTags.isEmpty()) {
-				for(HtmlMetaTag metaTag : metaTags) {
-					CodeUtil.writeLine(sbSrc, "addMetaTag"+CodeUtil.parentheses(metaTag.toCppConstructor())+";");
-				}
-			}
-			if(!linkTags.isEmpty()) {
-				for(HtmlLinkTag linkTag : linkTags) {
-					CodeUtil.writeLine(sbSrc, "addLinkTag"+CodeUtil.parentheses(linkTag.toCppConstructor())+";");
-				}
-			}
-			CodeUtil.writeLine(sbSrc, "this->renderHeader();");
-			CodeUtil.writeLine(sbSrc, "this->renderBody(std::move(data));");
-			CodeUtil.writeLine(sbSrc, "this->renderFooter();");
-			CodeUtil.writeLine(sbSrc, "}");
-			
-			
-			
-			if(!inlineJs.isEmpty()) {
-				CodeUtil.writeLine(sbSrc, "public: virtual void renderInlineJs() const override{");
 				
 				
-				int i=0;
-				for(String jsSrc : inlineJs) {
-					CodeUtil.writeLine(sbSrc, CodeUtil.sp("InlineJsRenderer::"+getJsOrCssMethodName(jsSrc)+"(out);", i==inlineJs.size()-1 ? null : "\\"));
-					i++;
+				
+				if(!inlineCss.isEmpty()) {
+					CodeUtil.writeLine(sbSrc, "public: virtual void renderInlineCss() const override{");
+					int i=0;
+					for(String cssSrc : inlineCss) {
+						CodeUtil.writeLine(sbSrc, CodeUtil.sp("InlineCssRenderer::"+getJsOrCssMethodName(cssSrc)+"(out);",  i==inlineCss.size()-1 ? null : "\\"));
+						i++;
+					}
+					
+					CodeUtil.writeLine(sbSrc, "}");
 				}
+			} else {
+				CodeUtil.writeLine(sbSrc, "class "+compiledTplClassName+"{");
+				
+				if(result.hasSubtemplatesAsFunction()) {
+					for(Pair<Subtemplate, Boolean> p:result.getSubtemplatesAsFunctions()) {
+						if(p.getValue2())
+							p.getValue1().toCppDoubleEscaped(sbSrc, directTextOutputBuffer, cfg, result);
+						else
+							p.getValue1().toCpp(sbSrc, directTextOutputBuffer, cfg, result);
+						
+					}
+				}
+				
+				CodeUtil.writeLine(sbSrc, String.format("public: template<class T> inline static %s renderBody(std::unique_ptr<T> data%s){",cfg.isRenderToString() ? "QString" : "void" , cfg.isRenderToString()?"":",FCGX_Stream * out"));
+				if(cfg.isIncludeTranslations()) {
+					CodeUtil.writeLine(sbSrc, "auto translations = data->getTranslations();");
+				}
+				
+				CodeUtil.writeLine(sbSrc, out.toString());
 				CodeUtil.writeLine(sbSrc, "}");
 			}
 			
 			
-			
-			if(!inlineCss.isEmpty()) {
-				CodeUtil.writeLine(sbSrc, "public: virtual void renderInlineCss() const override{");
-				int i=0;
-				for(String cssSrc : inlineCss) {
-					CodeUtil.writeLine(sbSrc, CodeUtil.sp("InlineCssRenderer::"+getJsOrCssMethodName(cssSrc)+"(out);",  i==inlineCss.size()-1 ? null : "\\"));
-					i++;
-				}
-				
-				CodeUtil.writeLine(sbSrc, "}");
-			}
 		} else {
 			CodeUtil.writeLine(sbSrc, "class "+compiledTplClassName+"{");
 			 

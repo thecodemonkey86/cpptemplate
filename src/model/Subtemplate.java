@@ -56,7 +56,7 @@ public class Subtemplate {
 			CodeUtil.writeLine(out,CodeUtil.sp("template", CodeUtil.abr( CodeUtil.commaSep(templateArgsDef)), "static","QString",getCppMethodName(getSubtemplateIdentifier(), false),CodeUtil.parentheses( CodeUtil.commaSep(templateArgsDecl)),"{"));
 			CodeUtil.writeLine(out, "QString _html;");
 		} else {
-			CodeUtil.writeLine(out,CodeUtil.sp("template", CodeUtil.abr( CodeUtil.commaSep(templateArgsDef)), "void",getCppMethodName(getSubtemplateIdentifier(), false),CodeUtil.parentheses( CodeUtil.commaSep(templateArgsDecl)),"{"));
+			CodeUtil.writeLine(out,CodeUtil.sp("template", CodeUtil.abr( CodeUtil.commaSep(templateArgsDef)), "static","void",getCppMethodName(getSubtemplateIdentifier(), false),CodeUtil.parentheses( CodeUtil.commaSep(templateArgsDecl)+",FCGX_Stream * out"),"{"));
 			
 		}
 		

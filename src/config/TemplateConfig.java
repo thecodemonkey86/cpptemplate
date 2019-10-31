@@ -8,7 +8,7 @@ public class TemplateConfig {
 	//private Path tplClsFile
 	private Path tmplPath;
 	private static Path srcPath, destPath;
-	private boolean renderToString;
+	private boolean renderToString, renderStatic;
 //	private String renderToQStringVariableName;
 	private String subDir;
 	private boolean includeTranslations;
@@ -99,5 +99,13 @@ public class TemplateConfig {
 		return clsName;
 	}
 	
+	
+	public boolean isRenderStatic() {
+		return renderStatic;
+	}
+	
+	public void setRenderStatic(boolean renderStatic) {
+		this.renderStatic = renderStatic;
+	}
 	
 }

@@ -133,6 +133,12 @@ public class XmlCfgReader implements ContentHandler {
 				currentCfg.setRenderToString(renderToString.equals("true") || renderToString.equals("1"));
 //				currentCfg.setRenderToQStringVariableName(atts.getValue("renderToVariable"));
 			}
+			
+			String staticMethod = atts.getValue("staticMethod");
+			if(staticMethod != null ) {
+				currentCfg.setRenderStatic(staticMethod.equals("true") || staticMethod.equals("1"));
+//				currentCfg.setRenderToQStringVariableName(atts.getValue("renderToVariable"));
+			}
 		default:
 			break;
 		}
