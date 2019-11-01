@@ -4,17 +4,17 @@ import java.io.IOException;
 
 import config.TemplateConfig;
 
-public class RenderSubtemplateAttrValue implements IAttrValueElement{
+public class RenderTagAsAttrValue implements IAttrValueElement{
 
-	CppRenderSubtemplateTag renderSubtemplate;
+	ITemplateItem tag;
 	
-	public RenderSubtemplateAttrValue(CppRenderSubtemplateTag renderSubtemplate) throws IOException {
-		this.renderSubtemplate = renderSubtemplate;
+	public RenderTagAsAttrValue(ITemplateItem renderSubtemplate) throws IOException {
+		this.tag = renderSubtemplate;
 	}
 
 	@Override
 	public void toCpp(StringBuilder out, StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {
-		renderSubtemplate.toCppDoubleEscaped(out, directTextOutputBuffer, cfg, mainParserResult);
+		tag.toCppDoubleEscaped(out, directTextOutputBuffer, cfg, mainParserResult);
 	}
 	@Override
 	public void toCppDoubleEscaped(StringBuilder out, StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {

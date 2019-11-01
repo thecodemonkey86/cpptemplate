@@ -34,7 +34,7 @@ import model.IAttrValueElement;
 import model.ParserResult;
 import model.QStringHtmlEscapedOutputSection;
 import model.RawOutputSection;
-import model.RenderSubtemplateAttrValue;
+import model.RenderTagAsAttrValue;
 import model.Subtemplate;
 import model.Template;
 import model.TextAttrValueElement;
@@ -373,6 +373,11 @@ public class HtmlParser {
 				
 				val.addElement(parseRenderSubtemplateAttributeValue());
 				startIndex = currentPos+1;
+			} else if(currSubstrEquals( String.format("<%s:%s", HtmlParser.CPP_NS,CppTranslate.TAG_NAME))) {	
+				addTextNode(val, startIndex);
+				
+				val.addElement(parseTranslateAttributeValue());
+				startIndex = currentPos+1;
 			} else if(currSubstrEquals( HtmlParser.CPP_INLINE_RAW_START )) {
 				addTextNode(val, startIndex);
 				
@@ -397,11 +402,59 @@ public class HtmlParser {
 		throw new IOException("syntax error. missing closing quote");
 		
 	}
-
+	private IAttrValueElement parseTranslateAttributeValue() throws IOException {
+		int start = currentPos;
+		CppTranslate t = new CppTranslate();
+		RenderTagAsAttrValue val = new RenderTagAsAttrValue(t);
+		
+		boolean escape = false;
+		
+		while(!atEnd()) {
+			if(!escape) {
+				switch (currChar()) {
+				case '\\':
+					escape = true;
+					break;
+				case '=':
+					Pair<Integer, Character> pQuot = ParseUtil.firstIndexOf(html, '\"', '\'', currentPos);
+					int indexQuotEnd = html.indexOf(pQuot.getValue2(),pQuot.getValue1()+1);
+					AttrValue v = new AttrValue();
+					v.addElement(new TextAttrValueElement(html.substring(pQuot.getValue1()+1,indexQuotEnd).replace("\\\\", "\\").replace("\\\"", "\"").replace("\\\'", "\'")));
+					String attrName =html.substring(start,currentPos);
+					if(!attrName.equals("key")) {
+						throw new IOException("Expected \"key\" attribute");
+					}
+					t.addAttr(new HtmlAttr(attrName, v, pQuot.getValue2()));
+					currentPos = indexQuotEnd;
+					start = indexQuotEnd;
+					break;
+				case '/':
+					next();
+					if(currChar()=='>') {
+						return val;
+					} else {
+						throw new IOException("syntax error");
+					}
+				case ' ':
+				case '\n':
+				case '\r':
+				case '\t':
+					start = currentPos+1;
+					break;
+				default:
+					break;
+				}
+			} else {
+				escape = false;
+			}
+			next();
+		}
+		throw new IOException("syntax error");
+	}
 	private IAttrValueElement parseRenderSubtemplateAttributeValue() throws IOException {
 		int start = currentPos;
 		CppRenderSubtemplateTag t = new CppRenderSubtemplateTag();
-		RenderSubtemplateAttrValue val = new RenderSubtemplateAttrValue(t);
+		RenderTagAsAttrValue val = new RenderTagAsAttrValue(t);
 		boolean escape = false;
 				
 		while(!atEnd()) {
@@ -417,7 +470,7 @@ public class HtmlParser {
 					v.addElement(new TextAttrValueElement(html.substring(pQuot.getValue1()+1,indexQuotEnd).replace("\\\\", "\\").replace("\\\"", "\"").replace("\\\'", "\'")));
 					String attrName =html.substring(start,currentPos);
 					if(!attrName.equals("name") && !attrName.equals("args")) {
-						throw new IOException("Expected \"name\" or \"args\" tag");
+						throw new IOException("Expected \"name\" or \"args\" attribute");
 					}
 					t.addAttr(new HtmlAttr(attrName, v, pQuot.getValue2()));
 					currentPos = indexQuotEnd;
