@@ -55,9 +55,11 @@ public class Subtemplate {
 		if(cfg.isRenderToString()) {
 			CodeUtil.writeLine(out,CodeUtil.sp("template", CodeUtil.abr( CodeUtil.commaSep(templateArgsDef)), "static","QString",getCppMethodName(getSubtemplateIdentifier(), false),CodeUtil.parentheses( CodeUtil.commaSep(templateArgsDecl)),"{"));
 			CodeUtil.writeLine(out, "QString _html;");
-		} else {
+		} else if(cfg.isRenderStatic()){
 			CodeUtil.writeLine(out,CodeUtil.sp("template", CodeUtil.abr( CodeUtil.commaSep(templateArgsDef)), "static","void",getCppMethodName(getSubtemplateIdentifier(), false),CodeUtil.parentheses( CodeUtil.commaSep(templateArgsDecl)+",FCGX_Stream * out"),"{"));
 			
+		} else {
+			CodeUtil.writeLine(out,CodeUtil.sp("template", CodeUtil.abr( CodeUtil.commaSep(templateArgsDef)), "void",getCppMethodName(getSubtemplateIdentifier(), false),CodeUtil.parentheses( CodeUtil.commaSep(templateArgsDecl)),"{"));
 		}
 		
 		parserResult.toCpp(out,directTextOutputBuffer,cfg, mainParserResult);

@@ -19,5 +19,12 @@ public class CppTranslate extends HtmlTag {
 		CodeUtil.writeLine(out, "FastCgiOutput::writeHtmlEncoded"+CodeUtil.parentheses("translations->"+ getAttrByName("key").getStringValue()+"(), out")+";");
 		cfg.setIncludeTranslations(true);
 	}
+	
+	@Override
+	public void toCppDoubleEscaped(StringBuilder out, StringBuilder directTextOutputBuffer, TemplateConfig cfg,
+			ParserResult mainParserResult) {
+		// TODO Auto-generated method stub
+		this.toCpp(out, directTextOutputBuffer, cfg, mainParserResult);
+	}
 
 }

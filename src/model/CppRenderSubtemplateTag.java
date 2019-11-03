@@ -33,8 +33,10 @@ public class CppRenderSubtemplateTag extends HtmlTag {
 		
 		if(cfg.isRenderToString()) {
 			CodeUtil.writeLine(out,"_html += "+ Subtemplate.getCppMethodName(StringUtil.dropAll(getAttrStringValue("name"),'\\','/').toLowerCase(), doubleEncode)+CodeUtil.parentheses(getAttrStringValue("args"))+";");
-		} else {
+		} else if(cfg.isRenderStatic()){
 			CodeUtil.writeLine(out,Subtemplate.getCppMethodName(StringUtil.dropAll(getAttrStringValue("name"),'\\','/').toLowerCase(), doubleEncode)+CodeUtil.parentheses(getAttrStringValue("args")+",out")+";");
+		} else {
+			CodeUtil.writeLine(out,Subtemplate.getCppMethodName(StringUtil.dropAll(getAttrStringValue("name"),'\\','/').toLowerCase(), doubleEncode)+CodeUtil.parentheses(getAttrStringValue("args"))+";");
 		}
 		
 	}
