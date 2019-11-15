@@ -15,16 +15,22 @@ public class CppTranslate extends HtmlTag {
 	
 	@Override
 	public void toCpp(StringBuilder out, StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {
-		CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
-		CodeUtil.writeLine(out, "FastCgiOutput::writeHtmlEncoded"+CodeUtil.parentheses("translations->"+ getAttrByName("key").getStringValue()+"(), out")+";");
-		cfg.setIncludeTranslations(true);
+		if(cfg.isRenderToString()) {
+			CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
+			CodeUtil.writeLine(out, String.format("FastCgiOutput::writeHtmlEncodedToBuffer(translations->%s, %s);", getAttrByName("key").getStringValue(),cfg.getRenderToQStringVariableName()));
+			cfg.setIncludeTranslations(true);
+		} else {
+			CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
+			CodeUtil.writeLine(out, "FastCgiOutput::writeHtmlEncoded"+CodeUtil.parentheses("translations->"+ getAttrByName("key").getStringValue()+"(), out")+";");
+			cfg.setIncludeTranslations(true);
+		}
+		
 	}
 	
 	@Override
 	public void toCppDoubleEscaped(StringBuilder out, StringBuilder directTextOutputBuffer, TemplateConfig cfg,
 			ParserResult mainParserResult) {
-		// TODO Auto-generated method stub
-		this.toCpp(out, directTextOutputBuffer, cfg, mainParserResult);
+		toCpp(out, directTextOutputBuffer, cfg, mainParserResult);
 	}
 
 }
