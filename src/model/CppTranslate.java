@@ -17,7 +17,7 @@ public class CppTranslate extends HtmlTag {
 	public void toCpp(StringBuilder out, StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {
 		if(cfg.isRenderToString()) {
 			CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
-			CodeUtil.writeLine(out, String.format("FastCgiOutput::writeHtmlEncodedToBuffer(translations->%s, %s);", getAttrByName("key").getStringValue(),cfg.getRenderToQStringVariableName()));
+			CodeUtil.writeLine(out, String.format("FastCgiOutput::writeHtmlEncodedToBuffer(translations->%s(), %s);", getAttrByName("key").getStringValue(),cfg.getRenderToQStringVariableName()));
 			cfg.setIncludeTranslations(true);
 		} else {
 			CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
