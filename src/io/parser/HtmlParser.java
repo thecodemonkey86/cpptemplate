@@ -10,6 +10,7 @@ import util.ParseUtil;
 import model.AbstractNode;
 import model.AttrValue;
 import model.CppButtonTag;
+import model.CppCaseTag;
 import model.CppCodeTag;
 import model.CppCommentTag;
 import model.CppElseIfTag;
@@ -22,6 +23,7 @@ import model.CppRenderSubtemplateTag;
 import model.CppRenderSectionTag;
 import model.CppSectionTag;
 import model.CppSubtemplateTag;
+import model.CppSwitchTag;
 import model.CppThenTag;
 import model.CppTranslate;
 import model.DynamicHtmlAttr;
@@ -160,7 +162,9 @@ public class HtmlParser {
 	}
 	
 	protected void parseRoot() throws IOException {
-		
+		if(filePath.toString().contains("DocumentAjaxList.html") ) {
+			System.out.println();
+		}
 		int startIndex = 0;
 		while(!atEnd()) {
 			if (currSubstrEquals(HtmlParser.CPP_CODE_TAG)) {
@@ -198,10 +202,10 @@ public class HtmlParser {
 //				startIndex = currentPos+1;	
 			} else if(currChar() == '<') {
 				if (!currSubstrEquals(String.format("<%s:%s", HtmlParser.CPP_NS, CppSectionTag.TAG_NAME))) {
+					checkInitSimpleTemplate();
+					addTextNode(startIndex, result);
 					if (!checkSkipHtmlComment()) {
 					
-						checkInitSimpleTemplate();
-						addTextNode(startIndex, result);
 						next();
 						result.addNode(parseNode());
 					}
@@ -229,8 +233,7 @@ public class HtmlParser {
 		if(startIndex < html.length() && !html.substring(startIndex).trim().isEmpty()) {
 			checkInitSimpleTemplate();
 			addTextNodeToEnd(startIndex, result);
-			
-		}
+		} 
 	}
 
 	/*private CppSectionTag parseSectionTag() throws IOException {
@@ -566,6 +569,10 @@ public class HtmlParser {
 					tag = new CppThenTag();
 				} else if (tagName.equals(CppElseTag.TAG_NAME)) {
 					tag = new CppElseTag();
+				} else if (tagName.equals(CppSwitchTag.TAG_NAME)) {
+					tag = new CppSwitchTag();
+				} else if (tagName.equals(CppCaseTag.TAG_NAME)) {
+					tag = new CppCaseTag();
 				} else if (tagName.equals(CppFormSelect.TAG_NAME)) {
 					tag = new CppFormSelect();	
 				} else if (tagName.equals(CppInputTag.TAG_NAME)) {

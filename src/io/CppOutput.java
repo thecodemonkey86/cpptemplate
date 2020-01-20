@@ -8,9 +8,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.xml.bind.DatatypeConverter;
@@ -251,7 +253,10 @@ public class CppOutput {
 				CodeUtil.writeLine(sbSrc, "class "+compiledTplClassName+" : public HtmlTemplate{");
 				 
 				if(result.hasSubtemplatesAsFunction()) {
-					for(Pair<Subtemplate, Boolean> p:result.getSubtemplatesAsFunctions()) {
+					List<Pair<Subtemplate, Boolean>> subtemplatesAsFunctions = result.getSubtemplatesAsFunctions();
+					int i=0;
+					while(i<subtemplatesAsFunctions.size()) {
+						Pair<Subtemplate, Boolean> p = subtemplatesAsFunctions.get(i++);
 						if(p.getValue2())
 							p.getValue1().toCppDoubleEscaped(sbSrc, directTextOutputBuffer, cfg, result);
 						else
@@ -329,7 +334,10 @@ public class CppOutput {
 				CodeUtil.writeLine(sbSrc, "class "+compiledTplClassName+"{");
 				
 				if(result.hasSubtemplatesAsFunction()) {
-					for(Pair<Subtemplate, Boolean> p:result.getSubtemplatesAsFunctions()) {
+					List<Pair<Subtemplate, Boolean>> subtemplatesAsFunctions = result.getSubtemplatesAsFunctions();
+					int i=0;
+					while(i<subtemplatesAsFunctions.size()) {
+						Pair<Subtemplate, Boolean> p = subtemplatesAsFunctions.get(i++);
 						if(p.getValue2())
 							p.getValue1().toCppDoubleEscaped(sbSrc, directTextOutputBuffer, cfg, result);
 						else
