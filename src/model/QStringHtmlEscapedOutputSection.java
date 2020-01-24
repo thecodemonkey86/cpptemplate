@@ -2,6 +2,8 @@ package model;
 
 import java.io.IOException;
 
+import org.apache.commons.text.StringEscapeUtils;
+
 import config.TemplateConfig;
 import io.CppOutput;
 import util.Util;
@@ -68,17 +70,28 @@ public class QStringHtmlEscapedOutputSection extends AbstractNode implements IAt
 				String elseExpression = expression.substring(inlineIfElseIndex+1).trim();
 				
 				if(thenExpression.startsWith("\"")) {
-					thenExpression = String.format("%s(%s)",Util.getQStringLiteralConstructor(thenExpression,true), thenExpression);
+					String htmlEncoded = String.format("\"%s\"", StringEscapeUtils.escapeHtml4(thenExpression.substring(1,thenExpression.length()-1)));
+					
+					out.append( String.format("if(%s)\n{\nFastCgiOutput::write(%s,out);\n}",
+							conditionExpression,Util.qStringLiteral(htmlEncoded,true)));
+				} else {
+					
+					
+					out.append( String.format("if(%s)\n{\nFastCgiOutput::writeHtmlEncoded(%s,out);\n}",
+							conditionExpression,thenExpression));
 				}
 				
-				out.append( String.format("if(%s)\n{\nFastCgiOutput::writeHtmlEncoded(%s,out);\n}",
-						conditionExpression,thenExpression));
+			
 				
 				if(!elseExpression.equals("\"\"")) {
 					if(elseExpression.startsWith("\"")) {
-						elseExpression = String.format("%s(%s)",Util.getQStringLiteralConstructor(elseExpression,true), elseExpression);
+						String htmlEncoded = String.format("\"%s\"", StringEscapeUtils.escapeHtml4(elseExpression.substring(1,elseExpression.length()-1)));
+						
+						out.append( String.format("\nelse\n{\nFastCgiOutput::write(%s,out);\n}\n",Util.qStringLiteral(htmlEncoded,true)));
+					} else {
+						out.append( String.format("\nelse\n{\nFastCgiOutput::writeHtmlEncoded(%s,out);\n}\n",elseExpression));
 					}
-					out.append( String.format("\nelse\n{\nFastCgiOutput::writeHtmlEncoded(%s,out);\n}\n",elseExpression));
+					
 				} else {
 					out.append("\n"); 
 				}
@@ -88,11 +101,15 @@ public class QStringHtmlEscapedOutputSection extends AbstractNode implements IAt
 				String thenExpression = expression.substring(inlineIfThenIndex+1).trim();
 				
 				if(thenExpression.startsWith("\"")) {
-					thenExpression = String.format("%s(%s)", Util.getQStringLiteralConstructor(thenExpression,true), thenExpression);
-				}
+					String htmlEncoded = String.format("\"%s\"", StringEscapeUtils.escapeHtml4(thenExpression.substring(1,thenExpression.length()-1)));
+					
+					out.append( String.format("if(%s)\n{\nFastCgiOutput::write(%s,out);\n}\n",
+							conditionExpression,Util.qStringLiteral(htmlEncoded,true)));
+				} else {
 				
-				out.append( String.format("if(%s)\n{\nFastCgiOutput::writeHtmlEncoded(%s,out);\n}\n",
-						conditionExpression,thenExpression));
+					out.append( String.format("if(%s)\n{\nFastCgiOutput::writeHtmlEncoded(%s,out);\n}\n",
+							conditionExpression,thenExpression));
+				}
 			}
 				
 		}

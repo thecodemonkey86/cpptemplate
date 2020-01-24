@@ -12,14 +12,16 @@ public class HtmlAttr implements ITemplateItem{
 
 	String name;
 	AttrValue value;
-	char valueSeparatorChar;
+	//char valueSeparatorChar;
 	
 	
-	public HtmlAttr(String name, AttrValue value, char valueSeparatorChar) {
+	public HtmlAttr(String name, AttrValue value
+			//, char valueSeparatorChar
+			) {
 		super();
 		this.name = name;
 		this.value = value;
-		this.valueSeparatorChar = valueSeparatorChar;
+		//this.valueSeparatorChar = valueSeparatorChar;
 	}
 	
 	public String getName() {
@@ -32,6 +34,7 @@ public class HtmlAttr implements ITemplateItem{
 	
 	@Override
 	public String toString() {
+		char valueSeparatorChar = '"';
 		StringBuilder sb=new StringBuilder(name);
 		sb.append('=');
 		sb.append(valueSeparatorChar);
@@ -41,13 +44,13 @@ public class HtmlAttr implements ITemplateItem{
 		return sb.toString();
 	}
 
-	public char getValueSeparatorChar() {
-		return valueSeparatorChar;
-	}
+//	public char getValueSeparatorChar() {
+//		return valueSeparatorChar;
+//	}
 
 	@Override
 	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {
-		
+		char valueSeparatorChar = '"';
 		if(!name.startsWith(HtmlParser.CPP_NS+":")) {
 			directTextOutputBuffer.append(" ");
 			directTextOutputBuffer.append(name)

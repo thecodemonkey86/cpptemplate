@@ -9,7 +9,7 @@ public class DynamicHtmlAttr extends HtmlAttr{
 	RawOutputSection code;
 	
 	public DynamicHtmlAttr(String code) throws IOException {
-		super(null, null, '\"');
+		super(null, null);
 		this.code = new RawOutputSection(code);
 	}
 

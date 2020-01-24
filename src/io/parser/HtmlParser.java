@@ -396,7 +396,7 @@ public class HtmlParser {
 			} else if(currChar() == pQuot.getValue2()) {
 				addTextNode(val, startIndex);
 				
-				HtmlAttr attr = new HtmlAttr(attrName, val, pQuot.getValue2());
+				HtmlAttr attr = new HtmlAttr(attrName, val);
 				setPos(currentPos);
 				return attr ;
 			}
@@ -427,7 +427,7 @@ public class HtmlParser {
 					if(!attrName.equals("key")) {
 						throw new IOException("Expected \"key\" attribute");
 					}
-					t.addAttr(new HtmlAttr(attrName, v, pQuot.getValue2()));
+					t.addAttr(new HtmlAttr(attrName, v));
 					currentPos = indexQuotEnd;
 					start = indexQuotEnd;
 					break;
@@ -475,7 +475,7 @@ public class HtmlParser {
 					if(!attrName.equals("name") && !attrName.equals("args")) {
 						throw new IOException("Expected \"name\" or \"args\" attribute");
 					}
-					t.addAttr(new HtmlAttr(attrName, v, pQuot.getValue2()));
+					t.addAttr(new HtmlAttr(attrName, v));
 					currentPos = indexQuotEnd;
 					start = indexQuotEnd;
 					break;

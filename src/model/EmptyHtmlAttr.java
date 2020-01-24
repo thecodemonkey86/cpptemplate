@@ -7,7 +7,7 @@ import config.TemplateConfig;
 public class EmptyHtmlAttr extends HtmlAttr{
 
 	public EmptyHtmlAttr(String name) throws IOException {
-		super(name, null, ' ');
+		super(name, null);
 	}
 	
 	@Override

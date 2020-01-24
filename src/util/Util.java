@@ -23,6 +23,17 @@ public class Util {
 			return Paths.get(path);
 		}
 	}
+	
+	public static String qStringLiteral(String s, boolean latin1AsConstCharPtr) {
+		byte[] bytesUtf8 = s.getBytes(StandardCharsets.UTF_8);
+		byte[] bytesLatin1 = s.getBytes(StandardCharsets.ISO_8859_1);
+		return Arrays.equals(bytesUtf8, bytesLatin1) 
+				? 
+						latin1AsConstCharPtr 
+							? s
+							: "QLatin1String"+CodeUtil.parentheses(CodeUtil.quote(s))
+				: "QStringLiteral"+CodeUtil.parentheses(CodeUtil.quote(s));
+	}
 	public static String qStringLiteral(String s) {
 		return getQStringLiteralConstructor(s, false)+CodeUtil.parentheses(CodeUtil.quote(s));
 	}
@@ -42,4 +53,5 @@ public class Util {
 		}
 		return CodeUtil.commaSep(l);
 	}
+	
 }

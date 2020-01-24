@@ -133,14 +133,14 @@ public class CppIncludeTag {
 				int quotStart=l0.indexOf("name=\"",CPP_META.length());
 				int quotEnd=l0.indexOf('"',quotStart+6);
 				if(quotStart > -1) {
-					meta.addAttr(new HtmlAttr("name", new AttrValue(l0.substring(quotStart+6,quotEnd)), '"')) ;
+					meta.addAttr(new HtmlAttr("name", new AttrValue(l0.substring(quotStart+6,quotEnd)))) ;
 				}
 				
 				quotStart=l0.indexOf("content=\"",CPP_CSS.length());
 				quotEnd=l0.indexOf('"',quotStart+9);
 				
 				if (quotStart > CPP_CSS.length() && quotEnd > quotStart) {
-					meta.addAttr(new HtmlAttr("content", new AttrValue(l0.substring(quotStart+9,quotEnd)), '"')) ;
+					meta.addAttr(new HtmlAttr("content", new AttrValue(l0.substring(quotStart+9,quotEnd)))) ;
 				} else {
 					throw new IOException("syntax error");
 				}
@@ -150,14 +150,14 @@ public class CppIncludeTag {
 				int quotStart=l0.indexOf("href=\"",CPP_LINK.length());
 				int quotEnd=l0.indexOf('"',quotStart+6);
 				if(quotStart > -1) {
-					link.addAttr(new HtmlAttr("href", new AttrValue(l0.substring(quotStart+6,quotEnd)), '"')) ;
+					link.addAttr(new HtmlAttr("href", new AttrValue(l0.substring(quotStart+6,quotEnd)))) ;
 				}
 				
 				quotStart=l0.indexOf("rel=\"",CPP_CSS.length());
 				quotEnd=l0.indexOf('"',quotStart+5);
 				
 				if (quotStart > CPP_CSS.length() && quotEnd > quotStart) {
-					link.addAttr(new HtmlAttr("rel", new AttrValue(l0.substring(quotStart+5,quotEnd)), '"')) ;
+					link.addAttr(new HtmlAttr("rel", new AttrValue(l0.substring(quotStart+5,quotEnd)))) ;
 				} else {
 					throw new IOException("syntax error");
 				}
@@ -166,7 +166,7 @@ public class CppIncludeTag {
 				quotEnd=l0.indexOf('"',quotStart+6);
 				
 				if (quotStart > CPP_CSS.length() && quotEnd > quotStart) {
-					link.addAttr(new HtmlAttr("type", new AttrValue(l0.substring(quotStart+6,quotEnd)), '"')) ;
+					link.addAttr(new HtmlAttr("type", new AttrValue(l0.substring(quotStart+6,quotEnd)))) ;
 				} 
 			} else if (l0.startsWith(CPP_TPl_INCLUDE_HEADER)) {
 				int quotStart=l0.indexOf("file=\"",CPP_TPl_INCLUDE_HEADER.length());
