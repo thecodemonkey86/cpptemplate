@@ -192,10 +192,83 @@ public class CppOutput {
 		return templateClass;
 	}*/
 	
-	protected static String getJsAsCpp(String jsSrc) throws IOException, CancelException {
+	protected static String getJsAsCpp(String jsSrc, boolean enableInlineJsCppCodeInStrings) throws IOException, CancelException {
 		StringBuilder sbInlineJs = new StringBuilder();
 		String js = new String(Files.readAllBytes(CssJsProcessor.loadJs(jsSrc)), UTF8 );
-		CppOutput.addOutChunks(sbInlineJs, js+"\n", settings.getLineWidth(),null);
+		
+		if(enableInlineJsCppCodeInStrings) {
+		
+			boolean singleQuot = false;
+			boolean doubleQuot = false;
+			boolean escape = false;
+			 
+			int start=0;
+			int i=0;
+			while(i<js.length()-2) {
+				if(escape) {
+					escape = false;
+				} else {
+					switch (js.charAt(i)) {
+					case '/':
+						if(js.charAt(i+1) == '/') {
+							while(i<js.length()) {
+								if( js.charAt(i) == '\n' || js.charAt(i) == '\r') {
+									break;
+								}
+								i++;
+							}
+						} else if(js.charAt(i+1) == '*') {
+							while(i<js.length()-1) {
+								if( js.charAt(i) == '*' && js.charAt(i+1) == '/') {
+									i++;
+									break;
+								}
+								i++;
+							}
+						}
+						break;
+					case '\\':
+						escape = true;
+						break;
+					case '\"':
+						if(!singleQuot)
+							doubleQuot = !doubleQuot;
+						break;
+					case '\'':
+						if(!doubleQuot)
+							singleQuot = !singleQuot;
+						
+						if(singleQuot) {
+							System.out.println("");
+						}
+						break;
+		
+					case '{':
+						if(singleQuot||doubleQuot) {
+						if(js.charAt(i+1 ) == '{' && js.charAt(i+2 )=='{' ) {
+							CppOutput.addOutChunks(sbInlineJs, js.substring(start,i), settings.getLineWidth(),null);
+							start = i+3;
+							while(i<js.length()-2) {
+								if(js.charAt(i) == '}' && js.charAt(i+1) == '}' && js.charAt(i+2) == '}') {
+									sbInlineJs.append( String.format("FastCgiOutput::write(%s,out);\n",js.substring(start,i)));
+									i+=2;
+									start = i+1;
+									break;
+								}
+								i++;
+							}
+						}
+						}
+						break;
+					}
+				}
+				i++;
+			}
+		
+			CppOutput.addOutChunks(sbInlineJs, js.substring(start)+"\n", settings.getLineWidth(),null);
+		} else {
+			CppOutput.addOutChunks(sbInlineJs, js+"\n", settings.getLineWidth(),null);
+		}
 		sbInlineJs.append('\n');
 		return sbInlineJs.toString();
 	}
@@ -309,10 +382,10 @@ public class CppOutput {
 					CodeUtil.writeLine(sbSrc, "public: virtual void renderInlineJs() const override{");
 					
 					
-					int i=0;
+					//int i=0;
 					for(String jsSrc : inlineJs) {
-						CodeUtil.writeLine(sbSrc, CodeUtil.sp("InlineJsRenderer::"+getJsOrCssMethodName(jsSrc)+"(out);", i==inlineJs.size()-1 ? null : "\\"));
-						i++;
+						CodeUtil.writeLine(sbSrc, "InlineJsRenderer::"+getJsOrCssMethodName(jsSrc)+"(out);" );
+						//i++;
 					}
 					CodeUtil.writeLine(sbSrc, "}");
 				}
@@ -321,10 +394,10 @@ public class CppOutput {
 				
 				if(!inlineCss.isEmpty()) {
 					CodeUtil.writeLine(sbSrc, "public: virtual void renderInlineCss() const override{");
-					int i=0;
+					//int i=0;
 					for(String cssSrc : inlineCss) {
-						CodeUtil.writeLine(sbSrc, CodeUtil.sp("InlineCssRenderer::"+getJsOrCssMethodName(cssSrc)+"(out);",  i==inlineCss.size()-1 ? null : "\\"));
-						i++;
+						CodeUtil.writeLine(sbSrc, "InlineCssRenderer::"+getJsOrCssMethodName(cssSrc)+"(out);" );
+						//i++;
 					}
 					
 					CodeUtil.writeLine(sbSrc, "}");
@@ -533,17 +606,23 @@ public class CppOutput {
 	}
 	*/
 	
-	public static void writeJsCppFile(Path directory, Set<String> inlineJs) throws IOException, CancelException {
+	public static void writeJsCppFile(Path directory, Set<String> inlineJs,LinkedHashSet<String> includeHeaders) throws IOException, CancelException {
 	
 		
 		StringBuilder sbHeader = new StringBuilder("#ifndef INLINEJSRENDERER_H\n");
 		sbHeader.append("#define INLINEJSRENDERER_H\n")
-		.append("#include  \"core/fastcgioutput.h\"\n\n")
-		.append("class InlineJsRenderer {\n");
+		.append("#include  \"core/fastcgioutput.h\"\n\n");
+		
+
+		for(String h : includeHeaders) {
+			CodeUtil.writeLine(sbHeader,String.format("#include \"%s\"", h));
+		}
+		sbHeader.append("\nclass InlineJsRenderer {\n");
 			
 		
 		
 		StringBuilder sbSource = new StringBuilder("#include \"inlinejsrenderer.h\"\n\n");
+		
 		
 		HashSet<String> methodNames = new HashSet<>();
 		
@@ -557,7 +636,7 @@ public class CppOutput {
 				
 				sbSource.append("void InlineJsRenderer::")
 				.append(methodname).append("(FCGX_Stream * out) {\n")
-				.append(getJsAsCpp(jsSrc))
+				.append(getJsAsCpp(jsSrc,includeHeaders!=null))
 				.append("\n}\n");
 				;
 			

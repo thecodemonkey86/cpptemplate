@@ -199,7 +199,7 @@ public class CppTpl2 {
 				}
 //				writeLastChangesDatesFile(xmlDir,lastChanges);
 				Path pathCompiledTemplate = TemplateConfig.getDestPath().resolve("compiledtemplate");
-				CppOutput.writeJsCppFile(pathCompiledTemplate, collectInlineJs);
+				CppOutput.writeJsCppFile(pathCompiledTemplate, collectInlineJs, handler.getInlineJsRendererHeaderIncludes());
 				CppOutput.writeCssCppFile(pathCompiledTemplate, collectInlineCss);
 			}
 			

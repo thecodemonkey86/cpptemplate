@@ -2,6 +2,7 @@ package io;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.xml.sax.Attributes;
@@ -17,11 +18,14 @@ public class XmlCfgReader implements ContentHandler {
 	protected List<TemplateConfig> xmlConfigs;
 	enum Section {
 		templateconfig,
+		inlineJsRenderer,
+		includeHeader,
 		template;
 	}
 	TemplateConfig currentCfg;
 	Section section;
 	Path xmlDir;
+	private LinkedHashSet<String> inlineJsRendererHeaderIncludes;
 	
 	public XmlCfgReader(Path xmlDir) {
 		xmlConfigs = new ArrayList<>();
@@ -139,6 +143,14 @@ public class XmlCfgReader implements ContentHandler {
 				currentCfg.setRenderStatic(staticMethod.equals("true") || staticMethod.equals("1"));
 //				currentCfg.setRenderToQStringVariableName(atts.getValue("renderToVariable"));
 			}
+		case inlineJsRenderer:
+			break;
+		case includeHeader:
+			if(inlineJsRendererHeaderIncludes == null) {
+				inlineJsRendererHeaderIncludes = new LinkedHashSet<>();
+			}
+			inlineJsRendererHeaderIncludes.add(atts.getValue("path"));
+			break;
 		default:
 			break;
 		}
@@ -187,5 +199,10 @@ public class XmlCfgReader implements ContentHandler {
 
 	public List<TemplateConfig> getXmlConfigs() {
 		return xmlConfigs;
+	}
+
+	public LinkedHashSet<String> getInlineJsRendererHeaderIncludes() {
+		// TODO Auto-generated method stub
+		return inlineJsRendererHeaderIncludes;
 	}
 }
