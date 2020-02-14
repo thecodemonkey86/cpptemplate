@@ -9,6 +9,7 @@ import java.util.Set;
 import org.apache.commons.text.StringEscapeUtils;
 
 import config.TemplateConfig;
+import io.parser.HtmlParser;
 
 public class HtmlTag extends AbstractNode{
 	public static final String INPUT_TAG = "input";
@@ -68,6 +69,13 @@ public class HtmlTag extends AbstractNode{
 		sb.append(getNamespaceAndTagName());
 		if (attrs!=null) {
 			for(HtmlAttr a:attrs) {
+				if(a.getName().startsWith(HtmlParser.CPP_NS)) {
+					a.preProcessAttr(this);
+				}
+					
+			}
+			
+			for(HtmlAttr a:attrs) {
 				sb.append(' ').append(a);
 			}
 		}
@@ -93,6 +101,14 @@ public class HtmlTag extends AbstractNode{
 		
 		if (attrs!=null) {
 			for(HtmlAttr a:attrs) {
+				if(a.getName()!=null) {
+					if(a.getName().startsWith(HtmlParser.CPP_NS)) {
+						a.preProcessAttr(this);
+					}
+				}
+					
+			}
+			for(HtmlAttr a:attrs) {
 				a.toCpp(out,directTextOutputBuffer,cfg, mainParserResult);
 			}
 		}
@@ -115,6 +131,12 @@ public class HtmlTag extends AbstractNode{
 		directTextOutputBuffer.append(tagName);
 		
 		if (attrs!=null) {
+			for(HtmlAttr a:attrs) {
+				if(a.getName().startsWith(HtmlParser.CPP_NS)) {
+					a.preProcessAttr(this);
+				}
+					
+			}
 			for(HtmlAttr a:attrs) {
 				a.toCppDoubleEscaped(out,directTextOutputBuffer,cfg, mainParserResult);
 			}

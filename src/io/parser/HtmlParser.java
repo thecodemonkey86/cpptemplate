@@ -11,6 +11,9 @@ import model.AbstractNode;
 import model.AttrValue;
 import model.CppButtonTag;
 import model.CppCaseTag;
+import model.CppCodeCheckedAttr;
+import model.CppCodeDisabledAttr;
+import model.CppCodeHiddenAttr;
 import model.CppCodeTag;
 import model.CppCommentTag;
 import model.CppElseIfTag;
@@ -162,9 +165,6 @@ public class HtmlParser {
 	}
 	
 	protected void parseRoot() throws IOException {
-		if(filePath.toString().contains("DocumentAjaxList.html") ) {
-			System.out.println();
-		}
 		int startIndex = 0;
 		while(!atEnd()) {
 			if (currSubstrEquals(HtmlParser.CPP_CODE_TAG)) {
@@ -395,10 +395,32 @@ public class HtmlParser {
 				startIndex = currentPos+1;
 			} else if(currChar() == pQuot.getValue2()) {
 				addTextNode(val, startIndex);
-				
-				HtmlAttr attr = new HtmlAttr(attrName, val);
-				setPos(currentPos);
-				return attr ;
+				if(attrName.startsWith(CPP_NS+":")) {
+					HtmlAttr attr;
+					String[] split = attrName.split(":");
+					if(split.length!=2) {
+						throw new IOException();
+					}
+					switch (split[1]) {
+					case CppCodeDisabledAttr.NAME:
+						attr = new CppCodeDisabledAttr(attrName, val);
+						break;
+					case CppCodeCheckedAttr.NAME:
+						attr = new CppCodeCheckedAttr(attrName, val);
+						break;
+					case CppCodeHiddenAttr.NAME:
+						attr = new CppCodeHiddenAttr(attrName, val);
+						break;
+					default:
+						throw new IOException();
+					}
+					setPos(currentPos);
+					return attr ;
+				} else {
+					HtmlAttr attr = new HtmlAttr(attrName, val);
+					setPos(currentPos);
+					return attr ;
+				}
 			}
 			next();
 		}
