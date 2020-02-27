@@ -55,11 +55,7 @@ public class RawOutputSection extends AbstractNode implements IAttrValueElement 
 			}
 		}
 		if(inlineIfThenIndex == -1) {
-			if(cfg.isRenderToString()) {
-				out.append( String.format("FastCgiOutput::writeToBuffer(%s,%s);\n", expression,cfg.getRenderToQStringVariableName()));
-			} else {
-				out.append( String.format("FastCgiOutput::write(%s,out);\n",expression));
-			}
+			CppOutput.addOutput(out, expression, cfg);
 		} else if(inlineIfElseIndex > -1){
 			String conditionExpression = expression.substring(0,inlineIfThenIndex).trim();
 			String thenExpression = expression.substring(inlineIfThenIndex+1,inlineIfElseIndex).trim();
@@ -72,8 +68,8 @@ public class RawOutputSection extends AbstractNode implements IAttrValueElement 
 				elseExpression = String.format("%s(%s)",Util.getQStringLiteralConstructor(elseExpression,false), elseExpression);
 			}
 			
-			out.append( String.format("if(%s)\n{\nFastCgiOutput::write(%s,out);\n}\nelse\n{\nFastCgiOutput::write(%s,out);\n}\n",
-					conditionExpression,thenExpression,elseExpression));
+			out.append( String.format("if(%s)\n{\n%s}\nelse\n{\n%s}\n",
+					conditionExpression,CppOutput.getFastCgiOutputMethod(thenExpression, cfg),CppOutput.getFastCgiOutputMethod(elseExpression, cfg)));
 		} else {
 			String conditionExpression = expression.substring(0,inlineIfThenIndex).trim();
 			String thenExpression = expression.substring(inlineIfThenIndex+1).trim();
@@ -85,8 +81,8 @@ public class RawOutputSection extends AbstractNode implements IAttrValueElement 
 				out.append( String.format("if(%s)\n{\n%s += %s;\n}\n",
 						conditionExpression,cfg.getRenderToQStringVariableName(),thenExpression));
 			} else {
-				out.append( String.format("if(%s)\n{\nFastCgiOutput::write(%s,out);\n}\n",
-						conditionExpression,thenExpression));
+				out.append( String.format("if(%s)\n{\n%s}\n",
+						conditionExpression,CppOutput.getFastCgiOutputMethod(thenExpression, cfg)));
 			}
 			
 			

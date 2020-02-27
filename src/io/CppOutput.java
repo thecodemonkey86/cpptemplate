@@ -38,7 +38,10 @@ public class CppOutput {
 	protected static Settings settings;
 	
 	public static void clearDirectTextOutputBuffer(StringBuilder out, StringBuilder buffer,TemplateConfig cfg) {
-		addOutChunks(out, ParseUtil.dropWhitespaces(buffer.toString()), HtmlParser.getLineWidth(),cfg);
+		if(buffer.toString().startsWith("FastCgiOutput::writeH")) {
+			System.out.println();
+		}
+		addOutputChunksPlainHtml(out, ParseUtil.dropWhitespaces(buffer.toString()), HtmlParser.getLineWidth(),cfg);
 		buffer.setLength(0);
 	}
 	
@@ -68,8 +71,43 @@ public class CppOutput {
 		return escapeQuots;
 	}
 	
+	public static String getFastCgiOutputMethodHtmlEncoded(String expression,TemplateConfig cfg) {
+		if(cfg !=null && cfg.isRenderToString()) {
+			return String.format("FastCgiOutput::writeHtmlEncodedToBuffer(%s, %s);\n",expression,cfg.getRenderToQStringVariableName());
+		} else {
+			return String.format("FastCgiOutput::writeHtmlEncoded(%s,out);\n",expression);				
+		}
+	}
+	
+	public static String getFastCgiOutputMethodHtmlDoubleEncoded(String expression,TemplateConfig cfg) {
+		if(cfg !=null && cfg.isRenderToString()) {
+			return String.format("FastCgiOutput::writeHtmlDoubleEncodedToBuffer(%s, %s);\n",expression,cfg.getRenderToQStringVariableName());
+		} else {
+			return String.format("FastCgiOutput::writeHtmlDoubleEncoded(%s,out);\n",expression);				
+		}
+	}
+	
+	public static String getFastCgiOutputMethod(String expression,TemplateConfig cfg) {
+		if(cfg !=null && cfg.isRenderToString()) {
+			return String.format("FastCgiOutput::writeToBuffer(%s, %s);\n",expression,cfg.getRenderToQStringVariableName());
+		} else {
+			return String.format("FastCgiOutput::write(%s,out);\n",expression);				
+		}
+	}
+	
+	public static void addOutput(StringBuilder out,String expression,TemplateConfig cfg) {
+		out.append(getFastCgiOutputMethod(expression, cfg));
+	}
+	
+	public static void addOutputHtmlEncoded(StringBuilder out,String expression,TemplateConfig cfg) {
+		out.append(getFastCgiOutputMethodHtmlEncoded(expression, cfg));
+	}
+	
+	public static void addOutputHtmlDoubleEncoded(StringBuilder out,String expression,TemplateConfig cfg) {
+		out.append(getFastCgiOutputMethodHtmlDoubleEncoded(expression, cfg));
+	}
 		
-	public static void addOutChunks(StringBuilder out,String outLine,int lineWidth ,TemplateConfig cfg) {
+	public static void addOutputChunksPlainHtml(StringBuilder out,String outLine,int lineWidth ,TemplateConfig cfg) {
 		if (outLine.length()>lineWidth) {
 			int i;
 			for(i=0;i<=outLine.length()-lineWidth;i+=lineWidth) {
@@ -246,7 +284,7 @@ public class CppOutput {
 					case '{':
 						if(singleQuot||doubleQuot) {
 						if(js.charAt(i+1 ) == '{' && js.charAt(i+2 )=='{' ) {
-							CppOutput.addOutChunks(sbInlineJs, js.substring(start,i), settings.getLineWidth(),null);
+							CppOutput.addOutputChunksPlainHtml(sbInlineJs, js.substring(start,i), settings.getLineWidth(),null);
 							start = i+3;
 							while(i<js.length()-2) {
 								if(js.charAt(i) == '}' && js.charAt(i+1) == '}' && js.charAt(i+2) == '}') {
@@ -265,9 +303,9 @@ public class CppOutput {
 				i++;
 			}
 		
-			CppOutput.addOutChunks(sbInlineJs, js.substring(start)+"\n", settings.getLineWidth(),null);
+			CppOutput.addOutputChunksPlainHtml(sbInlineJs, js.substring(start)+"\n", settings.getLineWidth(),null);
 		} else {
-			CppOutput.addOutChunks(sbInlineJs, js+"\n", settings.getLineWidth(),null);
+			CppOutput.addOutputChunksPlainHtml(sbInlineJs, js+"\n", settings.getLineWidth(),null);
 		}
 		sbInlineJs.append('\n');
 		return sbInlineJs.toString();
@@ -276,7 +314,7 @@ public class CppOutput {
 	protected static String getCssAsCpp(String cssSrc) throws IOException, CancelException {
 		StringBuilder sbInlineCss = new StringBuilder();
 		String css = CssJsProcessor.getInlineCss(cssSrc);;
-		CppOutput.addOutChunks(sbInlineCss, css+"\n", settings.getLineWidth(),null);
+		CppOutput.addOutputChunksPlainHtml(sbInlineCss, css+"\n", settings.getLineWidth(),null);
 		sbInlineCss.append('\n');
 		return sbInlineCss.toString();
 	}
@@ -285,6 +323,10 @@ public class CppOutput {
 		
 		
 		String compiledTplClassName = clsName +"CompiledTemplate";
+		
+		if(compiledTplClassName.startsWith("AdminMainViewCompiledTemplate")) {
+			System.out.println();
+		}
 		
 		LinkedHashSet<String> inlineCss = result.getAllCssIncludes();
 		LinkedHashSet<String> cssLinks = result.getAllCssLinkIncludes();
