@@ -34,7 +34,7 @@ public class CppTpl2 {
 //		return new String(Files.readAllBytes(p),StandardCharsets.UTF_8);
 //	}
 	
-	private static void compileTemplate(TemplateConfig cfg, Path basePath, Path repositoryPath,Settings settings, String clsName, Path templatePath,  Path destBasePath, Set<String> collectInlineJs, Set<String> collectInlineCss,boolean debugMode,boolean nocache) throws IOException, CancelException {
+	private static void compileTemplate(TemplateConfig cfg, Path basePath, Path repositoryPath,Settings settings, String clsName, Path templatePath,  Path destBasePath, Set<String> collectInlineJs, Set<String> collectInlineCss, Set<String> collectCppHeaderIncludes,boolean debugMode,boolean nocache) throws IOException, CancelException {
 		CssJsProcessor.setBasePath(basePath);
 		CssJsProcessor.setRepositoryPath(repositoryPath);
 		CssJsProcessor.setSettings(settings);
@@ -89,6 +89,7 @@ public class CppTpl2 {
 				
 				collectInlineJs.addAll(result.getAllJsInlineIncludes());
 				collectInlineCss.addAll(result.getAllCssIncludes());
+				collectCppHeaderIncludes.addAll(result.getAllHeaderIncludes());
 				
 				CppOutput.writeCompiledTemplateFile2(layoutResult,result,compiledTemplateDir , clsName, cfg);
 			}
@@ -109,6 +110,7 @@ public class CppTpl2 {
 				
 				collectInlineJs.addAll(result.getAllJsInlineIncludes());
 				collectInlineCss.addAll(result.getAllCssIncludes());
+				collectCppHeaderIncludes.addAll(result.getAllHeaderIncludes());
 				//CppOutput.insertCode(clsName, cppFile, result, result.getAllCssIncludes(), result.getAllJsIncludes());
 				CppOutput.writeCompiledTemplateFile2(result,result, compiledTemplateDir, clsName, cfg);
 			} else {
@@ -183,6 +185,7 @@ public class CppTpl2 {
 				List<TemplateConfig> xmlConfigs = handler.getXmlConfigs();
 				LinkedHashSet<String> collectInlineJs = new LinkedHashSet<>();
 				LinkedHashSet<String> collectInlineCss = new LinkedHashSet<>();
+				LinkedHashSet<String> collectCppHeaderIncludes = new LinkedHashSet<>();
 				for (TemplateConfig cfg : xmlConfigs) {
 					Path basePath = TemplateConfig.getSrcPath();
 					Path repositoryPath= basePath.resolve("repository");
@@ -192,14 +195,17 @@ public class CppTpl2 {
 					//if(nocache || (!lastChanges.containsKey(tplFilePath)
 					//		|| Files.getLastModifiedTime(templatePath).toInstant().isAfter(lastChanges.get(tplFilePath)))) {
 					//Path cppFile = xmlConfig.getTplClsFile();
-					compileTemplate(cfg, basePath, repositoryPath, settings, clsName, templatePath,  TemplateConfig.getDestPath(), collectInlineJs, collectInlineCss, debugMode, nocache);
+					compileTemplate(cfg, basePath, repositoryPath, settings, clsName, templatePath,  TemplateConfig.getDestPath(), collectInlineJs, collectInlineCss, collectCppHeaderIncludes, debugMode, nocache);
 					
 					//lastChanges.put(tplFilePath, Files.getLastModifiedTime(templatePath).toInstant());
 					//}
 				}
 //				writeLastChangesDatesFile(xmlDir,lastChanges);
 				Path pathCompiledTemplate = TemplateConfig.getDestPath().resolve("compiledtemplate");
-				CppOutput.writeJsCppFile(pathCompiledTemplate, collectInlineJs, handler.getInlineJsRendererHeaderIncludes());
+				LinkedHashSet<String> inlineJsRendererHeaderIncludes = handler.getInlineJsRendererHeaderIncludes() != null ?  handler.getInlineJsRendererHeaderIncludes() : new LinkedHashSet<>();
+				//inlineJsRendererHeaderIncludes.addAll(collectCppHeaderIncludes)	;			
+				
+				CppOutput.writeJsCppFile(pathCompiledTemplate, collectInlineJs, inlineJsRendererHeaderIncludes);
 				CppOutput.writeCssCppFile(pathCompiledTemplate, collectInlineCss);
 			}
 			

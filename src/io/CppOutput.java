@@ -324,10 +324,6 @@ public class CppOutput {
 		
 		String compiledTplClassName = clsName +"CompiledTemplate";
 		
-		if(compiledTplClassName.startsWith("AdminMainViewCompiledTemplate")) {
-			System.out.println();
-		}
-		
 		LinkedHashSet<String> inlineCss = result.getAllCssIncludes();
 		LinkedHashSet<String> cssLinks = result.getAllCssLinkIncludes();
 		LinkedHashSet<String> inlineJs = result.getAllJsInlineIncludes();
