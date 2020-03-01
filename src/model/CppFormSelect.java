@@ -2,6 +2,8 @@ package model;
 
 import java.io.IOException;
 
+import org.apache.commons.text.StringEscapeUtils;
+
 import codegen.CodeUtil;
 import config.TemplateConfig;
 import io.CppOutput;
@@ -128,6 +130,7 @@ public class CppFormSelect extends HtmlTag{
 					TemplateCodeUtil.writeExpression(out,"'\"'",cfg);
 					out.append("if ").append(CodeUtil.parentheses(value.getStringValue()+" == "+varKey)).append("{\n");
 					directTextOutputBuffer.append(" selected=\"selected\"");
+					CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
 					CodeUtil.writeLine(out, "}");
 					TemplateCodeUtil.writeExpression(out,"'>'",cfg);
 				} else {
@@ -153,7 +156,7 @@ public class CppFormSelect extends HtmlTag{
 	
 	@Override
 	public void toCppDoubleEscaped(StringBuilder out, StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {
-		directTextOutputBuffer.append("<");
+		directTextOutputBuffer.append(StringEscapeUtils.escapeHtml4("<"));
 		directTextOutputBuffer.append(tagName);
 		
 		if (attrs!=null) {
@@ -168,7 +171,7 @@ public class CppFormSelect extends HtmlTag{
 			}
 		}
 		
-		directTextOutputBuffer.append(">");
+		directTextOutputBuffer.append(StringEscapeUtils.escapeHtml4(">"));
 		HtmlAttr value = hasAttr("value") ? getAttrByName("value") : null;
 		CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
 		if(childNodes != null && !childNodes.isEmpty()) {
@@ -222,22 +225,22 @@ public class CppFormSelect extends HtmlTag{
 				HtmlAttr options = getAttrByName("options");
 				out.append("for (const auto & ").append(var+" : "+options.getStringValue()).append(") {\n");
 				
-				directTextOutputBuffer.append("<option value=\"");
+				directTextOutputBuffer.append( StringEscapeUtils.escapeHtml4("<option value=\""));
 				CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
 				TemplateCodeUtil.writeExpression(out,varKey,cfg);
 				
 				if(value != null) {
-					TemplateCodeUtil.writeExpression(out,"'\"'",cfg);
+					TemplateCodeUtil.writeExpression(out,Util.qStringLiteral(StringEscapeUtils.escapeHtml4("\""),true),cfg);
 					out.append("if ").append(CodeUtil.parentheses(value.getStringValue()+" == "+varKey)).append("{\n");
-					directTextOutputBuffer.append(" selected=\"selected\"");
+					directTextOutputBuffer.append(StringEscapeUtils.escapeHtml4(" selected=\"selected\""));
 					CodeUtil.writeLine(out, "}");
-					TemplateCodeUtil.writeExpression(out,"'>'",cfg);
+					TemplateCodeUtil.writeExpression(out,Util.qStringLiteral(StringEscapeUtils.escapeHtml4(">"),true),cfg);
 				} else {
-					TemplateCodeUtil.writeExpression(out,"\"\\\">\"",cfg);;
+					TemplateCodeUtil.writeExpression(out,Util.qStringLiteral(StringEscapeUtils.escapeHtml4("\">"),true),cfg);;
 				}
 				
 				TemplateCodeUtil.writeExpression(out,varValue,cfg);
-				TemplateCodeUtil.writeExpression(out,"\"</option>\"",cfg);
+				TemplateCodeUtil.writeExpression(out,Util.qStringLiteral(StringEscapeUtils.escapeHtml4("</option>"),true),cfg);
 				out.append('\n');
 				CodeUtil.writeLine(out, "}");
 			} 
@@ -245,7 +248,7 @@ public class CppFormSelect extends HtmlTag{
 		 
 		}
 		
-		directTextOutputBuffer.append("</").append(tagName).append('>');
+		directTextOutputBuffer.append(StringEscapeUtils.escapeHtml4("</")).append(tagName).append(StringEscapeUtils.escapeHtml4(">"));
 		
 		
 		

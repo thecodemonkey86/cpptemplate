@@ -30,7 +30,7 @@ public class Util {
 		return Arrays.equals(bytesUtf8, bytesLatin1) 
 				? 
 						latin1AsConstCharPtr 
-							? s
+							? CodeUtil.quote(s)
 							: "QLatin1String"+CodeUtil.parentheses(CodeUtil.quote(s))
 				: "QStringLiteral"+CodeUtil.parentheses(CodeUtil.quote(s));
 	}

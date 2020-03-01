@@ -67,7 +67,7 @@ public class QStringHtmlEscapedOutputSection extends AbstractNode implements IAt
 			String elseExpression = expression.substring(inlineIfElseIndex+1).trim();
 			
 			if(thenExpression.startsWith("\"")) {
-				String htmlEncoded = String.format("\"%s\"", StringEscapeUtils.escapeHtml4(thenExpression.substring(1,thenExpression.length()-1)));
+				String htmlEncoded = StringEscapeUtils.escapeHtml4(thenExpression.substring(1,thenExpression.length()-1));
 				
 				out.append( String.format("if(%s)\n{\n%s}",
 					 conditionExpression,CppOutput.getFastCgiOutputMethod(Util.qStringLiteral(htmlEncoded,true),cfg)));
@@ -82,7 +82,7 @@ public class QStringHtmlEscapedOutputSection extends AbstractNode implements IAt
 			
 			if(!elseExpression.equals("\"\"")) {
 				if(elseExpression.startsWith("\"")) {
-					String htmlEncoded = String.format("\"%s\"", StringEscapeUtils.escapeHtml4(elseExpression.substring(1,elseExpression.length()-1)));
+					String htmlEncoded =  StringEscapeUtils.escapeHtml4(elseExpression.substring(1,elseExpression.length()-1));
 					
 					out.append( String.format("\nelse\n{\n%s}\n",CppOutput.getFastCgiOutputMethod(Util.qStringLiteral(htmlEncoded,true),cfg)));
 				} else {
@@ -98,7 +98,7 @@ public class QStringHtmlEscapedOutputSection extends AbstractNode implements IAt
 			String thenExpression = expression.substring(inlineIfThenIndex+1).trim();
 			
 			if(thenExpression.startsWith("\"")) {
-				String htmlEncoded = String.format("\"%s\"", StringEscapeUtils.escapeHtml4(thenExpression.substring(1,thenExpression.length()-1)));
+				String htmlEncoded =StringEscapeUtils.escapeHtml4(thenExpression.substring(1,thenExpression.length()-1));
 				
 				out.append( String.format("if(%s)\n{\n%s}\n",
 						conditionExpression,CppOutput.getFastCgiOutputMethod(Util.qStringLiteral(htmlEncoded,true),cfg)));
@@ -145,7 +145,7 @@ public class QStringHtmlEscapedOutputSection extends AbstractNode implements IAt
 			String elseExpression = expression.substring(inlineIfElseIndex+1).trim();
 			
 			if(thenExpression.startsWith("\"")) {
-				String htmlEncoded = String.format("\"%s\"", StringEscapeUtils.escapeHtml4(StringEscapeUtils.escapeHtml4(thenExpression.substring(1,thenExpression.length()-1))));
+				String htmlEncoded = StringEscapeUtils.escapeHtml4(StringEscapeUtils.escapeHtml4(thenExpression.substring(1,thenExpression.length()-1)));
 				
 				out.append( String.format("if(%s)\n{\n%s}",
 					 conditionExpression,CppOutput.getFastCgiOutputMethod(Util.qStringLiteral(htmlEncoded,true),cfg)));
@@ -160,7 +160,7 @@ public class QStringHtmlEscapedOutputSection extends AbstractNode implements IAt
 			
 			if(!elseExpression.equals("\"\"")) {
 				if(elseExpression.startsWith("\"")) {
-					String htmlEncoded = String.format("\"%s\"", StringEscapeUtils.escapeHtml4(StringEscapeUtils.escapeHtml4(elseExpression.substring(1,elseExpression.length()-1))));
+					String htmlEncoded = StringEscapeUtils.escapeHtml4(StringEscapeUtils.escapeHtml4(elseExpression.substring(1,elseExpression.length()-1)));
 					
 					out.append( String.format("\nelse\n{\n%s}\n",CppOutput.getFastCgiOutputMethod(Util.qStringLiteral(htmlEncoded,true),cfg)));
 				} else {
