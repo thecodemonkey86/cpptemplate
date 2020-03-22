@@ -202,7 +202,7 @@ public class CppTpl2 {
 				}
 //				writeLastChangesDatesFile(xmlDir,lastChanges);
 				Path pathCompiledTemplate = TemplateConfig.getDestPath().resolve("compiledtemplate");
-				LinkedHashSet<String> inlineJsRendererHeaderIncludes = handler.getInlineJsRendererHeaderIncludes() != null ?  handler.getInlineJsRendererHeaderIncludes() : new LinkedHashSet<>();
+				LinkedHashSet<String> inlineJsRendererHeaderIncludes =   handler.getInlineJsRendererHeaderIncludes();
 				//inlineJsRendererHeaderIncludes.addAll(collectCppHeaderIncludes)	;			
 				
 				CppOutput.writeJsCppFile(pathCompiledTemplate, collectInlineJs, inlineJsRendererHeaderIncludes);

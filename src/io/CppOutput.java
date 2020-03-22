@@ -652,16 +652,17 @@ public class CppOutput {
 		.append("#include  \"core/fastcgioutput.h\"\n\n");
 		
 
-		for(String h : includeHeaders) {
-			CodeUtil.writeLine(sbHeader,String.format("#include \"%s\"", h));
-		}
+		
 		sbHeader.append("\nclass InlineJsRenderer {\n");
 			
 		
 		
 		StringBuilder sbSource = new StringBuilder("#include \"inlinejsrenderer.h\"\n\n");
 		
-		
+		if(includeHeaders!=null)
+		for(String h : includeHeaders) {
+			CodeUtil.writeLine(sbSource,String.format("#include \"%s\"", h));
+		}
 		HashSet<String> methodNames = new HashSet<>();
 		
 		for(String jsSrc : inlineJs) {
