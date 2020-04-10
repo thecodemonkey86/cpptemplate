@@ -21,7 +21,7 @@ public class RenderTagAsAttrValue implements IAttrValueElement{
 		toCpp(out, directTextOutputBuffer, cfg,mainParserResult);
 	}
 	@Override
-	public void walkTree(WalkTreeAction action, ParserResult parserResult) throws IOException {
+	public void walkTree(TemplateConfig cfg,WalkTreeAction action, ParserResult parserResult) throws IOException {
 	}
 
 	@Override
