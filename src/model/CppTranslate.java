@@ -1,5 +1,7 @@
 package model;
 
+import java.io.IOException;
+
 import codegen.CodeUtil;
 import config.TemplateConfig;
 import io.CppOutput;
@@ -18,11 +20,9 @@ public class CppTranslate extends HtmlTag {
 		if(cfg.isRenderToString()) {
 			CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
 			CodeUtil.writeLine(out, String.format("FastCgiOutput::writeHtmlEncodedToBuffer(translations->%s(), %s);", getAttrByName("key").getStringValue(),cfg.getRenderToQStringVariableName()));
-			cfg.setIncludeTranslations(true);
 		} else {
 			CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
 			CodeUtil.writeLine(out, "FastCgiOutput::writeHtmlEncoded"+CodeUtil.parentheses("translations->"+ getAttrByName("key").getStringValue()+"(), out")+";");
-			cfg.setIncludeTranslations(true);
 		}
 		
 	}
@@ -31,6 +31,12 @@ public class CppTranslate extends HtmlTag {
 	public void toCppDoubleEscaped(StringBuilder out, StringBuilder directTextOutputBuffer, TemplateConfig cfg,
 			ParserResult mainParserResult) {
 		toCpp(out, directTextOutputBuffer, cfg, mainParserResult);
+	}
+	
+	@Override
+	public void walkTree(TemplateConfig tplCfg, WalkTreeAction action, ParserResult parserResult) throws IOException {
+		tplCfg.setIncludeTranslations(true);
+		super.walkTree(tplCfg, action, parserResult);
 	}
 
 }

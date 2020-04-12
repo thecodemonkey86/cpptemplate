@@ -34,11 +34,11 @@ public abstract class AbstractNode implements ITemplateItem{
 	 */
 	public abstract void toCpp(StringBuilder out, StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) ;
 	
-	public void walkTree(WalkTreeAction action,ParserResult parserResult) throws IOException {
+	public void walkTree(TemplateConfig tplCfg,WalkTreeAction action,ParserResult parserResult) throws IOException {
 		action.currentNode(this, parserResult);
 		if (this.childNodes != null) {
 			for(AbstractNode n:childNodes) {
-				n.walkTree(action, parserResult);
+				n.walkTree(tplCfg,action, parserResult);
 			}
 		}
 	}

@@ -76,7 +76,7 @@ public class CppFormSelect extends HtmlTag{
 			if(value != null) {
 				for (AbstractNode node : childNodes) {
 					try {
-						node.walkTree(new WalkTreeAction() {
+						node.walkTree(cfg,new WalkTreeAction() {
 							
 							@Override
 							public void currentNode(AbstractNode node, ParserResult parserResult) throws IOException {
@@ -179,7 +179,7 @@ public class CppFormSelect extends HtmlTag{
 			if(value != null) {
 				for (AbstractNode node : childNodes) {
 					try {
-						node.walkTree(new WalkTreeAction() {
+						node.walkTree(cfg,new WalkTreeAction() {
 							
 							@Override
 							public void currentNode(AbstractNode node, ParserResult parserResult) throws IOException {

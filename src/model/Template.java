@@ -30,10 +30,10 @@ public class Template implements ITemplateItem {
 //		}
 //	}
 	
-	public void walkTree(WalkTreeAction action,ParserResult parserResult) throws IOException {
+	public void walkTree(TemplateConfig cfg,WalkTreeAction action,ParserResult parserResult) throws IOException {
 		if (this.tags != null) {
 			for(ITemplateItem n:tags) {
-				n.walkTree(action, parserResult);
+				n.walkTree(cfg,action, parserResult);
 			}
 		}
 	}

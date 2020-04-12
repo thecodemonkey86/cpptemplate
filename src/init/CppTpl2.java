@@ -54,7 +54,7 @@ public class CppTpl2 {
 		if (result.hasLayoutTemplate()) {
 			
 			for(CppSectionTag rt: result.getTemplateRegionTags()) {
-				rt.walkTree(new WalkTreeAction() {
+				rt.walkTree(cfg,new WalkTreeAction() {
 					
 					@Override
 					public void currentNode(AbstractNode node, ParserResult parserResult) throws IOException {
@@ -72,7 +72,7 @@ public class CppTpl2 {
 				ParserResult layoutResult = p.parse(cfg,basePath.resolve(pp.getIncludeLayoutTemplatePath()),subtemplatesFunctions);
 				result.setParentParserResult(layoutResult);
 				System.out.println(layoutResult);
-				layoutResult.getSimpleTemplate().walkTree(new WalkTreeAction() {
+				layoutResult.getSimpleTemplate().walkTree(cfg,new WalkTreeAction() {
 					
 					@Override
 					public void currentNode(AbstractNode node, ParserResult parserResult) throws IOException {
@@ -93,7 +93,7 @@ public class CppTpl2 {
 			
 		} else {
 			if(result.getSimpleTemplate()!=null ) {
-				result.getSimpleTemplate().walkTree(new WalkTreeAction() {
+				result.getSimpleTemplate().walkTree(cfg,new WalkTreeAction() {
 					
 					@Override
 					public void currentNode(AbstractNode node, ParserResult parserResult) throws IOException {

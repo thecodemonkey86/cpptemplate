@@ -34,7 +34,7 @@ public class TextAttrValueElement implements IAttrValueElement{
 		CppOutput.addOutputChunksPlainHtml(out, ParseUtil.dropWhitespaces(StringEscapeUtils.escapeHtml4(chars)), HtmlParser.getLineWidth(),cfg);
 	}
 	@Override
-	public void walkTree(WalkTreeAction action, ParserResult parserResult) {
+	public void walkTree(TemplateConfig cfg,WalkTreeAction action, ParserResult parserResult) {
 		// TODO Auto-generated method stub
 		
 	}

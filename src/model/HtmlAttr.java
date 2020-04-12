@@ -87,7 +87,7 @@ public class HtmlAttr implements ITemplateItem{
 	}
 	
 	@Override
-	public void walkTree(WalkTreeAction action, ParserResult parserResult) {
+	public void walkTree(TemplateConfig cfg, WalkTreeAction action, ParserResult parserResult) {
 		
 	}
 
