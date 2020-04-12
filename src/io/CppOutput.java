@@ -23,6 +23,7 @@ import model.HtmlLinkTag;
 import model.HtmlMetaTag;
 import model.ParserResult;
 import model.Subtemplate;
+import model.SubtemplatesFunctions;
 import settings.Settings;
 import util.FileUtil2;
 import util.Pair;
@@ -319,6 +320,30 @@ public class CppOutput {
 		return sbInlineCss.toString();
 	}
 	
+	public static void collectSubtemplatesCode(LinkedHashSet<String> collectFunctions,
+			TemplateConfig cfg, 
+			SubtemplatesFunctions subtemplatesFunctions,
+			ParserResult mainParserResult
+			) throws IOException {
+		
+		List<Pair<Subtemplate, Boolean>> subtemplatesAsFunctions = subtemplatesFunctions.getSubtemplatesAsFunctions();
+		
+		while(!subtemplatesAsFunctions.isEmpty()) {
+			StringBuilder sbSrc = new StringBuilder();
+			StringBuilder directTextOutputBuffer = new StringBuilder();
+			
+			Pair<Subtemplate, Boolean> p = subtemplatesAsFunctions.remove(0);
+			if(p.getValue2()) {
+				p.getValue1().toCppDoubleEscaped(sbSrc, directTextOutputBuffer, cfg, mainParserResult);
+			}else {
+				p.getValue1().toCpp(sbSrc, directTextOutputBuffer, cfg, mainParserResult);
+			}
+			collectFunctions.add(sbSrc.toString());
+		}
+		
+		
+	}
+	
 	public static void writeCompiledTemplateFile2(ParserResult layoutResult,ParserResult result, Path directory, String clsName, TemplateConfig cfg) throws IOException, CancelException {
 		
 		
@@ -343,6 +368,7 @@ public class CppOutput {
 		CodeUtil.writeLine(sbSrc, "#include \"core/page/pagemanager.h\"");
 		CodeUtil.writeLine(sbSrc, "#include \"view/compiledtemplate/inlinejsrenderer.h\"");
 		CodeUtil.writeLine(sbSrc, "#include \"view/compiledtemplate/inlinecssrenderer.h\"");
+		CodeUtil.writeLine(sbSrc, "#include \"view/compiledtemplate/compiledsubtemplates.h\"");
 		CodeUtil.writeLine(sbSrc, "#include \"mvc/view/html/htmltemplate.h\"");
 		
 		StringBuilder out = new StringBuilder();
@@ -362,19 +388,6 @@ public class CppOutput {
 			if(!cfg.isRenderStatic()) {
 				CodeUtil.writeLine(sbSrc, "class "+compiledTplClassName+" : public HtmlTemplate{");
 				 
-				if(result.hasSubtemplatesAsFunction()) {
-					List<Pair<Subtemplate, Boolean>> subtemplatesAsFunctions = result.getSubtemplatesAsFunctions();
-					int i=0;
-					while(i<subtemplatesAsFunctions.size()) {
-						Pair<Subtemplate, Boolean> p = subtemplatesAsFunctions.get(i++);
-						if(p.getValue2())
-							p.getValue1().toCppDoubleEscaped(sbSrc, directTextOutputBuffer, cfg, result);
-						else
-							p.getValue1().toCpp(sbSrc, directTextOutputBuffer, cfg, result);
-						
-					}
-				}
-				
 				CodeUtil.writeLine(sbSrc, "public: template<class T> inline void renderBody(std::unique_ptr<T> data){");
 				if(cfg.isIncludeTranslations()) {
 					CodeUtil.writeLine(sbSrc, "auto translations = data->getTranslations();");
@@ -443,8 +456,8 @@ public class CppOutput {
 			} else {
 				CodeUtil.writeLine(sbSrc, "class "+compiledTplClassName+"{");
 				
-				if(result.hasSubtemplatesAsFunction()) {
-					List<Pair<Subtemplate, Boolean>> subtemplatesAsFunctions = result.getSubtemplatesAsFunctions();
+				/*if(subtemplatesFunctions.hasSubtemplatesAsFunction()) {
+					List<Pair<Subtemplate, Boolean>> subtemplatesAsFunctions = subtemplatesFunctions.getSubtemplatesAsFunctions();
 					int i=0;
 					while(i<subtemplatesAsFunctions.size()) {
 						Pair<Subtemplate, Boolean> p = subtemplatesAsFunctions.get(i++);
@@ -454,7 +467,7 @@ public class CppOutput {
 							p.getValue1().toCpp(sbSrc, directTextOutputBuffer, cfg, result);
 						
 					}
-				}
+				}*/
 				
 				CodeUtil.writeLine(sbSrc, String.format("public: template<class T> inline static %s renderBody(std::unique_ptr<T> data%s){",cfg.isRenderToString() ? "QString" : "void" , cfg.isRenderToString()?"":",FCGX_Stream * out"));
 				if(cfg.isIncludeTranslations()) {
@@ -469,15 +482,7 @@ public class CppOutput {
 		} else {
 			CodeUtil.writeLine(sbSrc, "class "+compiledTplClassName+"{");
 			 
-			if(result.hasSubtemplatesAsFunction()) {
-				for(Pair<Subtemplate, Boolean> p:result.getSubtemplatesAsFunctions()) {
-					if(p.getValue2())
-						p.getValue1().toCppDoubleEscaped(sbSrc, directTextOutputBuffer, cfg, result);
-					else
-						p.getValue1().toCpp(sbSrc, directTextOutputBuffer, cfg, result);
-					
-				}
-			}
+			
 			
 			CodeUtil.writeLine(sbSrc, String.format("public: template<class T> inline static %s renderBody(std::unique_ptr<T> data%s){",cfg.isRenderToString() ? "QString" : "void" , cfg.isRenderToString()?"":",FCGX_Stream * out"));
 			if(cfg.isIncludeTranslations()) {
@@ -744,5 +749,33 @@ sbHeader.append("};\n\n")
 		FileUtil2.writeFileIfContentChanged(directory.resolve(headerFilename), headerBytes, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
 		FileUtil2.writeFileIfContentChanged(directory.resolve(sourceFileName), sourceBytes, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
 		
+	}
+
+	public static void writeSubtemplatesFile(Path directory, LinkedHashSet<String> subtemplateFunctions,LinkedHashSet<String> inlineHeaderFiles) throws IOException {
+
+		StringBuilder sbSrc = new StringBuilder();
+		
+		String clsName = "CompiledSubtemplates";
+		String includeGuard = clsName.toUpperCase()+"_H";
+		
+		CodeUtil.writeLine(sbSrc,CodeUtil.sp("#ifndef",includeGuard));
+		CodeUtil.writeLine(sbSrc, CodeUtil.sp("#define",includeGuard));
+	
+		for(String includeHeader : inlineHeaderFiles) {
+			CodeUtil.writeLine(sbSrc, "#include \""+includeHeader+"\"");
+		}
+		CodeUtil.writeLine(sbSrc, "class "+clsName+" {");
+		CodeUtil.writeLine(sbSrc, "public:");
+		
+		for(String func:subtemplateFunctions) {
+			CodeUtil.writeLine(sbSrc, func);
+		}
+		CodeUtil.writeLine(sbSrc, "};");
+		CodeUtil.writeLine(sbSrc, "#endif");
+		
+		byte[] bytes = sbSrc.toString().getBytes(UTF8);
+		String filename = clsName.toLowerCase()+ ".h";
+		
+		FileUtil2.writeFileIfContentChanged(directory.resolve(filename), bytes, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
 	}
 }

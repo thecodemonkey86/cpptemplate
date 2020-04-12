@@ -32,11 +32,11 @@ public class CppRenderSubtemplateTag extends HtmlTag {
 		CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
 		
 		if(cfg.isRenderToString()) {
-			CodeUtil.writeLine(out,"_html += "+ Subtemplate.getCppMethodName(StringUtil.dropAll(getAttrStringValue("name"),'\\','/').toLowerCase(), doubleEncode)+CodeUtil.parentheses(getAttrStringValue("args"))+";");
-		} else if(cfg.isRenderStatic()){
-			CodeUtil.writeLine(out,Subtemplate.getCppMethodName(StringUtil.dropAll(getAttrStringValue("name"),'\\','/').toLowerCase(), doubleEncode)+CodeUtil.parentheses(getAttrStringValue("args")+",out")+";");
+			CodeUtil.writeLine(out,"_html += CompiledSubtemplates::"+ Subtemplate.getCppMethodName(StringUtil.dropAll(getAttrStringValue("name"),'\\','/').toLowerCase(), doubleEncode)+CodeUtil.parentheses(getAttrStringValue("args"))+";");
+		//} else if(cfg.isRenderStatic()){
+		//	CodeUtil.writeLine(out,"CompiledSubtemplates::"+Subtemplate.getCppMethodName(StringUtil.dropAll(getAttrStringValue("name"),'\\','/').toLowerCase(), doubleEncode)+CodeUtil.parentheses(getAttrStringValue("args")+",out")+";");
 		} else {
-			CodeUtil.writeLine(out,Subtemplate.getCppMethodName(StringUtil.dropAll(getAttrStringValue("name"),'\\','/').toLowerCase(), doubleEncode)+CodeUtil.parentheses(getAttrStringValue("args"))+";");
+			CodeUtil.writeLine(out,"CompiledSubtemplates::"+Subtemplate.getCppMethodName(StringUtil.dropAll(getAttrStringValue("name"),'\\','/').toLowerCase(), doubleEncode)+CodeUtil.parentheses("out,"+getAttrStringValue("args"))+";");
 		}
 		
 	}
@@ -46,7 +46,7 @@ public class CppRenderSubtemplateTag extends HtmlTag {
 		HtmlParser p = new HtmlParser();
 		try {
 			String subtemplateName = getAttrStringValue("name");
-			ParserResult result = p.parse(cfg,basePath.resolve(TemplateConfig.DIR_SUBTEMPLATES).resolve(subtemplateName +".html"));
+			ParserResult result = p.parse(cfg,basePath.resolve(TemplateConfig.DIR_SUBTEMPLATES).resolve(subtemplateName +".html"),mainParserResult.getSubtemplatesFunctions());
 			
 			if(hasAttr("args")) {
 				invokeSubTemplateMethod(out, directTextOutputBuffer, cfg, mainParserResult, result, subtemplateName,false);
@@ -66,7 +66,7 @@ public class CppRenderSubtemplateTag extends HtmlTag {
 		HtmlParser p = new HtmlParser();
 		try {
 			String subtemplateName = getAttrStringValue("name");
-			ParserResult result = p.parse(cfg,basePath.resolve(TemplateConfig.DIR_SUBTEMPLATES).resolve(subtemplateName +".html"));
+			ParserResult result = p.parse(cfg,basePath.resolve(TemplateConfig.DIR_SUBTEMPLATES).resolve(subtemplateName +".html"),mainParserResult.getSubtemplatesFunctions());
 			
 			if(hasAttr("args")) {
 				invokeSubTemplateMethod(out, directTextOutputBuffer, cfg, mainParserResult, result, subtemplateName,true);

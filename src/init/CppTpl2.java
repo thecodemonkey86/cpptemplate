@@ -23,18 +23,14 @@ import model.CppSectionTag;
 import model.CppRenderSubtemplateTag;
 import model.CppRenderSectionTag;
 import model.ParserResult;
+import model.SubtemplatesFunctions;
 import model.CppIncludeTag;
 import model.WalkTreeAction;
 
 public class CppTpl2 {
 
-//	private static final String LASTCHANGE_FILENAME = "template_lastchange.dat";
-
-//	private static String readUtf8(Path p) throws IOException {
-//		return new String(Files.readAllBytes(p),StandardCharsets.UTF_8);
-//	}
 	
-	private static void compileTemplate(TemplateConfig cfg, Path basePath, Path repositoryPath,Settings settings, String clsName, Path templatePath,  Path destBasePath, Set<String> collectInlineJs, Set<String> collectInlineCss, Set<String> collectCppHeaderIncludes,boolean debugMode,boolean nocache) throws IOException, CancelException {
+	private static void compileTemplate(TemplateConfig cfg, Path basePath, Path repositoryPath,Settings settings, String clsName, Path templatePath,  Path destBasePath, Set<String> collectInlineJs, Set<String> collectInlineCss, Set<String> collectCppHeaderIncludes,boolean debugMode,boolean nocache,SubtemplatesFunctions subtemplatesFunctions) throws IOException, CancelException {
 		CssJsProcessor.setBasePath(basePath);
 		CssJsProcessor.setRepositoryPath(repositoryPath);
 		CssJsProcessor.setSettings(settings);
@@ -44,7 +40,7 @@ public class CppTpl2 {
 		CppOutput.setSettings(settings);
 		HtmlParser.setLineWidth(settings.getLineWidth());
 		HtmlParser p=new HtmlParser();
-		ParserResult result = p.parse(cfg,templatePath);
+		ParserResult result = p.parse(cfg,templatePath,subtemplatesFunctions);
 		Path compiledTemplateDir = TemplateConfig.getDestPath().resolve("compiledtemplate");
 		
 		
@@ -71,8 +67,9 @@ public class CppTpl2 {
 				}, result);	
 			}
 			
+			
 			for(CppIncludeTag pp: result.getPreprocessorTags()) {
-				ParserResult layoutResult = p.parse(cfg,basePath.resolve(pp.getIncludeLayoutTemplatePath()));
+				ParserResult layoutResult = p.parse(cfg,basePath.resolve(pp.getIncludeLayoutTemplatePath()),subtemplatesFunctions);
 				result.setParentParserResult(layoutResult);
 				System.out.println(layoutResult);
 				layoutResult.getSimpleTemplate().walkTree(new WalkTreeAction() {
@@ -186,6 +183,8 @@ public class CppTpl2 {
 				LinkedHashSet<String> collectInlineJs = new LinkedHashSet<>();
 				LinkedHashSet<String> collectInlineCss = new LinkedHashSet<>();
 				LinkedHashSet<String> collectCppHeaderIncludes = new LinkedHashSet<>();
+				LinkedHashSet<String> collectSubtemplateFunctionsCode = new LinkedHashSet<>();
+				SubtemplatesFunctions subtemplatesFunctions = new SubtemplatesFunctions();
 				for (TemplateConfig cfg : xmlConfigs) {
 					Path basePath = TemplateConfig.getSrcPath();
 					Path repositoryPath= basePath.resolve("repository");
@@ -195,11 +194,12 @@ public class CppTpl2 {
 					//if(nocache || (!lastChanges.containsKey(tplFilePath)
 					//		|| Files.getLastModifiedTime(templatePath).toInstant().isAfter(lastChanges.get(tplFilePath)))) {
 					//Path cppFile = xmlConfig.getTplClsFile();
-					compileTemplate(cfg, basePath, repositoryPath, settings, clsName, templatePath,  TemplateConfig.getDestPath(), collectInlineJs, collectInlineCss, collectCppHeaderIncludes, debugMode, nocache);
-					
+					compileTemplate(cfg, basePath, repositoryPath, settings, clsName, templatePath,  TemplateConfig.getDestPath(), collectInlineJs, collectInlineCss, collectCppHeaderIncludes, debugMode, nocache,subtemplatesFunctions);
+					CppOutput.collectSubtemplatesCode(collectSubtemplateFunctionsCode, cfg, subtemplatesFunctions, null);
 					//lastChanges.put(tplFilePath, Files.getLastModifiedTime(templatePath).toInstant());
 					//}
 				}
+				CppOutput.writeSubtemplatesFile( TemplateConfig.getDestPath().resolve("compiledtemplate"),collectSubtemplateFunctionsCode,collectCppHeaderIncludes);
 //				writeLastChangesDatesFile(xmlDir,lastChanges);
 				Path pathCompiledTemplate = TemplateConfig.getDestPath().resolve("compiledtemplate");
 				LinkedHashSet<String> inlineJsRendererHeaderIncludes =   handler.getInlineJsRendererHeaderIncludes();

@@ -24,6 +24,9 @@ public class Subtemplate {
 	}
 	
 	public static void addSubtemplatesFunctionHeader(CppSubtemplateTag subtemplateHeaderTag) {
+		if(subtemplateHeaderTag.getSubtemplateFilePath().toLowerCase().contains("FolderListEntry".toLowerCase())) {
+			System.out.println();
+		}
 		if(Subtemplate.subtemplatesFunctionsHeaders==null) {
 			Subtemplate.subtemplatesFunctionsHeaders = new ArrayList<>();
 		}
@@ -41,25 +44,27 @@ public class Subtemplate {
 	
 	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) throws IOException {
 		CppSubtemplateTag subtemplatesFunctionHeader = getSubtemplatesFunctionHeaderByIdentifier(getSubtemplateIdentifier());
-		
 		int argCount = subtemplatesFunctionHeader.getArgumentCount();
-		String[] templateArgsDef = new String[argCount];
-		String[] templateArgsDecl = new String[argCount];
+		ArrayList<String> args = new ArrayList<>();
 		
-		for(int i=0;i<subtemplatesFunctionHeader.getArgumentCount();i++) {
+		ArrayList<String>  templateArgs = new ArrayList<>();
+		for(int i=0;i<argCount;i++) {
 			String type="A"+i;
-			templateArgsDef[i] = "class "+type;
-			templateArgsDecl[i] = CodeUtil.sp(type,subtemplatesFunctionHeader.getArgument(i));
+			templateArgs.add("class "+type);
+			args.add(CodeUtil.sp(type,subtemplatesFunctionHeader.getArgument(i)));
 		}
+	
 		
 		if(cfg.isRenderToString()) {
-			CodeUtil.writeLine(out,CodeUtil.sp("template", CodeUtil.abr( CodeUtil.commaSep(templateArgsDef)), "static","QString",getCppMethodName(getSubtemplateIdentifier(), false),CodeUtil.parentheses( CodeUtil.commaSep(templateArgsDecl)),"{"));
+			CodeUtil.writeLine(out,CodeUtil.sp("template", CodeUtil.abr( CodeUtil.commaSep(templateArgs)), "static","QString",getCppMethodName(getSubtemplateIdentifier(), false),CodeUtil.parentheses( CodeUtil.commaSep(args)),"{"));
 			CodeUtil.writeLine(out, "QString _html;");
-		} else if(cfg.isRenderStatic()){
-			CodeUtil.writeLine(out,CodeUtil.sp("template", CodeUtil.abr( CodeUtil.commaSep(templateArgsDef)), "static","void",getCppMethodName(getSubtemplateIdentifier(), false),CodeUtil.parentheses( CodeUtil.commaSep(templateArgsDecl)+",FCGX_Stream * out"),"{"));
+		//} else if(cfg.isRenderStatic()){
+		//	args.add(0,"FCGX_Stream *out");
+		//	CodeUtil.writeLine(out,CodeUtil.sp("template", CodeUtil.abr( CodeUtil.commaSep(templateArgs)), "static","void",getCppMethodName(getSubtemplateIdentifier(), false),CodeUtil.parentheses( CodeUtil.commaSep(args)),"{"));
 			
 		} else {
-			CodeUtil.writeLine(out,CodeUtil.sp("template", CodeUtil.abr( CodeUtil.commaSep(templateArgsDef)), "void",getCppMethodName(getSubtemplateIdentifier(), false),CodeUtil.parentheses( CodeUtil.commaSep(templateArgsDecl)),"{"));
+			args.add(0,"FCGX_Stream *out");
+			CodeUtil.writeLine(out,CodeUtil.sp("template", CodeUtil.abr( CodeUtil.commaSep(templateArgs)), "static", "void",getCppMethodName(getSubtemplateIdentifier(), false),CodeUtil.parentheses( CodeUtil.commaSep(args)),"{"));
 		}
 		
 		parserResult.toCpp(out,directTextOutputBuffer,cfg, mainParserResult);
@@ -97,19 +102,20 @@ public class Subtemplate {
 		
 		CppSubtemplateTag subtemplatesFunctionHeader = getSubtemplatesFunctionHeaderByIdentifier(getSubtemplateIdentifier());
 		int argCount = subtemplatesFunctionHeader.getArgumentCount();
-		String[] templateArgsDef = new String[argCount];
-		String[] templateArgsDecl = new String[argCount];
+		ArrayList<String> args = new ArrayList<>();
+		ArrayList<String>  templateArgs = new ArrayList<>();
 		for(int i=0;i<argCount;i++) {
 			String type="A"+i;
-			templateArgsDef[i] = "class "+type;
-			templateArgsDecl[i] = CodeUtil.sp(type,subtemplatesFunctionHeader.getArgument(i));
+			templateArgs.add("class "+type);
+			args.add(CodeUtil.sp(type,subtemplatesFunctionHeader.getArgument(i)));
 		}
 		
 		if(cfg.isRenderToString()) {
-			CodeUtil.writeLine(out,CodeUtil.sp("template", CodeUtil.abr( CodeUtil.commaSep(templateArgsDef)), "static","QString",getCppMethodName(getSubtemplateIdentifier(), true),CodeUtil.parentheses( CodeUtil.commaSep(templateArgsDecl)),"{"));
+			CodeUtil.writeLine(out,CodeUtil.sp("template", CodeUtil.abr( CodeUtil.commaSep(templateArgs)), "static","QString",getCppMethodName(getSubtemplateIdentifier(), true),CodeUtil.parentheses( CodeUtil.commaSep(args)),"{"));
 			CodeUtil.writeLine(out, "QString _html;");
 		} else {
-			CodeUtil.writeLine(out,CodeUtil.sp("template", CodeUtil.abr( CodeUtil.commaSep(templateArgsDef)), "void",getCppMethodName(getSubtemplateIdentifier(), true),CodeUtil.parentheses( CodeUtil.commaSep(templateArgsDecl)),"{"));
+			args.add(0,"FCGX_Stream *out");
+			CodeUtil.writeLine(out,CodeUtil.sp("template", CodeUtil.abr( CodeUtil.commaSep(templateArgs)), "static", "void",getCppMethodName(getSubtemplateIdentifier(), true),CodeUtil.parentheses( CodeUtil.commaSep(args)),"{"));
 			
 		}
 		parserResult.toCppDoubleEscaped(out,directTextOutputBuffer,cfg, mainParserResult);
@@ -126,5 +132,10 @@ public class Subtemplate {
 	
 	public String getSubtemplateIdentifier() {
 		return StringUtil.dropAll(FileUtil.dropExtension( subtemplateFilePath),'\\','/').toLowerCase();
+	}
+	
+	@Override
+	public String toString() {
+		return subtemplateFilePath;
 	}
 }

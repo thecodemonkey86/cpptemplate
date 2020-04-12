@@ -41,6 +41,7 @@ import model.QStringHtmlEscapedOutputSection;
 import model.RawOutputSection;
 import model.RenderTagAsAttrValue;
 import model.Subtemplate;
+import model.SubtemplatesFunctions;
 import model.Template;
 import model.TextAttrValueElement;
 import model.TextNode;
@@ -77,12 +78,12 @@ public class HtmlParser {
 	protected TemplateConfig cfg;
 	
 	
-	public ParserResult parse(TemplateConfig cfg,Path filePath) throws IOException {
+	public ParserResult parse(TemplateConfig cfg,Path filePath,SubtemplatesFunctions subtemplatesFunctions) throws IOException {
 		this.filePath = filePath;
 		this.cfg = cfg;
 		this.currentPos = 0;
 		this.html = new String(Files.readAllBytes(filePath),StandardCharsets.UTF_8);
-		this.result=new ParserResult();
+		this.result=new ParserResult(subtemplatesFunctions);
 		parseRoot();
 		
 		return this.result;
