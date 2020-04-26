@@ -61,12 +61,6 @@ public class RawOutputSection extends AbstractNode implements IAttrValueElement 
 			String thenExpression = expression.substring(inlineIfThenIndex+1,inlineIfElseIndex).trim();
 			String elseExpression = expression.substring(inlineIfElseIndex+1).trim();
 			
-			if(thenExpression.startsWith("\"")) {
-				thenExpression = String.format("%s(%s)",Util.getQStringLiteralConstructor(thenExpression,false), thenExpression);
-			}
-			if(elseExpression.startsWith("\"")) {
-				elseExpression = String.format("%s(%s)",Util.getQStringLiteralConstructor(elseExpression,false), elseExpression);
-			}
 			
 			out.append( String.format("if(%s)\n{\n%s}\nelse\n{\n%s}\n",
 					conditionExpression,CppOutput.getFastCgiOutputMethod(thenExpression, cfg),CppOutput.getFastCgiOutputMethod(elseExpression, cfg)));

@@ -50,6 +50,7 @@ public class CppFormSelectOption extends HtmlTag{
 							valueType = CppFormSelect.ValueType.QString;
 							break;
 						case "int":
+						case "enum":
 							valueType = CppFormSelect.ValueType.Int;
 							break;
 						case "bool":

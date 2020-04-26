@@ -14,6 +14,7 @@ import model.CppCaseTag;
 import model.CppCodeCheckedAttr;
 import model.CppCodeDisabledAttr;
 import model.CppCodeHiddenAttr;
+import model.CppCodeSelectedAttr;
 import model.CppCodeTag;
 import model.CppCommentTag;
 import model.CppElseIfTag;
@@ -411,6 +412,9 @@ public class HtmlParser {
 						break;
 					case CppCodeHiddenAttr.NAME:
 						attr = new CppCodeHiddenAttr(attrName, val);
+						break;
+					case CppCodeSelectedAttr.NAME:
+						attr = new CppCodeSelectedAttr(attrName, val);
 						break;
 					default:
 						throw new IOException();

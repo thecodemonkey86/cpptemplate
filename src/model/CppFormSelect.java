@@ -16,6 +16,10 @@ public class CppFormSelect extends HtmlTag{
 
 	public String toCppCondition(String selectedValueExpression, HtmlAttr optionValue) {
 		if(optionValue.getValue().getElements().size()==1 && optionValue.getValue().getElements().get(0) instanceof QStringHtmlEscapedOutputSection) {
+			if(this == Bool) {
+				return ((QStringHtmlEscapedOutputSection)optionValue.getValue().getElements().get(0)).getExpression(); 
+			}
+			
 			return selectedValueExpression+" == "+ ((QStringHtmlEscapedOutputSection)optionValue.getValue().getElements().get(0)).getExpression();
 		} else {
 			switch(this) {
@@ -230,17 +234,17 @@ public class CppFormSelect extends HtmlTag{
 				TemplateCodeUtil.writeExpression(out,varKey,cfg);
 				
 				if(value != null) {
-					TemplateCodeUtil.writeExpression(out,Util.qStringLiteral(StringEscapeUtils.escapeHtml4("\""),true),cfg);
+					TemplateCodeUtil.writeExpression(out,CodeUtil.quote(StringEscapeUtils.escapeHtml4("\"")),cfg);
 					out.append("if ").append(CodeUtil.parentheses(value.getStringValue()+" == "+varKey)).append("{\n");
 					directTextOutputBuffer.append(StringEscapeUtils.escapeHtml4(" selected=\"selected\""));
 					CodeUtil.writeLine(out, "}");
-					TemplateCodeUtil.writeExpression(out,Util.qStringLiteral(StringEscapeUtils.escapeHtml4(">"),true),cfg);
+					TemplateCodeUtil.writeExpression(out,CodeUtil.quote(StringEscapeUtils.escapeHtml4(">")),cfg);
 				} else {
-					TemplateCodeUtil.writeExpression(out,Util.qStringLiteral(StringEscapeUtils.escapeHtml4("\">"),true),cfg);;
+					TemplateCodeUtil.writeExpression(out,CodeUtil.quote(StringEscapeUtils.escapeHtml4("\">")),cfg);;
 				}
 				
 				TemplateCodeUtil.writeExpression(out,varValue,cfg);
-				TemplateCodeUtil.writeExpression(out,Util.qStringLiteral(StringEscapeUtils.escapeHtml4("</option>"),true),cfg);
+				TemplateCodeUtil.writeExpression(out,CodeUtil.quote(StringEscapeUtils.escapeHtml4("</option>")),cfg);
 				out.append('\n');
 				CodeUtil.writeLine(out, "}");
 			} 

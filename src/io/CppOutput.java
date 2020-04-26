@@ -3,7 +3,7 @@ package io;
 
 
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -35,7 +35,6 @@ import util.exception.CancelException;
 
 public class CppOutput {
 
-	public static final Charset UTF8 = Charset.forName("UTF-8");
 	protected static Settings settings;
 	
 	public static void clearDirectTextOutputBuffer(StringBuilder out, StringBuilder buffer,TemplateConfig cfg) {
@@ -233,7 +232,7 @@ public class CppOutput {
 	
 	protected static String getJsAsCpp(String jsSrc, boolean enableInlineJsCppCodeInStrings) throws IOException, CancelException {
 		StringBuilder sbInlineJs = new StringBuilder();
-		String js = new String(Files.readAllBytes(CssJsProcessor.loadJs(jsSrc)), UTF8 );
+		String js = new String(Files.readAllBytes(CssJsProcessor.loadJs(jsSrc)), StandardCharsets.UTF_8 );
 		
 		if(enableInlineJsCppCodeInStrings) {
 		
@@ -545,10 +544,9 @@ public class CppOutput {
 		CodeUtil.writeLine(sbSrc, "};");
 		CodeUtil.writeLine(sbSrc, "#endif");
 		 
-		byte[] bytes = sbSrc.toString().getBytes(UTF8);
 		String filename = clsName.toLowerCase()+ "compiledtemplate.h";
 		
-		FileUtil2.writeFileIfContentChanged(directory.resolve(filename), bytes, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+		FileUtil2.writeFileIfContentChangedUtf8(directory.resolve(filename),  sbSrc.toString(), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
 	}
 	
 	
@@ -689,17 +687,12 @@ public class CppOutput {
 sbHeader.append("};\n\n")
 		
 		.append("#endif //INLINEJSRENDERER_H");
-		
-		
-		
-		byte[] headerBytes = sbHeader.toString().getBytes(UTF8);
-		byte[] sourceBytes = sbSource.toString().getBytes(UTF8);
 		String headerFilename = "inlinejsrenderer.h";
 		String sourceFileName = "inlinejsrenderer.cpp";
 		
-		FileUtil2.writeFileIfContentChanged(directory.resolve(headerFilename), headerBytes);
+		FileUtil2.writeFileIfContentChangedUtf8(directory.resolve(headerFilename), sbHeader.toString());
 	 
-		FileUtil2.writeFileIfContentChanged(directory.resolve(sourceFileName), sourceBytes);
+		FileUtil2.writeFileIfContentChangedUtf8(directory.resolve(sourceFileName), sbSource.toString());
 	}
 	
 	public static void writeCssCppFile(Path directory, Set<String> inlineCss) throws IOException, CancelException {
@@ -741,13 +734,11 @@ sbHeader.append("};\n\n")
 		
 		.append("#endif //INLINECSSRENDERER_H");
 		
-		byte[] headerBytes = sbHeader.toString().getBytes(UTF8);
-		byte[] sourceBytes = sbSource.toString().getBytes(UTF8);
 		String headerFilename = "inlinecssrenderer.h";
 		String sourceFileName = "inlinecssrenderer.cpp";
 		
-		FileUtil2.writeFileIfContentChanged(directory.resolve(headerFilename), headerBytes, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
-		FileUtil2.writeFileIfContentChanged(directory.resolve(sourceFileName), sourceBytes, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+		FileUtil2.writeFileIfContentChangedUtf8(directory.resolve(headerFilename), sbHeader.toString(), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+		FileUtil2.writeFileIfContentChangedUtf8(directory.resolve(sourceFileName), sbSource.toString(), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
 		
 	}
 
@@ -773,9 +764,8 @@ sbHeader.append("};\n\n")
 		CodeUtil.writeLine(sbSrc, "};");
 		CodeUtil.writeLine(sbSrc, "#endif");
 		
-		byte[] bytes = sbSrc.toString().getBytes(UTF8);
 		String filename = clsName.toLowerCase()+ ".h";
 		
-		FileUtil2.writeFileIfContentChanged(directory.resolve(filename), bytes, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+		FileUtil2.writeFileIfContentChangedUtf8(directory.resolve(filename), sbSrc.toString(), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
 	}
 }
