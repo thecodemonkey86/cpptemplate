@@ -71,7 +71,6 @@ public class CppTpl2 {
 			for(CppIncludeTag pp: result.getPreprocessorTags()) {
 				ParserResult layoutResult = p.parse(cfg,basePath.resolve(pp.getIncludeLayoutTemplatePath()),subtemplatesFunctions);
 				result.setParentParserResult(layoutResult);
-				System.out.println(layoutResult);
 				layoutResult.getSimpleTemplate().walkTree(cfg,new WalkTreeAction() {
 					
 					@Override
@@ -111,7 +110,8 @@ public class CppTpl2 {
 				//CppOutput.insertCode(clsName, cppFile, result, result.getAllCssIncludes(), result.getAllJsIncludes());
 				CppOutput.writeCompiledTemplateFile2(result,result, compiledTemplateDir, clsName, cfg);
 			} else {
-				throw new IOException();
+				// empty templates
+				CppOutput.writeCompiledTemplateFile2(result,result, compiledTemplateDir, clsName, cfg);
 			}
 		}
 	}

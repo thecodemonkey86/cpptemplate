@@ -20,6 +20,21 @@ public class ParseUtil {
 		return new Pair<String, Integer>( html.substring(offset, endIndex), endIndex);
 	}
 	
+	public static Pair<String,Integer> getIndexAndSubstrToNextFirstChar(String html, int offset, char c1, char c2) throws IOException {
+		int endIndex1 = html.indexOf(c1, offset);
+		int endIndex2 = html.indexOf(c2, offset);
+		if (endIndex1 == -1 && endIndex2 == -1) {
+			throw new IOException(String.format("syntax error. Expected \'%s\' or \'%s\'",c1,c2));
+		} else if(endIndex1 == -1) {
+			return new Pair<String, Integer>( html.substring(offset, endIndex2), endIndex2);
+		}  else if(endIndex2 == -1) {
+			return new Pair<String, Integer>( html.substring(offset, endIndex1), endIndex1);
+		} else {
+			return new Pair<String, Integer>( html.substring(offset, Math.min(endIndex1, endIndex2)), Math.min(endIndex1, endIndex2));
+		}
+		
+	}
+	
 	public static String substrToNextChar(String html, char[] chars, int fromIndex) throws IOException {
 		Pair<Integer, Character> p = firstIndexOf(html, chars, fromIndex);
 		if (p.getValue1() == -1) {

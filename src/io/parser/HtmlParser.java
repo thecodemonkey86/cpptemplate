@@ -105,13 +105,13 @@ public class HtmlParser {
 	}
 	protected char currChar() throws IOException {
 		if(atEnd()) {
-			throw new IOException("syntax error at position "+currentPos+" in html "+html);
+			throw new IOException("syntax error in file " + filePath +",  at position "+currentPos+" in html "+html);
 		}
 		return html.charAt(currentPos);
 	}
 	protected boolean currSubstrEquals(String substr) throws IOException {
 		if(atEnd()) {
-			throw new IOException("syntax error");
+			throw new IOException("syntax error in file " + filePath +",  at position "+currentPos+" in html "+html);
 		}
 		return html.regionMatches(currentPos, substr, 0, substr.length());
 	}
@@ -343,25 +343,25 @@ public class HtmlParser {
 		return new DynamicHtmlAttr(html.substring(start,currentPos));
 	}
 	protected HtmlAttr parseAttr() throws IOException {
-		Pair<String, Integer> pEq = ParseUtil.getIndexAndSubstrToNextChar(html, currentPos, '=');
-		int indexEq = pEq.getValue2();
-		String attrName = pEq.getValue1().trim();
-		if (!attrName.matches("[a-zA-Z-:]+")) {
-			String[] arr = attrName.split("\\s");
-			
-			if(arr[0].matches("[a-zA-Z-:]+")) {
-				currentPos += arr[0].length();
-				return new EmptyHtmlAttr(arr[0]);
-			} else if(arr[0].matches("[a-zA-Z-:]+>")) {
-				currentPos += arr[0].length()-2;
-				return new EmptyHtmlAttr(arr[0].substring(0, arr[0].length()-1));
-			}
-			throw new IOException(String.format("syntax error. Attr name [%s] must match [a-zA-Z-]+", attrName));
+		if(filePath.toString().endsWith("EditUser.html")) {
+			System.out.println();
 		}
-		Pair<Integer, Character> pQuot = ParseUtil.firstIndexOf(html, '\"', '\'', indexEq);
+		 Pair<Integer, Character> firstIndexOf = ParseUtil.firstIndexOf(html, new char[] {' ', '=','>','\r','\n','\t'}, currentPos);
+		 
+		 String attrName = html.substring(currentPos, firstIndexOf.getValue1()).trim();
+		 
+		if (!attrName.matches("[a-zA-Z-:]+")) {
+			throw new IOException(String.format("syntax error in file " + filePath +",  at position "+currentPos+" in html "+html+". Attr name [%s] must match [a-zA-Z-]+", attrName));
+		}
+		 if(firstIndexOf.getValue2() != '=') {
+			 currentPos += attrName.length()-1;
+			return new EmptyHtmlAttr(attrName);
+		}
+		 
+		Pair<Integer, Character> pQuot = ParseUtil.firstIndexOf(html, '\"', '\'', firstIndexOf.getValue1());
 		int indexQuot = pQuot.getValue1();
 		if (indexQuot == -1) {
-			throw new IOException("syntax error. Expected single or double quote");
+			throw new IOException("syntax error in file " + filePath +",  at position "+currentPos+" in html "+html+". Expected single or double quote");
 		}
 		setPos(indexQuot + 1);
 		AttrValue val = new AttrValue();
@@ -429,7 +429,7 @@ public class HtmlParser {
 			}
 			next();
 		}
-		throw new IOException("syntax error. missing closing quote");
+		throw new IOException("syntax error in file " + filePath +",  at position "+currentPos+" in html "+html+". missing closing quote");
 		
 	}
 	private IAttrValueElement parseTranslateAttributeValue() throws IOException {
@@ -463,7 +463,7 @@ public class HtmlParser {
 					if(currChar()=='>') {
 						return val;
 					} else {
-						throw new IOException("syntax error");
+						throw new IOException("syntax error in file " + filePath +",  at position "+currentPos+" in html "+html);
 					}
 				case ' ':
 				case '\n':
@@ -479,7 +479,7 @@ public class HtmlParser {
 			}
 			next();
 		}
-		throw new IOException("syntax error");
+		throw new IOException("syntax error in file " + filePath +",  at position "+currentPos+" in html "+html);
 	}
 	private IAttrValueElement parseRenderSubtemplateAttributeValue() throws IOException {
 		int start = currentPos;
@@ -511,7 +511,7 @@ public class HtmlParser {
 					if(currChar()=='>') {
 						return val;
 					} else {
-						throw new IOException("syntax error");
+						throw new IOException("syntax error in file " + filePath +",  at position "+currentPos+" in html "+html);
 					}
 				case ' ':
 				case '\n':
@@ -527,7 +527,7 @@ public class HtmlParser {
 			}
 			next();
 		}
-		throw new IOException("syntax error");
+		throw new IOException("syntax error in file " + filePath +",  at position "+currentPos+" in html "+html);
 		/*Pair<Integer, Character> nextWhitespace = ParseUtil.firstIndexOf(html, new char[]{' ','\t','\r','\n'}, currentPos);
 		currentPos = nextWhitespace.getValue1();
 		Pair<String, Integer> pEq = ParseUtil.getIndexAndSubstrToNextChar(html, currentPos, '=');
@@ -562,10 +562,10 @@ public class HtmlParser {
 				if(currChar()=='>') {
 					return val;
 				} else {
-					throw new IOException("syntax error");
+					throw new IOException("syntax error in file " + filePath +",  at position "+currentPos+" in html "+html);
 				}
 			default:
-				throw new IOException("syntax error");
+				throw new IOException("syntax error in file " + filePath +",  at position "+currentPos+" in html "+html);
 			}
 		}
 		return val;*/
@@ -654,6 +654,10 @@ public class HtmlParser {
 				return styleTag;
 			} else {
 				tag=new HtmlTag(tagName);
+				
+				if(filePath.toString().endsWith("EditUser.html") && tagName.equals("select")) {
+					System.out.println();
+				}
 			}
 		}
 		
@@ -766,7 +770,6 @@ public class HtmlParser {
 				startIndex = currentPos; 
 				next(HtmlParser.HTML_END_TAG.length());
 				if(!currSubstrEquals(tag.getNamespaceAndTagName())) {
-					//System.out.println(html.substring(currentPos,currentPos+10));
 					throw new IOException(filePath+ ": end tag does not match: " + tag.getNamespaceAndTagName()+", pos "+currentPos);
 				}
 				next(tag.getNamespaceAndTagName().length());

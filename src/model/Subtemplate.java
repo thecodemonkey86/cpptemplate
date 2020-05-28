@@ -24,9 +24,6 @@ public class Subtemplate {
 	}
 	
 	public static void addSubtemplatesFunctionHeader(CppSubtemplateTag subtemplateHeaderTag) {
-		if(subtemplateHeaderTag.getSubtemplateFilePath().toLowerCase().contains("FolderListEntry".toLowerCase())) {
-			System.out.println();
-		}
 		if(Subtemplate.subtemplatesFunctionsHeaders==null) {
 			Subtemplate.subtemplatesFunctionsHeaders = new ArrayList<>();
 		}

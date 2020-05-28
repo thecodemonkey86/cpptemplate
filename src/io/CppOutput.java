@@ -38,9 +38,6 @@ public class CppOutput {
 	protected static Settings settings;
 	
 	public static void clearDirectTextOutputBuffer(StringBuilder out, StringBuilder buffer,TemplateConfig cfg) {
-		if(buffer.toString().startsWith("FastCgiOutput::writeH")) {
-			System.out.println();
-		}
 		addOutputChunksPlainHtml(out, ParseUtil.dropWhitespaces(buffer.toString()), HtmlParser.getLineWidth(),cfg);
 		buffer.setLength(0);
 	}
@@ -276,9 +273,6 @@ public class CppOutput {
 						if(!doubleQuot)
 							singleQuot = !singleQuot;
 						
-						if(singleQuot) {
-							System.out.println("");
-						}
 						break;
 		
 					case '{':
@@ -372,7 +366,8 @@ public class CppOutput {
 		
 		StringBuilder out = new StringBuilder();
 		StringBuilder directTextOutputBuffer = new StringBuilder();
-		layoutResult.getSimpleTemplate().toCpp(out,directTextOutputBuffer,cfg, result);
+		if(layoutResult.getSimpleTemplate() != null)
+			layoutResult.getSimpleTemplate().toCpp(out,directTextOutputBuffer,cfg, result);
 		
 		if(cfg.isIncludeTranslations())
 			CodeUtil.writeLine(sbSrc, "#include \"translations/compiled/translations.h\"");
@@ -547,6 +542,7 @@ public class CppOutput {
 		String filename = clsName.toLowerCase()+ "compiledtemplate.h";
 		
 		FileUtil2.writeFileIfContentChangedUtf8(directory.resolve(filename),  sbSrc.toString(), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+		System.out.println("Written "+directory.resolve(filename));
 	}
 	
 	
@@ -724,9 +720,6 @@ sbHeader.append("};\n\n")
 				.append(getCssAsCpp(cssSrc))
 				.append("\n}\n");
 				;
-			//} else {
-			//	System.out.println(inlineCss);
-			//	throw new IOException("duplicate method " +methodname+" (" + cssSrc+")");
 			}
 		}
 		
