@@ -38,6 +38,7 @@ public class RawOutputSection extends AbstractNode implements IAttrValueElement 
 		boolean escape = false;
 		for(int i=0;i<expression.length();i++) {
 			if(escape) {
+				escape = false;
 				continue;
 			} else if(quot && expression.charAt(i) == '\\') {
 				escape = true;
