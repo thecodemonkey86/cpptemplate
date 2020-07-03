@@ -15,6 +15,7 @@ public class HtmlTag extends AbstractNode{
 	public static final String INPUT_TAG = "input";
 	public static final String IMG_TAG = "img";
 	public static final String HR_TAG = "hr";
+	public static final String PARAM_TAG = "param";
 	protected String ns;
 	protected String tagName;
 	protected List<HtmlAttr> attrs;
@@ -27,6 +28,7 @@ public class HtmlTag extends AbstractNode{
 		VOID_TAGS.add(HR_TAG);
 		VOID_TAGS.add(IMG_TAG);
 		VOID_TAGS.add(HtmlBr.TAG_NAME);
+		VOID_TAGS.add(PARAM_TAG);
 		
 	};
 	

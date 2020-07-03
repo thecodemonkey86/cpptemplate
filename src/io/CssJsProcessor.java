@@ -94,8 +94,6 @@ public class CssJsProcessor {
 				if (src.startsWith("http")) {
 					if(tempFile != null)
 						Files.move(tempFile, file, StandardCopyOption.REPLACE_EXISTING);
-					else
-						System.out.println();
 				} else {
 					file = originalFile;
 				}
@@ -151,7 +149,6 @@ public class CssJsProcessor {
 											try {
 												Path p = basePath.resolve( Paths.get( path) .getParent().resolve( url));
 												if(Files.exists(p)) {
-													System.out.println(p);
 													String mime = Files.probeContentType(p);
 													css = String.format("%s\"data:%s;base64,%s\"%s", css.substring(0, urlStart),mime,Base64.getEncoder().encodeToString(Files.readAllBytes(p)),css.substring(urlEnd+1));
 												}
