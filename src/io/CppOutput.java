@@ -245,20 +245,22 @@ public class CppOutput {
 				} else {
 					switch (js.charAt(i)) {
 					case '/':
-						if(js.charAt(i+1) == '/') {
-							while(i<js.length()) {
-								if( js.charAt(i) == '\n' || js.charAt(i) == '\r') {
-									break;
-								}
-								i++;
-							}
-						} else if(js.charAt(i+1) == '*') {
-							while(i<js.length()-1) {
-								if( js.charAt(i) == '*' && js.charAt(i+1) == '/') {
+						if(!singleQuot&&!doubleQuot) {
+							if(js.charAt(i+1) == '/') {
+								while(i<js.length()) {
+									if( js.charAt(i) == '\n' || js.charAt(i) == '\r') {
+										break;
+									}
 									i++;
-									break;
 								}
-								i++;
+							} else if(js.charAt(i+1) == '*') {
+								while(i<js.length()-1) {
+									if( js.charAt(i) == '*' && js.charAt(i+1) == '/') {
+										i++;
+										break;
+									}
+									i++;
+								}
 							}
 						}
 						break;

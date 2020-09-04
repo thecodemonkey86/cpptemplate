@@ -17,6 +17,7 @@ import model.CppCodeHiddenAttr;
 import model.CppCodeSelectedAttr;
 import model.CppCodeTag;
 import model.CppCommentTag;
+import model.CppDefaultCase;
 import model.CppElseIfTag;
 import model.CppElseTag;
 import model.CppForTag;
@@ -586,6 +587,8 @@ public class HtmlParser {
 					tag = new CppSwitchTag();
 				} else if (tagName.equals(CppCaseTag.TAG_NAME)) {
 					tag = new CppCaseTag();
+				} else if (tagName.equals(CppDefaultCase.TAG_NAME)) {
+					tag = new CppDefaultCase();
 				} else if (tagName.equals(CppFormSelect.TAG_NAME)) {
 					tag = new CppFormSelect();
 				} else if (tagName.equals(CppInputTag.TAG_NAME)) {
