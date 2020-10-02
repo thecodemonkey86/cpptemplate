@@ -384,13 +384,13 @@ public class CppOutput {
 			if(!cfg.isRenderStatic()) {
 				CodeUtil.writeLine(sbSrc, "class "+compiledTplClassName+" : public HtmlTemplate{");
 				 
-				CodeUtil.writeLine(sbSrc, "public: template<class T> inline void renderBody(std::unique_ptr<T> data){");
+				CodeUtil.writeLine(sbSrc, "public: template<class T> void renderBody(std::unique_ptr<T> data){");
 				if(cfg.isIncludeTranslations()) {
 					CodeUtil.writeLine(sbSrc, "auto translations = data->getTranslations();");
 				}
 				CodeUtil.writeLine(sbSrc, out.toString());
 				CodeUtil.writeLine(sbSrc, "}");
-				CodeUtil.writeLine(sbSrc, "public: template<class T> inline void render(std::unique_ptr<T> data){");
+				CodeUtil.writeLine(sbSrc, "public: template<class T> void render(std::unique_ptr<T> data){");
 				
 				if(!jsLinks.isEmpty()) {
 					for(String jsLink : jsLinks) {
