@@ -47,6 +47,7 @@ public class CppFormSelectOption extends HtmlTag{
 						HtmlAttr optionValueType = parent.getAttrByName("valueType");
 						switch (optionValueType.getStringValue()) {
 						case "QString":
+						case "string":
 							valueType = CppFormSelect.ValueType.QString;
 							break;
 						case "int":
