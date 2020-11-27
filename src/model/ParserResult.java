@@ -16,16 +16,17 @@ public class ParserResult {
 //	protected List<CppSectionTag> sectionTags;
 	protected ParserResult parentParserResult;
 	protected boolean hasLayoutTemplate;
-	protected SubtemplatesFunctions subtemplatesFunctions;
-	public ParserResult(SubtemplatesFunctions subtemplatesFunctions) {
-		preprocessorTags = new ArrayList<>();
-		templateRegionTags = null;
-		this.subtemplatesFunctions = subtemplatesFunctions;
-	}
+	protected LinkedHashSet<SubtemplateFunctionImpl> subtemplatesFunctions;
 	
-	public SubtemplatesFunctions getSubtemplatesFunctions() {
+	public LinkedHashSet<SubtemplateFunctionImpl> getSubtemplatesFunctions() {
 		return subtemplatesFunctions;
 	}
+	
+	public ParserResult() {
+		preprocessorTags = new ArrayList<>();
+		templateRegionTags = null;
+	}
+	
 	
 	public void addPreprocessorTag(CppIncludeTag ppTag) {
 		this.preprocessorTags.add(ppTag);
@@ -263,11 +264,20 @@ public class ParserResult {
 		return includeHeaderFiles;
 	}
 
-	public void addSubtemplatesAsFunction(Subtemplate subtemplate, boolean doubleEncode) {
-	  subtemplatesFunctions.addSubtemplatesAsFunction(subtemplate, doubleEncode);
+	public void addSubtemplatesImpl(SubtemplateFunctionImpl impl) {
+		if(subtemplatesFunctions==null) {
+			subtemplatesFunctions = new LinkedHashSet<>();
+		}
+		System.out.println(this+"|"+ impl);
+	  subtemplatesFunctions.add(impl);
 		
 	}
-	
+
+	public boolean hasSubtemplatesFunctions() {
+		return subtemplatesFunctions!=null && !subtemplatesFunctions.isEmpty();
+	}
+
+
 	
 	
 	

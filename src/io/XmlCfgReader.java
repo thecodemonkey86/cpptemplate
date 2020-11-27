@@ -110,7 +110,6 @@ public class XmlCfgReader implements ContentHandler {
 			break;
 		case template:
 			currentCfg = new TemplateConfig(); 
-			
 			String overrideClassname=atts.getValue("class");
 			String tplName = atts.getValue("name");
 			currentCfg.setClsName(overrideClassname != null ? overrideClassname : tplName+"View");
@@ -142,6 +141,19 @@ public class XmlCfgReader implements ContentHandler {
 			if(staticMethod != null ) {
 				currentCfg.setRenderStatic(staticMethod.equals("true") || staticMethod.equals("1"));
 //				currentCfg.setRenderToQStringVariableName(atts.getValue("renderToVariable"));
+			}
+			String viewDataClsName = atts.getValue("viewDataClass");
+			if(viewDataClsName!=null) {
+				currentCfg.setViewDataClsName(viewDataClsName);
+			} else {
+				currentCfg.setViewDataClsName(tplName+"ViewData");
+			}
+			String viewDataClsPath = atts.getValue("viewDataClassDir");
+			if(viewDataClsPath!=null) {
+				currentCfg.setViewDataClsPath(String.format("%s/%s.h", viewDataClsPath,currentCfg.getViewDataClsName().toLowerCase()));
+			} else if( currentCfg.getSubDir()!=null) {
+				currentCfg.setViewDataClsPath(String.format("model/viewdata/%s/%s.h", currentCfg.getSubDir(),currentCfg.getViewDataClsName().toLowerCase()));
+				
 			}
 		case inlineJsRenderer:
 			break;

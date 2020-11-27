@@ -63,7 +63,7 @@ public class CppFormSelect extends HtmlTag{
 		if (attrs!=null) {
 			for(HtmlAttr a:attrs) {
 				if(a.getName()!=null) {
-					if(!a.getName().equals("value") && !a.getName().equals("options") && !a.getName().equals("valueType")) {
+					if(!a.getName().equals("value") && !a.getName().equals("options")) {
 						a.toCpp(out,directTextOutputBuffer,cfg, mainParserResult);	
 					}
 				}
@@ -166,7 +166,7 @@ public class CppFormSelect extends HtmlTag{
 		if (attrs!=null) {
 			for(HtmlAttr a:attrs) {
 				if(a.getName()!=null) {
-					if(!a.getName().equals("value") && !a.getName().equals("options") && !a.getName().equals("valueType")) {
+					if(!a.getName().equals("value") && !a.getName().equals("options")) {
 						a.toCppDoubleEscaped(out,directTextOutputBuffer,cfg, mainParserResult);	
 					}
 				}

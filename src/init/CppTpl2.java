@@ -23,14 +23,14 @@ import model.CppSectionTag;
 import model.CppRenderSubtemplateTag;
 import model.CppRenderSectionTag;
 import model.ParserResult;
-import model.SubtemplatesFunctions;
+import model.SubtemplateFunctionImpl;
 import model.CppIncludeTag;
 import model.WalkTreeAction;
 
 public class CppTpl2 {
 
 	
-	private static void compileTemplate(TemplateConfig cfg, Path basePath, Path repositoryPath,Settings settings, String clsName, Path templatePath,  Path destBasePath, Set<String> collectInlineJs, Set<String> collectInlineCss, Set<String> collectCppHeaderIncludes,boolean debugMode,boolean nocache,SubtemplatesFunctions subtemplatesFunctions) throws IOException, CancelException {
+	private static void compileTemplate(TemplateConfig cfg, Path basePath, Path repositoryPath,Settings settings, String clsName, Path templatePath,  Path destBasePath, Set<String> collectInlineJs, Set<String> collectInlineCss, Set<String> collectCppHeaderIncludes,LinkedHashSet<SubtemplateFunctionImpl> collectSubtemplateFunctionsCode, boolean debugMode,boolean nocache) throws IOException, CancelException {
 		CssJsProcessor.setBasePath(basePath);
 		CssJsProcessor.setRepositoryPath(repositoryPath);
 		CssJsProcessor.setSettings(settings);
@@ -40,9 +40,8 @@ public class CppTpl2 {
 		CppOutput.setSettings(settings);
 		HtmlParser.setLineWidth(settings.getLineWidth());
 		HtmlParser p=new HtmlParser();
-		ParserResult result = p.parse(cfg,templatePath,subtemplatesFunctions);
+		ParserResult result = p.parse(cfg,templatePath);
 		Path compiledTemplateDir = TemplateConfig.getDestPath().resolve("compiledtemplate");
-		
 		
 		if(cfg.getSubDir() != null && !cfg.getSubDir().isEmpty()) {
 			compiledTemplateDir = compiledTemplateDir.resolve(cfg.getSubDir());
@@ -69,7 +68,7 @@ public class CppTpl2 {
 			
 			
 			for(CppIncludeTag pp: result.getPreprocessorTags()) {
-				ParserResult layoutResult = p.parse(cfg,basePath.resolve(pp.getIncludeLayoutTemplatePath()),subtemplatesFunctions);
+				ParserResult layoutResult = p.parse(cfg,basePath.resolve(pp.getIncludeLayoutTemplatePath()));
 				result.setParentParserResult(layoutResult);
 				layoutResult.getSimpleTemplate().walkTree(cfg,new WalkTreeAction() {
 					
@@ -88,6 +87,11 @@ public class CppTpl2 {
 				collectCppHeaderIncludes.addAll(result.getAllHeaderIncludes());
 				
 				CppOutput.writeCompiledTemplateFile2(layoutResult,result,compiledTemplateDir , clsName, cfg);
+				
+				if(result.hasSubtemplatesFunctions())
+					collectSubtemplateFunctionsCode.addAll(result.getSubtemplatesFunctions());
+				if(layoutResult.hasSubtemplatesFunctions())
+					collectSubtemplateFunctionsCode.addAll(layoutResult.getSubtemplatesFunctions());
 			}
 			
 		} else {
@@ -109,6 +113,9 @@ public class CppTpl2 {
 				collectCppHeaderIncludes.addAll(result.getAllHeaderIncludes());
 				//CppOutput.insertCode(clsName, cppFile, result, result.getAllCssIncludes(), result.getAllJsIncludes());
 				CppOutput.writeCompiledTemplateFile2(result,result, compiledTemplateDir, clsName, cfg);
+				
+				if(result.hasSubtemplatesFunctions())
+					collectSubtemplateFunctionsCode.addAll(result.getSubtemplatesFunctions());
 			} else {
 				// empty templates
 				CppOutput.writeCompiledTemplateFile2(result,result, compiledTemplateDir, clsName, cfg);
@@ -183,8 +190,8 @@ public class CppTpl2 {
 				LinkedHashSet<String> collectInlineJs = new LinkedHashSet<>();
 				LinkedHashSet<String> collectInlineCss = new LinkedHashSet<>();
 				LinkedHashSet<String> collectCppHeaderIncludes = new LinkedHashSet<>();
-				LinkedHashSet<String> collectSubtemplateFunctionsCode = new LinkedHashSet<>();
-				SubtemplatesFunctions subtemplatesFunctions = new SubtemplatesFunctions();
+				LinkedHashSet<SubtemplateFunctionImpl> collectSubtemplateFunctionsCode = new LinkedHashSet<>();
+			 
 				for (TemplateConfig cfg : xmlConfigs) {
 					Path basePath = TemplateConfig.getSrcPath();
 					Path repositoryPath= basePath.resolve("repository");
@@ -194,8 +201,8 @@ public class CppTpl2 {
 					//if(nocache || (!lastChanges.containsKey(tplFilePath)
 					//		|| Files.getLastModifiedTime(templatePath).toInstant().isAfter(lastChanges.get(tplFilePath)))) {
 					//Path cppFile = xmlConfig.getTplClsFile();
-					compileTemplate(cfg, basePath, repositoryPath, settings, clsName, templatePath,  TemplateConfig.getDestPath(), collectInlineJs, collectInlineCss, collectCppHeaderIncludes, debugMode, nocache,subtemplatesFunctions);
-					CppOutput.collectSubtemplatesCode(collectSubtemplateFunctionsCode, cfg, subtemplatesFunctions, null);
+					compileTemplate(cfg, basePath, repositoryPath, settings, clsName, templatePath,  TemplateConfig.getDestPath(), collectInlineJs, collectInlineCss, collectCppHeaderIncludes, collectSubtemplateFunctionsCode, debugMode, nocache);
+					//CppOutput.collectSubtemplatesCode(collectSubtemplateFunctionsCode, cfg, subtemplatesFunctions, null);
 					//lastChanges.put(tplFilePath, Files.getLastModifiedTime(templatePath).toInstant());
 					//}
 				}

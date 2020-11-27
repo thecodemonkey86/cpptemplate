@@ -4,7 +4,7 @@ import java.nio.file.Path;
 
 public class TemplateConfig {
 	public static final String DIR_SUBTEMPLATES = "subtemplates";
-	private String clsName; 
+	private String clsName, viewDataClsName, viewDataClsPath; 
 	//private Path tplClsFile
 	private Path tmplPath;
 	private static Path srcPath, destPath;
@@ -95,7 +95,6 @@ public class TemplateConfig {
 	
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
 		return clsName;
 	}
 	
@@ -106,6 +105,22 @@ public class TemplateConfig {
 	
 	public void setRenderStatic(boolean renderStatic) {
 		this.renderStatic = renderStatic;
+	}
+	
+	public String getViewDataClsName() {
+		return viewDataClsName;
+	}
+	
+	public void setViewDataClsName(String viewDataClsName) {
+		this.viewDataClsName = viewDataClsName;
+	}
+
+	public String getViewDataClsPath() {
+		return viewDataClsPath;
+	}
+	
+	public void setViewDataClsPath(String viewDataClsPath) {
+		this.viewDataClsPath = viewDataClsPath;
 	}
 	
 }

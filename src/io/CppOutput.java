@@ -11,7 +11,6 @@ import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.xml.bind.DatatypeConverter;
@@ -22,8 +21,7 @@ import io.parser.HtmlParser;
 import model.HtmlLinkTag;
 import model.HtmlMetaTag;
 import model.ParserResult;
-import model.Subtemplate;
-import model.SubtemplatesFunctions;
+import model.SubtemplateFunctionImpl;
 import settings.Settings;
 import util.FileUtil2;
 import util.Pair;
@@ -315,7 +313,7 @@ public class CppOutput {
 		return sbInlineCss.toString();
 	}
 	
-	public static void collectSubtemplatesCode(LinkedHashSet<String> collectFunctions,
+	/*public static void collectSubtemplatesCode(LinkedHashSet<String> collectFunctions,
 			TemplateConfig cfg, 
 			SubtemplatesFunctions subtemplatesFunctions,
 			ParserResult mainParserResult
@@ -337,7 +335,7 @@ public class CppOutput {
 		}
 		
 		
-	}
+	}*/
 	
 	public static void writeCompiledTemplateFile2(ParserResult layoutResult,ParserResult result, Path directory, String clsName, TemplateConfig cfg) throws IOException, CancelException {
 		
@@ -353,18 +351,22 @@ public class CppOutput {
 		LinkedHashSet<HtmlMetaTag> metaTags = result.getAllMetaTags();
 		LinkedHashSet<HtmlLinkTag> linkTags = result.getAllLinkTags();
 		StringBuilder sbSrc = new StringBuilder();
+		StringBuilder sbHdr = new StringBuilder();
 
 		String includeGuard = compiledTplClassName.toUpperCase()+"_H";
 		
-		CodeUtil.writeLine(sbSrc,CodeUtil.sp("#ifndef",includeGuard));
-		CodeUtil.writeLine(sbSrc, CodeUtil.sp("#define",includeGuard));
-		CodeUtil.writeLine(sbSrc, "#include <memory>");
-		CodeUtil.writeLine(sbSrc, "#include \"core/fastcgioutput.h\"");
+		CodeUtil.writeLine(sbHdr,CodeUtil.sp("#ifndef",includeGuard));
+		CodeUtil.writeLine(sbHdr, CodeUtil.sp("#define",includeGuard));
+		CodeUtil.writeLine(sbSrc, CodeUtil.sp("#include",CodeUtil.quote(compiledTplClassName.toLowerCase()+".h")));
+		CodeUtil.writeLine(sbHdr, CodeUtil.sp("#include", CodeUtil.quote(cfg.getViewDataClsPath())));
+		
+		CodeUtil.writeLine(sbHdr, "#include <memory>");
+		CodeUtil.writeLine(sbHdr, "#include \"core/fastcgioutput.h\"");
 		CodeUtil.writeLine(sbSrc, "#include \"core/page/pagemanager.h\"");
 		CodeUtil.writeLine(sbSrc, "#include \"view/compiledtemplate/inlinejsrenderer.h\"");
 		CodeUtil.writeLine(sbSrc, "#include \"view/compiledtemplate/inlinecssrenderer.h\"");
 		CodeUtil.writeLine(sbSrc, "#include \"view/compiledtemplate/compiledsubtemplates.h\"");
-		CodeUtil.writeLine(sbSrc, "#include \"mvc/view/html/htmltemplate.h\"");
+		CodeUtil.writeLine(sbHdr, "#include \"mvc/view/html/htmltemplate.h\"");
 		
 		StringBuilder out = new StringBuilder();
 		StringBuilder directTextOutputBuffer = new StringBuilder();
@@ -372,26 +374,31 @@ public class CppOutput {
 			layoutResult.getSimpleTemplate().toCpp(out,directTextOutputBuffer,cfg, result);
 		
 		if(cfg.isIncludeTranslations())
-			CodeUtil.writeLine(sbSrc, "#include \"translations/compiled/translations.h\"");
+			CodeUtil.writeLine(sbHdr, "#include \"translations/compiled/translations.h\"");
 		
 		for(String includeHeader : inlineHeaderFiles) {
-			CodeUtil.writeLine(sbSrc, "#include \""+includeHeader+"\"");
+			CodeUtil.writeLine(sbHdr, "#include \""+includeHeader+"\"");
 		}
 		
-		CodeUtil.writeLine(sbSrc, "using namespace std;");
+		//CodeUtil.writeLine(sbSrc, "using namespace std;");
 		
 		if(!cfg.isRenderToString()) {
 			if(!cfg.isRenderStatic()) {
-				CodeUtil.writeLine(sbSrc, "class "+compiledTplClassName+" : public HtmlTemplate{");
+				CodeUtil.writeLine(sbHdr, CodeUtil.sp("class",compiledTplClassName,":", "public", "HtmlTemplate", "{"));
 				 
-				CodeUtil.writeLine(sbSrc, "public: template<class T> void renderBody(std::unique_ptr<T> data){");
+				CodeUtil.writeLine(sbHdr, CodeUtil.sp("public:","void","renderBody",CodeUtil.parentheses(CodeUtil.sp("std::unique_ptr",CodeUtil.abr(cfg.getViewDataClsName()),"data")), ";"));
+				CodeUtil.writeLine(sbHdr, CodeUtil.sp("public:","void","render",CodeUtil.parentheses(CodeUtil.sp("std::unique_ptr",CodeUtil.abr(cfg.getViewDataClsName()),"data")), ";"));
+				CodeUtil.writeLine(sbSrc,  CodeUtil.sp("void",compiledTplClassName+ "::renderBody",CodeUtil.parentheses(CodeUtil.sp("std::unique_ptr",CodeUtil.abr(cfg.getViewDataClsName()),"data"))));
+				CodeUtil.writeLine(sbSrc, "{");
+				
+				
 				if(cfg.isIncludeTranslations()) {
 					CodeUtil.writeLine(sbSrc, "auto translations = data->getTranslations();");
 				}
 				CodeUtil.writeLine(sbSrc, out.toString());
 				CodeUtil.writeLine(sbSrc, "}");
-				CodeUtil.writeLine(sbSrc, "public: template<class T> void render(std::unique_ptr<T> data){");
-				
+				CodeUtil.writeLine(sbSrc,  CodeUtil.sp("void",compiledTplClassName+ "::render",CodeUtil.parentheses(CodeUtil.sp("std::unique_ptr",CodeUtil.abr(cfg.getViewDataClsName()),"data"))));
+				CodeUtil.writeLine(sbSrc, "{");
 				if(!jsLinks.isEmpty()) {
 					for(String jsLink : jsLinks) {
 						CodeUtil.writeLine(sbSrc, "addJsFile"+CodeUtil.parentheses(Util.qStringLiteral(jsLink))+";");
@@ -426,7 +433,8 @@ public class CppOutput {
 				
 				
 				if(!inlineJs.isEmpty()) {
-					CodeUtil.writeLine(sbSrc, "public: virtual void renderInlineJs() const override{");
+					CodeUtil.writeLine(sbHdr, "public: virtual void renderInlineJs() const override;");
+					CodeUtil.writeLine(sbSrc, CodeUtil.sp("void", compiledTplClassName+"::renderInlineJs()", "const", "{"));
 					
 					
 					//int i=0;
@@ -440,8 +448,9 @@ public class CppOutput {
 				
 				
 				if(!inlineCss.isEmpty()) {
-					CodeUtil.writeLine(sbSrc, "public: virtual void renderInlineCss() const override{");
-					//int i=0;
+					CodeUtil.writeLine(sbHdr, "public: virtual void renderInlineCss() const override;");
+					CodeUtil.writeLine(sbSrc, CodeUtil.sp("void", compiledTplClassName+"::renderInlineCss()", "const"));
+					CodeUtil.writeLine(sbSrc, "{");
 					for(String cssSrc : inlineCss) {
 						CodeUtil.writeLine(sbSrc, "InlineCssRenderer::"+getJsOrCssMethodName(cssSrc)+"(out);" );
 						//i++;
@@ -450,8 +459,8 @@ public class CppOutput {
 					CodeUtil.writeLine(sbSrc, "}");
 				}
 			} else {
-				CodeUtil.writeLine(sbSrc, "class "+compiledTplClassName+"{");
-				
+				CodeUtil.writeLine(sbHdr, CodeUtil.sp("class",compiledTplClassName));
+				CodeUtil.writeLine(sbHdr, "{");
 				/*if(subtemplatesFunctions.hasSubtemplatesAsFunction()) {
 					List<Pair<Subtemplate, Boolean>> subtemplatesAsFunctions = subtemplatesFunctions.getSubtemplatesAsFunctions();
 					int i=0;
@@ -465,7 +474,8 @@ public class CppOutput {
 					}
 				}*/
 				
-				CodeUtil.writeLine(sbSrc, String.format("public: template<class T> inline static %s renderBody(std::unique_ptr<T> data%s){",cfg.isRenderToString() ? "QString" : "void" , cfg.isRenderToString()?"":",FCGX_Stream * out"));
+				CodeUtil.writeLine(sbHdr, CodeUtil.sp("public:", "static", cfg.isRenderToString() ? "QString" : "void",  "renderBody", CodeUtil.parentheses(CodeUtil.sp("std::unique_ptr"+CodeUtil.abr(cfg.getViewDataClsName()),"data", cfg.isRenderToString()?null:",FCGX_Stream * out")),";"));
+				CodeUtil.writeLine(sbSrc, CodeUtil.sp(cfg.isRenderToString() ? "QString" : "void", compiledTplClassName+ "::renderBody", CodeUtil.parentheses(CodeUtil.sp("std::unique_ptr"+CodeUtil.abr(cfg.getViewDataClsName()),"data", cfg.isRenderToString()?null:",FCGX_Stream*", "out")),"{"));
 				if(cfg.isIncludeTranslations()) {
 					CodeUtil.writeLine(sbSrc, "auto translations = data->getTranslations();");
 				}
@@ -476,30 +486,32 @@ public class CppOutput {
 			
 			
 		} else {
-			CodeUtil.writeLine(sbSrc, "class "+compiledTplClassName+"{");
-			 
-			
-			
-			CodeUtil.writeLine(sbSrc, String.format("public: template<class T> inline static %s renderBody(std::unique_ptr<T> data%s){",cfg.isRenderToString() ? "QString" : "void" , cfg.isRenderToString()?"":",FCGX_Stream * out"));
+			CodeUtil.writeLine(sbHdr,  CodeUtil.sp("class",compiledTplClassName));
+			CodeUtil.writeLine(sbHdr, "{");
+			CodeUtil.writeLine(sbHdr, CodeUtil.sp("public:", "static", cfg.isRenderToString() ? "QString" : "void" , "renderBody",CodeUtil.parentheses(CodeUtil.sp("std::unique_ptr", CodeUtil.abr(cfg.getViewDataClsName()),"data",cfg.isRenderToString()?null:",FCGX_Stream* out")),";"));
+			CodeUtil.writeLine(sbSrc, CodeUtil.sp( cfg.isRenderToString() ? "QString" : "void" , compiledTplClassName+"::renderBody",CodeUtil.parentheses(CodeUtil.sp("std::unique_ptr", CodeUtil.abr(cfg.getViewDataClsName()),"data",cfg.isRenderToString()?null:",FCGX_Stream* out"))));
+			CodeUtil.writeLine(sbSrc, "{");
 			if(cfg.isIncludeTranslations()) {
 				CodeUtil.writeLine(sbSrc, "auto translations = data->getTranslations();");
 			}
-			CodeUtil.writeLine(sbSrc, String.format("QString %s;",cfg.getRenderToQStringVariableName()));
+			CodeUtil.writeLine(sbSrc, CodeUtil.sp("QString",cfg.getRenderToQStringVariableName(),";"));
 			
 		
 			
 			CodeUtil.writeLine(sbSrc, out.toString());
-			CodeUtil.writeLine(sbSrc, String.format("return %s;",cfg.getRenderToQStringVariableName()));
+			CodeUtil.writeLine(sbSrc, CodeUtil.sp("return",cfg.getRenderToQStringVariableName(),";"));
 			CodeUtil.writeLine(sbSrc, "}");
 			if(!jsLinks.isEmpty()) {
-				CodeUtil.writeLine(sbSrc, "public: inline static void addExternalJs(HtmlTemplate * htmlTemplate){");
+				CodeUtil.writeLine(sbHdr, CodeUtil.sp("public:", "static", "void", "addExternalJs", CodeUtil.parentheses(CodeUtil.sp("HtmlTemplate*", "htmlTemplate")),";"));
+				CodeUtil.writeLine(sbSrc, CodeUtil.sp("void", "addExternalJs", CodeUtil.parentheses(CodeUtil.sp("HtmlTemplate*", "htmlTemplate")),"{"));
 				for(String jsLink : jsLinks) {
 					CodeUtil.writeLine(sbSrc, "htmlTemplate->addJsFile"+CodeUtil.parentheses(CodeUtil.quote(jsLink))+";");
 				}
 				CodeUtil.writeLine(sbSrc, "}");
 			}
 			if(!fontLinks.isEmpty()) {
-				CodeUtil.writeLine(sbSrc, "public: inline static void addFonts(HtmlTemplate * htmlTemplate){");
+				CodeUtil.writeLine(sbHdr, CodeUtil.sp("public:", "static", "void", "addFonts", CodeUtil.parentheses(CodeUtil.sp("HtmlTemplate*", "htmlTemplate")),";"));
+				CodeUtil.writeLine(sbSrc, CodeUtil.sp("void", "addFonts", CodeUtil.parentheses(CodeUtil.sp("HtmlTemplate*", "htmlTemplate")),"{"));
 				for(String fontLink : fontLinks) {
 					CodeUtil.writeLine(sbSrc, "htmlTemplate->addFont"+CodeUtil.parentheses(CodeUtil.quote(fontLink))+";");
 				}
@@ -507,8 +519,8 @@ public class CppOutput {
 			}
 			
 			if(!inlineJs.isEmpty()) {
-				CodeUtil.writeLine(sbSrc, "public: inline static void renderInlineJs(FCGX_Stream * out){");
-				
+				CodeUtil.writeLine(sbHdr, CodeUtil.sp("public:", "static", "void", "renderInlineJs", CodeUtil.parentheses(CodeUtil.sp("FCGX_Stream*", "out")),";"));
+				CodeUtil.writeLine(sbSrc, CodeUtil.sp("void", "renderInlineJs", CodeUtil.parentheses(CodeUtil.sp("FCGX_Stream*", "out")),"{"));
 				
 				int i=0;
 				for(String jsSrc : inlineJs) {
@@ -519,7 +531,9 @@ public class CppOutput {
 			}
 			
 			if(!cssLinks.isEmpty()) {
-				CodeUtil.writeLine(sbSrc, "public: inline static void addExternalCss(HtmlTemplate * htmlTemplate){");
+				CodeUtil.writeLine(sbHdr, CodeUtil.sp("public:", "static", "void", "addExternalCss", CodeUtil.parentheses(CodeUtil.sp("HtmlTemplate*", "htmlTemplate")),";"));
+				CodeUtil.writeLine(sbSrc, CodeUtil.sp("void", "addExternalCss", CodeUtil.parentheses(CodeUtil.sp("HtmlTemplate*", "htmlTemplate")),"{"));
+				
 				for(String cssLink : cssLinks) {
 					CodeUtil.writeLine(sbSrc, "htmlTemplate->addCssFile"+CodeUtil.parentheses(CodeUtil.quote(cssLink))+";");
 				}
@@ -527,7 +541,9 @@ public class CppOutput {
 			}
 			
 			if(!inlineCss.isEmpty()) {
-				CodeUtil.writeLine(sbSrc, "public: inline static void renderInlineCss(FCGX_Stream * out){");
+				CodeUtil.writeLine(sbHdr, CodeUtil.sp("public:", "static", "void", "renderInlineCss", CodeUtil.parentheses(CodeUtil.sp("FCGX_Stream*", "out")),";"));
+				CodeUtil.writeLine(sbSrc, CodeUtil.sp("void", "renderInlineCss", CodeUtil.parentheses(CodeUtil.sp("FCGX_Stream*", "out"))));
+				CodeUtil.writeLine(sbSrc, "{");
 				int i=0;
 				for(String cssSrc : inlineCss) {
 					CodeUtil.writeLine(sbSrc, CodeUtil.sp("InlineCssRenderer::"+getJsOrCssMethodName(cssSrc)+"(out);",  i==inlineCss.size()-1 ? null : "\\"));
@@ -538,13 +554,16 @@ public class CppOutput {
 			}
 		}
 		
-		CodeUtil.writeLine(sbSrc, "};");
-		CodeUtil.writeLine(sbSrc, "#endif");
+		CodeUtil.writeLine(sbHdr, "};");
+		CodeUtil.writeLine(sbHdr, "#endif");
 		 
-		String filename = clsName.toLowerCase()+ "compiledtemplate.h";
+		String filenameHdr = clsName.toLowerCase()+ "compiledtemplate.h";
+		String filenameSrc = clsName.toLowerCase()+ "compiledtemplate.cpp";
 		
-		FileUtil2.writeFileIfContentChangedUtf8(directory.resolve(filename),  sbSrc.toString(), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
-		System.out.println("Written "+directory.resolve(filename));
+		FileUtil2.writeFileIfContentChangedUtf8(directory.resolve(filenameHdr),  sbHdr.toString(), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+		System.out.println("Written "+directory.resolve(filenameHdr));
+		FileUtil2.writeFileIfContentChangedUtf8(directory.resolve(filenameSrc),  sbSrc.toString(), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+		System.out.println("Written "+directory.resolve(filenameSrc));
 	}
 	
 	
@@ -737,7 +756,7 @@ sbHeader.append("};\n\n")
 		
 	}
 
-	public static void writeSubtemplatesFile(Path directory, LinkedHashSet<String> subtemplateFunctions,LinkedHashSet<String> inlineHeaderFiles) throws IOException {
+	public static void writeSubtemplatesFile(Path directory, LinkedHashSet<SubtemplateFunctionImpl> subtemplateFunctions,LinkedHashSet<String> inlineHeaderFiles) throws IOException {
 
 		StringBuilder sbSrc = new StringBuilder();
 		
@@ -753,8 +772,8 @@ sbHeader.append("};\n\n")
 		CodeUtil.writeLine(sbSrc, "class "+clsName+" {");
 		CodeUtil.writeLine(sbSrc, "public:");
 		
-		for(String func:subtemplateFunctions) {
-			CodeUtil.writeLine(sbSrc, func);
+		for(SubtemplateFunctionImpl func:subtemplateFunctions) {
+			CodeUtil.writeLine(sbSrc, func.toCpp());
 		}
 		CodeUtil.writeLine(sbSrc, "};");
 		CodeUtil.writeLine(sbSrc, "#endif");

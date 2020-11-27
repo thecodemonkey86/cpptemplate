@@ -28,7 +28,8 @@ public class CppRenderSubtemplateTag extends HtmlTag {
 	}
 	
 	private void invokeSubTemplateMethod(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult,ParserResult subTemplateResult, String subtemplateName, boolean doubleEncode) {
-		mainParserResult.addSubtemplatesAsFunction(new Subtemplate(subtemplateName, getAttrStringValue("args").split(","),subTemplateResult),doubleEncode);
+		mainParserResult.addSubtemplatesImpl(new SubtemplateFunctionImpl(  cfg, mainParserResult, new Subtemplate(subtemplateName, getAttrStringValue("args").split(","),subTemplateResult),doubleEncode));
+		 
 		CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
 		
 		if(cfg.isRenderToString()) {
@@ -46,7 +47,7 @@ public class CppRenderSubtemplateTag extends HtmlTag {
 		HtmlParser p = new HtmlParser();
 		try {
 			String subtemplateName = getAttrStringValue("name");
-			ParserResult result = p.parse(cfg,basePath.resolve(TemplateConfig.DIR_SUBTEMPLATES).resolve(subtemplateName +".html"),mainParserResult.getSubtemplatesFunctions());
+			ParserResult result = p.parse(cfg,basePath.resolve(TemplateConfig.DIR_SUBTEMPLATES).resolve(subtemplateName +".html"));
 			
 			if(hasAttr("args")) {
 				invokeSubTemplateMethod(out, directTextOutputBuffer, cfg, mainParserResult, result, subtemplateName,false);
@@ -66,7 +67,7 @@ public class CppRenderSubtemplateTag extends HtmlTag {
 		HtmlParser p = new HtmlParser();
 		try {
 			String subtemplateName = getAttrStringValue("name");
-			ParserResult result = p.parse(cfg,basePath.resolve(TemplateConfig.DIR_SUBTEMPLATES).resolve(subtemplateName +".html"),mainParserResult.getSubtemplatesFunctions());
+			ParserResult result = p.parse(cfg,basePath.resolve(TemplateConfig.DIR_SUBTEMPLATES).resolve(subtemplateName +".html"));
 			
 			if(hasAttr("args")) {
 				invokeSubTemplateMethod(out, directTextOutputBuffer, cfg, mainParserResult, result, subtemplateName,true);
