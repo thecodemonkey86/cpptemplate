@@ -27,8 +27,24 @@ public class CppRenderSubtemplateTag extends HtmlTag {
 		CppRenderSubtemplateTag.basePath = basePath;
 	}
 	
-	private void invokeSubTemplateMethod(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult,ParserResult subTemplateResult, String subtemplateName, boolean doubleEncode) {
-		mainParserResult.addSubtemplatesImpl(new SubtemplateFunctionImpl(  cfg, mainParserResult, new Subtemplate(subtemplateName, getAttrStringValue("args").split(","),subTemplateResult),doubleEncode));
+	private void invokeSubTemplateMethod(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult,ParserResult subTemplateResult, String subtemplateName, boolean doubleEncode) throws IOException {
+		String[] strArgs = getAttrStringValue("args").split(",");
+		SubtemplateArg[] args = new SubtemplateArg[strArgs.length];
+		for(int i=0;i<strArgs.length;i++) {
+			String[] parts = strArgs[i].split(" ", 2);
+			if(parts.length == 2) {
+				String type = parts[0].trim();
+				String name=parts[1].trim();
+				if(type.isEmpty() || name.isEmpty()) {
+					throw new IOException("subtemplate args now must have a concrete type. Missing for subtemplate "+subtemplateName);
+				}
+				args[i] = new SubtemplateArg(type, name);
+			} else {
+				throw new IOException("subtemplate args now must have a concrete type. Missing for subtemplate "+subtemplateName);
+			}
+		}
+		
+		mainParserResult.addSubtemplatesImpl(new SubtemplateFunctionImpl(  cfg, mainParserResult, new Subtemplate(subtemplateName, args,subTemplateResult),doubleEncode));
 		 
 		CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
 		

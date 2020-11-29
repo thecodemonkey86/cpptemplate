@@ -206,7 +206,7 @@ public class CppTpl2 {
 					//lastChanges.put(tplFilePath, Files.getLastModifiedTime(templatePath).toInstant());
 					//}
 				}
-				CppOutput.writeSubtemplatesFile( TemplateConfig.getDestPath().resolve("compiledtemplate"),collectSubtemplateFunctionsCode,collectCppHeaderIncludes);
+				CppOutput.writeSubtemplatesClass( TemplateConfig.getDestPath().resolve("compiledtemplate"),collectSubtemplateFunctionsCode,collectCppHeaderIncludes);
 //				writeLastChangesDatesFile(xmlDir,lastChanges);
 				Path pathCompiledTemplate = TemplateConfig.getDestPath().resolve("compiledtemplate");
 				LinkedHashSet<String> inlineJsRendererHeaderIncludes =   handler.getInlineJsRendererHeaderIncludes();

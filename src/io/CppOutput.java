@@ -358,7 +358,8 @@ public class CppOutput {
 		CodeUtil.writeLine(sbHdr,CodeUtil.sp("#ifndef",includeGuard));
 		CodeUtil.writeLine(sbHdr, CodeUtil.sp("#define",includeGuard));
 		CodeUtil.writeLine(sbSrc, CodeUtil.sp("#include",CodeUtil.quote(compiledTplClassName.toLowerCase()+".h")));
-		CodeUtil.writeLine(sbHdr, CodeUtil.sp("#include", CodeUtil.quote(cfg.getViewDataClsPath())));
+		for(int i=0;i<cfg.getViewDataClsCount();i++)
+			CodeUtil.writeLine(sbHdr, CodeUtil.sp("#include", CodeUtil.quote(cfg.getViewDataClsPath(i))));
 		
 		CodeUtil.writeLine(sbHdr, "#include <memory>");
 		CodeUtil.writeLine(sbHdr, "#include \"core/fastcgioutput.h\"");
@@ -385,51 +386,53 @@ public class CppOutput {
 		if(!cfg.isRenderToString()) {
 			if(!cfg.isRenderStatic()) {
 				CodeUtil.writeLine(sbHdr, CodeUtil.sp("class",compiledTplClassName,":", "public", "HtmlTemplate", "{"));
-				 
-				CodeUtil.writeLine(sbHdr, CodeUtil.sp("public:","void","renderBody",CodeUtil.parentheses(CodeUtil.sp("std::unique_ptr",CodeUtil.abr(cfg.getViewDataClsName()),"data")), ";"));
-				CodeUtil.writeLine(sbHdr, CodeUtil.sp("public:","void","render",CodeUtil.parentheses(CodeUtil.sp("std::unique_ptr",CodeUtil.abr(cfg.getViewDataClsName()),"data")), ";"));
-				CodeUtil.writeLine(sbSrc,  CodeUtil.sp("void",compiledTplClassName+ "::renderBody",CodeUtil.parentheses(CodeUtil.sp("std::unique_ptr",CodeUtil.abr(cfg.getViewDataClsName()),"data"))));
-				CodeUtil.writeLine(sbSrc, "{");
-				
-				
-				if(cfg.isIncludeTranslations()) {
-					CodeUtil.writeLine(sbSrc, "auto translations = data->getTranslations();");
-				}
-				CodeUtil.writeLine(sbSrc, out.toString());
-				CodeUtil.writeLine(sbSrc, "}");
-				CodeUtil.writeLine(sbSrc,  CodeUtil.sp("void",compiledTplClassName+ "::render",CodeUtil.parentheses(CodeUtil.sp("std::unique_ptr",CodeUtil.abr(cfg.getViewDataClsName()),"data"))));
-				CodeUtil.writeLine(sbSrc, "{");
-				if(!jsLinks.isEmpty()) {
-					for(String jsLink : jsLinks) {
-						CodeUtil.writeLine(sbSrc, "addJsFile"+CodeUtil.parentheses(Util.qStringLiteral(jsLink))+";");
+				for(int i=0;i<cfg.getViewDataClsCount();i++ ) { 
+					CodeUtil.writeLine(sbHdr, CodeUtil.sp("public:","void","renderBody",CodeUtil.parentheses(CodeUtil.sp("std::unique_ptr",CodeUtil.abr(cfg.getViewDataClsName(i)),"data")), ";"));
+					CodeUtil.writeLine(sbHdr, CodeUtil.sp("public:","void","render",CodeUtil.parentheses(CodeUtil.sp("std::unique_ptr",CodeUtil.abr(cfg.getViewDataClsName(i)),"data")), ";"));
+					
+					
+					CodeUtil.writeLine(sbSrc,  CodeUtil.sp("void",compiledTplClassName+ "::renderBody",CodeUtil.parentheses(CodeUtil.sp("std::unique_ptr",CodeUtil.abr(cfg.getViewDataClsName(i)),"data"))));
+					CodeUtil.writeLine(sbSrc, "{");
+					
+					
+					if(cfg.isIncludeTranslations()) {
+						CodeUtil.writeLine(sbSrc, "auto translations = data->getTranslations();");
 					}
-				}
-				if(!cssLinks.isEmpty()) {
-					for(String cssLink : cssLinks) {
-						CodeUtil.writeLine(sbSrc, "addCssFile"+CodeUtil.parentheses(Util.qStringLiteral(cssLink))+";");
+					CodeUtil.writeLine(sbSrc, out.toString());
+					CodeUtil.writeLine(sbSrc, "}");
+					CodeUtil.writeLine(sbSrc,  CodeUtil.sp("void",compiledTplClassName+ "::render",CodeUtil.parentheses(CodeUtil.sp("std::unique_ptr",CodeUtil.abr(cfg.getViewDataClsName(i)),"data"))));
+					CodeUtil.writeLine(sbSrc, "{");
+					if(!jsLinks.isEmpty()) {
+						for(String jsLink : jsLinks) {
+							CodeUtil.writeLine(sbSrc, "addJsFile"+CodeUtil.parentheses(Util.qStringLiteral(jsLink))+";");
+						}
 					}
-				}
-				if(!fontLinks.isEmpty()) {
-					for(String fontLink : fontLinks) {
-						CodeUtil.writeLine(sbSrc, "addFont"+CodeUtil.parentheses(Util.qStringLiteral(fontLink))+";");
+					if(!cssLinks.isEmpty()) {
+						for(String cssLink : cssLinks) {
+							CodeUtil.writeLine(sbSrc, "addCssFile"+CodeUtil.parentheses(Util.qStringLiteral(cssLink))+";");
+						}
 					}
-				}
-				
-				if(!metaTags.isEmpty()) {
-					for(HtmlMetaTag metaTag : metaTags) {
-						CodeUtil.writeLine(sbSrc, "addMetaTag"+CodeUtil.parentheses(metaTag.toCppConstructor())+";");
+					if(!fontLinks.isEmpty()) {
+						for(String fontLink : fontLinks) {
+							CodeUtil.writeLine(sbSrc, "addFont"+CodeUtil.parentheses(Util.qStringLiteral(fontLink))+";");
+						}
 					}
-				}
-				if(!linkTags.isEmpty()) {
-					for(HtmlLinkTag linkTag : linkTags) {
-						CodeUtil.writeLine(sbSrc, "addLinkTag"+CodeUtil.parentheses(linkTag.toCppConstructor())+";");
+					
+					if(!metaTags.isEmpty()) {
+						for(HtmlMetaTag metaTag : metaTags) {
+							CodeUtil.writeLine(sbSrc, "addMetaTag"+CodeUtil.parentheses(metaTag.toCppConstructor())+";");
+						}
 					}
+					if(!linkTags.isEmpty()) {
+						for(HtmlLinkTag linkTag : linkTags) {
+							CodeUtil.writeLine(sbSrc, "addLinkTag"+CodeUtil.parentheses(linkTag.toCppConstructor())+";");
+						}
+					}
+					CodeUtil.writeLine(sbSrc, "this->renderHeader();");
+					CodeUtil.writeLine(sbSrc, "this->renderBody(std::move(data));");
+					CodeUtil.writeLine(sbSrc, "this->renderFooter();");
+					CodeUtil.writeLine(sbSrc, "}");
 				}
-				CodeUtil.writeLine(sbSrc, "this->renderHeader();");
-				CodeUtil.writeLine(sbSrc, "this->renderBody(std::move(data));");
-				CodeUtil.writeLine(sbSrc, "this->renderFooter();");
-				CodeUtil.writeLine(sbSrc, "}");
-				
 				
 				
 				if(!inlineJs.isEmpty()) {
@@ -473,34 +476,38 @@ public class CppOutput {
 						
 					}
 				}*/
-				
-				CodeUtil.writeLine(sbHdr, CodeUtil.sp("public:", "static", cfg.isRenderToString() ? "QString" : "void",  "renderBody", CodeUtil.parentheses(CodeUtil.sp("std::unique_ptr"+CodeUtil.abr(cfg.getViewDataClsName()),"data", cfg.isRenderToString()?null:",FCGX_Stream * out")),";"));
-				CodeUtil.writeLine(sbSrc, CodeUtil.sp(cfg.isRenderToString() ? "QString" : "void", compiledTplClassName+ "::renderBody", CodeUtil.parentheses(CodeUtil.sp("std::unique_ptr"+CodeUtil.abr(cfg.getViewDataClsName()),"data", cfg.isRenderToString()?null:",FCGX_Stream*", "out")),"{"));
-				if(cfg.isIncludeTranslations()) {
-					CodeUtil.writeLine(sbSrc, "auto translations = data->getTranslations();");
+				for(int i=0;i<cfg.getViewDataClsCount();i++ ) { 
+					CodeUtil.writeLine(sbHdr, CodeUtil.sp("public:", "static", cfg.isRenderToString() ? "QString" : "void",  "renderBody", CodeUtil.parentheses(CodeUtil.sp("std::unique_ptr"+CodeUtil.abr(cfg.getViewDataClsName(i)),"data", cfg.isRenderToString()?null:",FCGX_Stream * out")),";"));
+					CodeUtil.writeLine(sbSrc, CodeUtil.sp(cfg.isRenderToString() ? "QString" : "void", compiledTplClassName+ "::renderBody", CodeUtil.parentheses(CodeUtil.sp("std::unique_ptr"+CodeUtil.abr(cfg.getViewDataClsName(i)),"data", cfg.isRenderToString()?null:",FCGX_Stream*", "out")),"{"));
+					if(cfg.isIncludeTranslations()) {
+						CodeUtil.writeLine(sbSrc, "auto translations = data->getTranslations();");
+					}
+					
+					CodeUtil.writeLine(sbSrc, out.toString());
+					CodeUtil.writeLine(sbSrc, "}");
 				}
-				
-				CodeUtil.writeLine(sbSrc, out.toString());
-				CodeUtil.writeLine(sbSrc, "}");
 			}
 			
 			
 		} else {
 			CodeUtil.writeLine(sbHdr,  CodeUtil.sp("class",compiledTplClassName));
 			CodeUtil.writeLine(sbHdr, "{");
-			CodeUtil.writeLine(sbHdr, CodeUtil.sp("public:", "static", cfg.isRenderToString() ? "QString" : "void" , "renderBody",CodeUtil.parentheses(CodeUtil.sp("std::unique_ptr", CodeUtil.abr(cfg.getViewDataClsName()),"data",cfg.isRenderToString()?null:",FCGX_Stream* out")),";"));
-			CodeUtil.writeLine(sbSrc, CodeUtil.sp( cfg.isRenderToString() ? "QString" : "void" , compiledTplClassName+"::renderBody",CodeUtil.parentheses(CodeUtil.sp("std::unique_ptr", CodeUtil.abr(cfg.getViewDataClsName()),"data",cfg.isRenderToString()?null:",FCGX_Stream* out"))));
-			CodeUtil.writeLine(sbSrc, "{");
-			if(cfg.isIncludeTranslations()) {
-				CodeUtil.writeLine(sbSrc, "auto translations = data->getTranslations();");
+			
+			for(int i=0;i<cfg.getViewDataClsCount();i++ ) { 
+				CodeUtil.writeLine(sbHdr, CodeUtil.sp("public:", "static", cfg.isRenderToString() ? "QString" : "void" , "renderBody",CodeUtil.parentheses(CodeUtil.sp("std::unique_ptr", CodeUtil.abr(cfg.getViewDataClsName(i)),"data",cfg.isRenderToString()?null:",FCGX_Stream* out")),";"));
+				CodeUtil.writeLine(sbSrc, CodeUtil.sp( cfg.isRenderToString() ? "QString" : "void" , compiledTplClassName+"::renderBody",CodeUtil.parentheses(CodeUtil.sp("std::unique_ptr", CodeUtil.abr(cfg.getViewDataClsName(i)),"data",cfg.isRenderToString()?null:",FCGX_Stream* out"))));
+				CodeUtil.writeLine(sbSrc, "{");
+				if(cfg.isIncludeTranslations()) {
+					CodeUtil.writeLine(sbSrc, "auto translations = data->getTranslations();");
+				}
+				CodeUtil.writeLine(sbSrc, CodeUtil.sp("QString",cfg.getRenderToQStringVariableName(),";"));
+				
+			
+				
+				CodeUtil.writeLine(sbSrc, out.toString());
+				CodeUtil.writeLine(sbSrc, CodeUtil.sp("return",cfg.getRenderToQStringVariableName(),";"));
+				CodeUtil.writeLine(sbSrc, "}");
 			}
-			CodeUtil.writeLine(sbSrc, CodeUtil.sp("QString",cfg.getRenderToQStringVariableName(),";"));
-			
-		
-			
-			CodeUtil.writeLine(sbSrc, out.toString());
-			CodeUtil.writeLine(sbSrc, CodeUtil.sp("return",cfg.getRenderToQStringVariableName(),";"));
-			CodeUtil.writeLine(sbSrc, "}");
 			if(!jsLinks.isEmpty()) {
 				CodeUtil.writeLine(sbHdr, CodeUtil.sp("public:", "static", "void", "addExternalJs", CodeUtil.parentheses(CodeUtil.sp("HtmlTemplate*", "htmlTemplate")),";"));
 				CodeUtil.writeLine(sbSrc, CodeUtil.sp("void", "addExternalJs", CodeUtil.parentheses(CodeUtil.sp("HtmlTemplate*", "htmlTemplate")),"{"));
@@ -756,30 +763,27 @@ sbHeader.append("};\n\n")
 		
 	}
 
-	public static void writeSubtemplatesFile(Path directory, LinkedHashSet<SubtemplateFunctionImpl> subtemplateFunctions,LinkedHashSet<String> inlineHeaderFiles) throws IOException {
-
-		StringBuilder sbSrc = new StringBuilder();
-		
+	public static void writeSubtemplatesClass(Path directory, LinkedHashSet<SubtemplateFunctionImpl> subtemplateFunctions,LinkedHashSet<String> inlineHeaderFiles) throws IOException {
 		String clsName = "CompiledSubtemplates";
-		String includeGuard = clsName.toUpperCase()+"_H";
-		
-		CodeUtil.writeLine(sbSrc,CodeUtil.sp("#ifndef",includeGuard));
-		CodeUtil.writeLine(sbSrc, CodeUtil.sp("#define",includeGuard));
-	
+		StringBuilder sbHdr = new StringBuilder();		
+		String headerFileName = clsName.toLowerCase()+ ".h";
+		String srcFileName = clsName.toLowerCase()+ ".cpp";
+		StringBuilder sbSrc = new StringBuilder("#include \""+headerFileName+".h\"");
+		CodeUtil.writeLine(sbHdr,CodeUtil.sp("#pragma once"));
 		for(String includeHeader : inlineHeaderFiles) {
 			CodeUtil.writeLine(sbSrc, "#include \""+includeHeader+"\"");
 		}
-		CodeUtil.writeLine(sbSrc, "class "+clsName+" {");
-		CodeUtil.writeLine(sbSrc, "public:");
+		CodeUtil.writeLine(sbHdr, "class "+clsName+" {");
+		CodeUtil.writeLine(sbHdr, "public:");
 		
 		for(SubtemplateFunctionImpl func:subtemplateFunctions) {
+			CodeUtil.writeLine(sbHdr, func.toCppHeader());
 			CodeUtil.writeLine(sbSrc, func.toCpp());
 		}
-		CodeUtil.writeLine(sbSrc, "};");
-		CodeUtil.writeLine(sbSrc, "#endif");
+		CodeUtil.writeLine(sbHdr, "};");
 		
-		String filename = clsName.toLowerCase()+ ".h";
 		
-		FileUtil2.writeFileIfContentChangedUtf8(directory.resolve(filename), sbSrc.toString(), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+		FileUtil2.writeFileIfContentChangedUtf8(directory.resolve(headerFileName), sbHdr.toString(), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+		FileUtil2.writeFileIfContentChangedUtf8(directory.resolve(srcFileName), sbSrc.toString(), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
 	}
 }

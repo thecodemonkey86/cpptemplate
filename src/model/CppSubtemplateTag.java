@@ -27,9 +27,9 @@ public class CppSubtemplateTag extends HtmlTag {
 	}
 
 
-	public String getArgument(int i) {
+/*	public String getArgument(int i) {
 		return getAttrStringValue("args").split(",")[i];
-	}
+	}*/
 	
 	@Override
 	public void toCpp(StringBuilder out, StringBuilder directTextOutputBuffer, TemplateConfig cfg,
@@ -52,7 +52,7 @@ public class CppSubtemplateTag extends HtmlTag {
 	}
 
 
-	public int getArgumentCount() {
+	/*public int getArgumentCount() {
 		return  getAttrStringValue("args").split(",").length;
-	}
+	}*/
 }

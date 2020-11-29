@@ -20,7 +20,8 @@ public class XmlCfgReader implements ContentHandler {
 		templateconfig,
 		inlineJsRenderer,
 		includeHeader,
-		template;
+		template,
+		viewdata;
 	}
 	TemplateConfig currentCfg;
 	Section section;
@@ -73,6 +74,7 @@ public class XmlCfgReader implements ContentHandler {
 		}
 		switch (section) {
 		case templateconfig:
+		{
 			String srcPath = atts.getValue("src");
 			if(srcPath != null) {
 				
@@ -108,7 +110,9 @@ public class XmlCfgReader implements ContentHandler {
 			}
 			
 			break;
+		}
 		case template:
+		{
 			currentCfg = new TemplateConfig(); 
 			String overrideClassname=atts.getValue("class");
 			String tplName = atts.getValue("name");
@@ -142,29 +146,41 @@ public class XmlCfgReader implements ContentHandler {
 				currentCfg.setRenderStatic(staticMethod.equals("true") || staticMethod.equals("1"));
 //				currentCfg.setRenderToQStringVariableName(atts.getValue("renderToVariable"));
 			}
-			String viewDataClsName = atts.getValue("viewDataClass");
-			if(viewDataClsName!=null) {
-				currentCfg.setViewDataClsName(viewDataClsName);
-			} else {
-				currentCfg.setViewDataClsName(tplName+"ViewData");
-			}
-			String viewDataClsPath = atts.getValue("viewDataClassDir");
-			if(viewDataClsPath!=null) {
-				currentCfg.setViewDataClsPath(String.format("%s/%s.h", viewDataClsPath,currentCfg.getViewDataClsName().toLowerCase()));
-			} else if( currentCfg.getSubDir()!=null) {
-				currentCfg.setViewDataClsPath(String.format("model/viewdata/%s/%s.h", currentCfg.getSubDir(),currentCfg.getViewDataClsName().toLowerCase()));
-				
-			}
+			
+		}
 		case inlineJsRenderer:
+		{
 			break;
+		}
 		case includeHeader:
+		{
 			if(inlineJsRendererHeaderIncludes == null) {
 				inlineJsRendererHeaderIncludes = new LinkedHashSet<>();
 			}
 			inlineJsRendererHeaderIncludes.add(atts.getValue("path"));
 			break;
-		default:
+		}
+		case viewdata:
+		{
+			String viewDataClsName = atts.getValue("class");
+			if(viewDataClsName!=null) {
+				currentCfg.addViewDataClsName(viewDataClsName);
+			} else {
+				throw new SAXException("attr class missing");
+			}
+			String viewDataClsPath = atts.getValue("dir");
+			if(viewDataClsPath!=null) {
+				currentCfg.addViewDataClsPath(String.format("%s/%s.h", viewDataClsPath,currentCfg.getViewDataClsName(currentCfg.getViewDataClsCount()-1).toLowerCase()));
+			} else if( currentCfg.getSubDir()!=null) {
+				currentCfg.addViewDataClsPath(String.format("model/viewdata/%s/%s.h", currentCfg.getSubDir(),currentCfg.getViewDataClsName(currentCfg.getViewDataClsCount()-1).toLowerCase()));
+				
+			}
 			break;
+		}
+		default:
+		{
+			break;
+		}
 		}
 	}
 

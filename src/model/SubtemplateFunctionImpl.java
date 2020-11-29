@@ -44,6 +44,12 @@ public class SubtemplateFunctionImpl {
 		return out.toString();
 	}
 	
+	public String toCppHeader( ) throws IOException {
+		StringBuilder out= new StringBuilder();
+		subtemplate.toCppHeader(out,cfg,doubleEncode);
+		return out.toString();
+	}
+	
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub

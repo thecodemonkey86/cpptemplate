@@ -13,11 +13,11 @@ import util.StringUtil;
 public class Subtemplate {
 	protected String subtemplateFilePath;
 	protected ParserResult parserResult;
-	protected String[] arguments;
+	protected SubtemplateArg[] arguments;
 	protected static List<CppSubtemplateTag> subtemplatesFunctionsHeaders; // if subtemplates have arguments their rendering must be extracted as function
 	
 	
-	public Subtemplate(String subtemplateFilePath,String[] arguments ,ParserResult parserResult) {
+	public Subtemplate(String subtemplateFilePath,SubtemplateArg[] arguments ,ParserResult parserResult) {
 		this.subtemplateFilePath = subtemplateFilePath;
 		this.arguments = arguments;
 		this.parserResult = parserResult;
@@ -39,29 +39,24 @@ public class Subtemplate {
 		}
 	}
 	
-	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) throws IOException {
-		CppSubtemplateTag subtemplatesFunctionHeader = getSubtemplatesFunctionHeaderByIdentifier(getSubtemplateIdentifier());
-		int argCount = subtemplatesFunctionHeader.getArgumentCount();
-		ArrayList<String> args = new ArrayList<>();
-		
-		ArrayList<String>  templateArgs = new ArrayList<>();
-		for(int i=0;i<argCount;i++) {
-			String type="A"+i;
-			templateArgs.add("class "+type);
-			args.add(CodeUtil.sp(type,subtemplatesFunctionHeader.getArgument(i)));
+	public void toCppHeader(StringBuilder out, TemplateConfig cfg,boolean doubleEscaped) {
+		if(cfg.isRenderToString()) {
+			CodeUtil.writeLine(out,CodeUtil.sp("static","QString",getCppMethodName(getSubtemplateIdentifier(), doubleEscaped),CodeUtil.parentheses( CodeUtil.commaSep((Object[])this.arguments)+",FCGX_Stream *out"),";"));
+		} else {
+			CodeUtil.writeLine(out,CodeUtil.sp( "void", getCppMethodName(getSubtemplateIdentifier(), doubleEscaped),CodeUtil.parentheses( CodeUtil.commaSep((Object[])this.arguments)),";"));
 		}
-	
+	}
+	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) throws IOException {
 		
 		if(cfg.isRenderToString()) {
-			CodeUtil.writeLine(out,CodeUtil.sp("template", CodeUtil.abr( CodeUtil.commaSep(templateArgs)), "static","QString",getCppMethodName(getSubtemplateIdentifier(), false),CodeUtil.parentheses( CodeUtil.commaSep(args)),"{"));
+			CodeUtil.writeLine(out,CodeUtil.sp("QString", "CompiledTemplates::"+ getCppMethodName(getSubtemplateIdentifier(), false),CodeUtil.parentheses( CodeUtil.commaSep((Object[])this.arguments)+",FCGX_Stream *out"),"{"));
 			CodeUtil.writeLine(out, "QString _html;");
 		//} else if(cfg.isRenderStatic()){
 		//	args.add(0,"FCGX_Stream *out");
 		//	CodeUtil.writeLine(out,CodeUtil.sp("template", CodeUtil.abr( CodeUtil.commaSep(templateArgs)), "static","void",getCppMethodName(getSubtemplateIdentifier(), false),CodeUtil.parentheses( CodeUtil.commaSep(args)),"{"));
 			
 		} else {
-			args.add(0,"FCGX_Stream *out");
-			CodeUtil.writeLine(out,CodeUtil.sp("template", CodeUtil.abr( CodeUtil.commaSep(templateArgs)), "static", "void",getCppMethodName(getSubtemplateIdentifier(), false),CodeUtil.parentheses( CodeUtil.commaSep(args)),"{"));
+			CodeUtil.writeLine(out,CodeUtil.sp( "void", "CompiledTemplates::"+ getCppMethodName(getSubtemplateIdentifier(), false),CodeUtil.parentheses( CodeUtil.commaSep((Object[])this.arguments)),"{"));
 		}
 		
 		parserResult.toCpp(out,directTextOutputBuffer,cfg, mainParserResult);
@@ -82,7 +77,7 @@ public class Subtemplate {
 	}
 
 
-	public static CppSubtemplateTag getSubtemplatesFunctionHeaderByIdentifier(String identifier) throws IOException {
+	/*public static CppSubtemplateTag getSubtemplatesFunctionHeaderByIdentifier(String identifier) throws IOException {
 		if(subtemplatesFunctionsHeaders != null) {
 			for(CppSubtemplateTag t : subtemplatesFunctionsHeaders) {
 				if(t.getSubtemplateIdentifier().equals(identifier)) {
@@ -91,28 +86,17 @@ public class Subtemplate {
 			}
 		}
 		throw new IOException("no such subtemplate function: "+identifier);
-	}
+	}*/
 	
 	public void toCppDoubleEscaped(StringBuilder out, StringBuilder directTextOutputBuffer, TemplateConfig cfg,
 			ParserResult mainParserResult) throws IOException {
 		
 		
-		CppSubtemplateTag subtemplatesFunctionHeader = getSubtemplatesFunctionHeaderByIdentifier(getSubtemplateIdentifier());
-		int argCount = subtemplatesFunctionHeader.getArgumentCount();
-		ArrayList<String> args = new ArrayList<>();
-		ArrayList<String>  templateArgs = new ArrayList<>();
-		for(int i=0;i<argCount;i++) {
-			String type="A"+i;
-			templateArgs.add("class "+type);
-			args.add(CodeUtil.sp(type,subtemplatesFunctionHeader.getArgument(i)));
-		}
-		
 		if(cfg.isRenderToString()) {
-			CodeUtil.writeLine(out,CodeUtil.sp("template", CodeUtil.abr( CodeUtil.commaSep(templateArgs)), "static","QString",getCppMethodName(getSubtemplateIdentifier(), true),CodeUtil.parentheses( CodeUtil.commaSep(args)),"{"));
+			CodeUtil.writeLine(out,CodeUtil.sp("QString", "CompiledTemplates::"+getCppMethodName(getSubtemplateIdentifier(), true),CodeUtil.parentheses( CodeUtil.commaSep((Object[])this.arguments)+",FCGX_Stream *out"),"{"));
 			CodeUtil.writeLine(out, "QString _html;");
 		} else {
-			args.add(0,"FCGX_Stream *out");
-			CodeUtil.writeLine(out,CodeUtil.sp("template", CodeUtil.abr( CodeUtil.commaSep(templateArgs)), "static", "void",getCppMethodName(getSubtemplateIdentifier(), true),CodeUtil.parentheses( CodeUtil.commaSep(args)),"{"));
+			CodeUtil.writeLine(out,CodeUtil.sp( "void", "CompiledTemplates::"+ getCppMethodName(getSubtemplateIdentifier(), true),CodeUtil.parentheses( CodeUtil.commaSep((Object[])this.arguments)),"{"));
 			
 		}
 		parserResult.toCppDoubleEscaped(out,directTextOutputBuffer,cfg, mainParserResult);
