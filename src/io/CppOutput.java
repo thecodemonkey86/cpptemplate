@@ -353,10 +353,7 @@ public class CppOutput {
 		StringBuilder sbSrc = new StringBuilder();
 		StringBuilder sbHdr = new StringBuilder();
 
-		String includeGuard = compiledTplClassName.toUpperCase()+"_H";
-		
-		CodeUtil.writeLine(sbHdr,CodeUtil.sp("#ifndef",includeGuard));
-		CodeUtil.writeLine(sbHdr, CodeUtil.sp("#define",includeGuard));
+		CodeUtil.writeLine(sbHdr,"#pragma once");
 		CodeUtil.writeLine(sbSrc, CodeUtil.sp("#include",CodeUtil.quote(compiledTplClassName.toLowerCase()+".h")));
 		for(int i=0;i<cfg.getViewDataClsCount();i++)
 			CodeUtil.writeLine(sbHdr, CodeUtil.sp("#include", CodeUtil.quote(cfg.getViewDataClsPath(i))));
@@ -562,7 +559,6 @@ public class CppOutput {
 		}
 		
 		CodeUtil.writeLine(sbHdr, "};");
-		CodeUtil.writeLine(sbHdr, "#endif");
 		 
 		String filenameHdr = clsName.toLowerCase()+ "compiledtemplate.h";
 		String filenameSrc = clsName.toLowerCase()+ "compiledtemplate.cpp";
@@ -574,109 +570,12 @@ public class CppOutput {
 	}
 	
 	
-	/*public static void writeCompiledTemplateFile(ParserResult layoutResult,ParserResult result, Path directory, String clsName, TemplateConfig cfg) throws IOException, CancelException {
-		if (!Files.exists(directory))
-			Files.createDirectories(directory);
-		
-		//String compiledTplClassName = clsName +"CompiledTemplate";
-		
-		LinkedHashSet<String> inlineCss = result.getAllCssIncludes();
-		LinkedHashSet<String> inlineJs = result.getAllJsIncludes();
-		
-		String macroname = clsName.toUpperCase()+"_COMPILED_TEMPLATE";
-		String macronameJs = clsName.toUpperCase()+"_INLINE_JS";
-		String macronameCss = clsName.toUpperCase()+"_INLINE_CSS";
-		
-		StringBuilder sbSrc = new StringBuilder();
-
-		
-		
-		CodeUtil.writeLine(sbSrc,CodeUtil.sp("#ifndef",macroname));
-		CodeUtil.writeLine(sbSrc, CodeUtil.sp("#define",macroname,"\\"));
-		
-		
-	
-		StringBuilder out = new StringBuilder();
-		StringBuilder directTextOutputBuffer = new StringBuilder();
-		layoutResult.getSimpleTemplate().toCpp(out,directTextOutputBuffer,cfg);
-		
-		
-		String cppSrc = StringUtil.dropAll(out.toString(), "\r").replace("\n", " \\\n").trim();
-		if(cppSrc.endsWith("\\")) {
-			cppSrc = cppSrc.substring(0, cppSrc.length()-2);
-		}
-		CodeUtil.writeLine(sbSrc, cppSrc);
-		CodeUtil.writeLine(sbSrc, "#endif");
-		
-		
-		CodeUtil.writeLine(sbSrc,CodeUtil.sp("#ifndef",macronameJs));
-		CodeUtil.writeLine(sbSrc, CodeUtil.sp("#define",macronameJs,inlineJs.isEmpty() ? null : "\\"));
-		
-		
-		
-		int i=0;
-		for(String jsSrc : inlineJs) {
-			CodeUtil.writeLine(sbSrc, CodeUtil.sp("InlineJsRenderer::"+getJsOrCssMethodName(jsSrc)+"(out);", i==inlineJs.size()-1 ? null : "\\"));
-			i++;
-		}
-		CodeUtil.writeLine(sbSrc, "#endif");
-		
-		CodeUtil.writeLine(sbSrc,CodeUtil.sp("#ifndef",macronameCss));
-		CodeUtil.writeLine(sbSrc, CodeUtil.sp("#define",macronameCss,inlineCss.isEmpty() ? null : "\\"));
-		
-		
-		i=0;
-		for(String cssSrc : inlineCss) {
-			CodeUtil.writeLine(sbSrc, CodeUtil.sp("InlineCssRenderer::"+getJsOrCssMethodName(cssSrc)+"(out);",  i==inlineCss.size()-1 ? null : "\\"));
-			i++;
-		}
-		
-		CodeUtil.writeLine(sbSrc, "#endif");
-		
-		Files.write(directory.resolve(clsName.toLowerCase()+ "compiledtemplate.h"), sbSrc.toString().getBytes(UTF8), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
-		//Files.write(directory.resolve(clsName.toLowerCase()+ "compiledtemplate.cpp"), sbSrc.toString().getBytes(UTF8), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
-		
-	}*/
-	
-	/*protected static String insertJs(String cppCode, String clsName, Set<String> inlineJs) throws IOException, CancelException {
-		
-		String templateClass = cppCode;
-		int markerRenderInlineCssBeginIndex = templateClass.indexOf(BEGIN_COMPILED_TEMPLATE_INLINE_JS)+BEGIN_COMPILED_TEMPLATE_INLINE_JS.length();
-		int markerRenderInlineCssEndIndex = templateClass.indexOf(END_COMPILED_TEMPLATE_INLINE_JS);
-		
-		
-		if (markerRenderInlineCssBeginIndex > -1 && markerRenderInlineCssEndIndex > -1) {
-			templateClass = templateClass.substring(0,markerRenderInlineCssBeginIndex)+"\nprotected function renderInlineJs() {\n" + getJsAsCpp(inlineJs) +"\n}\n"+ templateClass.substring(markerRenderInlineCssEndIndex);
-			
-		}
-		return templateClass;
-	}
-	
-	protected static String insertJsAsMethodCall(String cppCode, String clsName, Set<String> inlineJs) throws IOException {
-		String templateClass = cppCode;
-		int markerRenderInlineCssBeginIndex = templateClass.indexOf(BEGIN_COMPILED_TEMPLATE_INLINE_JS)+BEGIN_COMPILED_TEMPLATE_INLINE_JS.length();
-		int markerRenderInlineCssEndIndex = templateClass.indexOf(END_COMPILED_TEMPLATE_INLINE_JS);
-		StringBuilder sbInlineJs = new StringBuilder();
-		for(String jsSrc : inlineJs) {
-			sbInlineJs.append("InlineJsRenderer::")
-			.append(getJsOrCssMethodName(jsSrc)).append("();");
-			sbInlineJs.append('\n');
-		}
-		
-		if (markerRenderInlineCssBeginIndex > -1 && markerRenderInlineCssEndIndex > -1) {
-			templateClass = templateClass.substring(0,markerRenderInlineCssBeginIndex)+"\nfunction renderInlineJs() {\n" + sbInlineJs.toString() +"\n}\n"+ templateClass.substring(markerRenderInlineCssEndIndex);
-			
-		}
-		return templateClass;
-	}
-	*/
 	
 	public static void writeJsCppFile(Path directory, Set<String> inlineJs,LinkedHashSet<String> includeHeaders) throws IOException, CancelException {
 	
 		
-		StringBuilder sbHeader = new StringBuilder("#ifndef INLINEJSRENDERER_H\n");
-		sbHeader.append("#define INLINEJSRENDERER_H\n")
-		.append("#include  \"core/fastcgioutput.h\"\n\n");
+		StringBuilder sbHeader = new StringBuilder("#pragma once\n");
+		sbHeader.append("#include  \"core/fastcgioutput.h\"\n\n");
 		
 
 		
@@ -708,9 +607,7 @@ public class CppOutput {
 			
 			}
 		}
-sbHeader.append("};\n\n")
-		
-		.append("#endif //INLINEJSRENDERER_H");
+sbHeader.append("};\n\n") ;
 		String headerFilename = "inlinejsrenderer.h";
 		String sourceFileName = "inlinejsrenderer.cpp";
 		
@@ -726,9 +623,8 @@ sbHeader.append("};\n\n")
 		
 		HashSet<String> methodNames = new HashSet<>();
 		
-		StringBuilder sbHeader = new StringBuilder("#ifndef INLINECSSRENDERER_H\n");
-		sbHeader.append("#define INLINECSSRENDERER_H\n")
-		.append("#include  \"core/fastcgioutput.h\"\n\n")
+		StringBuilder sbHeader = new StringBuilder("#pragma once\n");
+		sbHeader.append("#include  \"core/fastcgioutput.h\"\n\n")
 				.append("class InlineCssRenderer {\n");
 			
 		
@@ -751,9 +647,7 @@ sbHeader.append("};\n\n")
 			}
 		}
 		
-		sbHeader.append("};\n\n")
-		
-		.append("#endif //INLINECSSRENDERER_H");
+		sbHeader.append("};\n\n");
 		
 		String headerFilename = "inlinecssrenderer.h";
 		String sourceFileName = "inlinecssrenderer.cpp";

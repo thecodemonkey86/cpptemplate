@@ -13,11 +13,11 @@ import util.StringUtil;
 public class Subtemplate {
 	protected String subtemplateFilePath;
 	protected ParserResult parserResult;
-	protected SubtemplateArg[] arguments;
+	protected String[] arguments;
 	protected static List<CppSubtemplateTag> subtemplatesFunctionsHeaders; // if subtemplates have arguments their rendering must be extracted as function
 	
 	
-	public Subtemplate(String subtemplateFilePath,SubtemplateArg[] arguments ,ParserResult parserResult) {
+	public Subtemplate(String subtemplateFilePath,String[] arguments ,ParserResult parserResult) {
 		this.subtemplateFilePath = subtemplateFilePath;
 		this.arguments = arguments;
 		this.parserResult = parserResult;
@@ -39,9 +39,14 @@ public class Subtemplate {
 		}
 	}
 	
-	public void toCppHeader(StringBuilder out, TemplateConfig cfg,boolean doubleEscaped) {
+	/*public void toCppHeader(StringBuilder out, TemplateConfig cfg,boolean doubleEscaped) {
 		if(cfg.isRenderToString()) {
-			CodeUtil.writeLine(out,CodeUtil.sp("static","QString",getCppMethodName(getSubtemplateIdentifier(), doubleEscaped),CodeUtil.parentheses( CodeUtil.commaSep((Object[])this.arguments)+",FCGX_Stream *out"),";"));
+			for(CppSubtemplateTag t : Subtemplate.subtemplatesFunctionsHeaders) {
+				if(t.getSubtemplateIdentifier().equals(subtemplateHeaderTag.getSubtemplateIdentifier())) {
+					CodeUtil.writeLine(out,CodeUtil.sp("static","QString",getCppMethodName(getSubtemplateIdentifier(), doubleEscaped),CodeUtil.parentheses( CodeUtil.commaSep((Object[])this.arguments)+",FCGX_Stream *out"),";"));
+				}
+			}
+			
 		} else {
 			CodeUtil.writeLine(out,CodeUtil.sp( "void", getCppMethodName(getSubtemplateIdentifier(), doubleEscaped),CodeUtil.parentheses( CodeUtil.commaSep((Object[])this.arguments)),";"));
 		}
@@ -66,7 +71,7 @@ public class Subtemplate {
 			CodeUtil.writeLine(out, "return _html;");
 		}
 		CodeUtil.writeLine(out, "}");
-	}
+	}*/
 	
 	public static String getCppMethodName(String subtemplateName,boolean doubleEncode) {
 		return "subtemplate"+subtemplateName+(doubleEncode?"DoubleEncode":"");
