@@ -4,6 +4,7 @@ import io.parser.HtmlParser;
 
 import java.io.IOException;
 
+import codegen.CodeUtil;
 import config.TemplateConfig;
 
 public class CppRenderSectionTag extends HtmlTag {
@@ -25,7 +26,9 @@ public class CppRenderSectionTag extends HtmlTag {
 		if(hasAttr("args")) {
 			renderTmpl.setPassedArgs(getAttrByName("args").getStringValue().split(","));
 		}
+		CodeUtil.writeLine(out,  "{");
 		renderTmpl.toCpp(out,directTextOutputBuffer,cfg, mainParserResult);
+		CodeUtil.writeLine(out, "}");
 	}
 	
 	public void setRenderTmpl(CppSectionTag renderTmpl) {
