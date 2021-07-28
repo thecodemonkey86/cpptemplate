@@ -55,7 +55,7 @@ public class CppRenderSubtemplateTag extends HtmlTag {
 			}
 			
 			
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 		

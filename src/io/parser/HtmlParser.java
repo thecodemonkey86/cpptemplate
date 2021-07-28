@@ -17,6 +17,7 @@ import model.CppCodeHiddenAttr;
 import model.CppCodeSelectedAttr;
 import model.CppCodeTag;
 import model.CppCommentTag;
+import model.CppDebugTag;
 import model.CppDefaultCase;
 import model.CppElseIfTag;
 import model.CppElseTag;
@@ -605,6 +606,8 @@ public class HtmlParser {
 					tag = new CppSubtemplateTag(TemplateConfig.getSrcPath().resolve(TemplateConfig.DIR_SUBTEMPLATES)
 							.relativize(filePath).toString());
 					Subtemplate.addSubtemplatesFunctionHeader((CppSubtemplateTag) tag);
+				}else if (tagName.equals(CppDebugTag.TAG_NAME)) {
+					tag = new CppDebugTag();
 				}
 			}
 		} else {

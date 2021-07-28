@@ -19,10 +19,18 @@ public class CppTranslate extends HtmlTag {
 	public void toCpp(StringBuilder out, StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {
 		if(cfg.isRenderToString()) {
 			CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
-			CodeUtil.writeLine(out, String.format("FastCgiOutput::writeHtmlEncodedToBuffer(translations->%s(), %s);", getAttrByName("key").getStringValue(),cfg.getRenderToQStringVariableName()));
+			if(hasAttr("args")) {
+				CodeUtil.writeLine(out, String.format("FastCgiOutput::writeHtmlEncodedToBuffer(translations->%s().arg(%s), %s);", getAttrByName("key").getStringValue(),cfg.getRenderToQStringVariableName(),getAttrByName("args").getStringValue()));
+			} else {
+				CodeUtil.writeLine(out, String.format("FastCgiOutput::writeHtmlEncodedToBuffer(translations->%s(), %s);", getAttrByName("key").getStringValue(),cfg.getRenderToQStringVariableName()));
+			}
 		} else {
 			CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
-			CodeUtil.writeLine(out, "FastCgiOutput::writeHtmlEncoded"+CodeUtil.parentheses("translations->"+ getAttrByName("key").getStringValue()+"(), out")+";");
+			if(hasAttr("args")) {
+				CodeUtil.writeLine(out, "FastCgiOutput::writeHtmlEncoded"+CodeUtil.parentheses(String.format("translations->%s().arg(%s)", getAttrByName("key").getStringValue(),getAttrByName("args").getStringValue())+", out")+";");
+			} else {
+				CodeUtil.writeLine(out, "FastCgiOutput::writeHtmlEncoded"+CodeUtil.parentheses("translations->"+ getAttrByName("key").getStringValue()+"(), out")+";");
+			}
 		}
 		
 	}

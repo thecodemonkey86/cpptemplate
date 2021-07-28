@@ -385,9 +385,9 @@ public class CppOutput {
 				CodeUtil.writeLine(sbSrc, "class "+compiledTplClassName+" : public HtmlTemplate{");
 				 
 				CodeUtil.writeLine(sbSrc, "public: template<class T> void renderBody(std::unique_ptr<T> data){");
-				if(cfg.isIncludeTranslations()) {
+				//if(cfg.isIncludeTranslations()) {
 					CodeUtil.writeLine(sbSrc, "auto translations = data->getTranslations();");
-				}
+				//}
 				CodeUtil.writeLine(sbSrc, out.toString());
 				CodeUtil.writeLine(sbSrc, "}");
 				CodeUtil.writeLine(sbSrc, "public: template<class T> void render(std::unique_ptr<T> data){");

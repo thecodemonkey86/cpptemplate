@@ -30,7 +30,7 @@ import model.WalkTreeAction;
 public class CppTpl2 {
 
 	
-	private static void compileTemplate(TemplateConfig cfg, Path basePath, Path repositoryPath,Settings settings, String clsName, Path templatePath,  Path destBasePath, Set<String> collectInlineJs, Set<String> collectInlineCss, Set<String> collectCppHeaderIncludes,boolean debugMode,boolean nocache,SubtemplatesFunctions subtemplatesFunctions) throws IOException, CancelException {
+	private static ParserResult compileTemplate(TemplateConfig cfg, Path basePath, Path repositoryPath,Settings settings, String clsName, Path templatePath,  Path destBasePath, Set<String> collectInlineJs, Set<String> collectInlineCss, Set<String> collectCppHeaderIncludes,boolean debugMode,boolean nocache,SubtemplatesFunctions subtemplatesFunctions) throws IOException, CancelException {
 		CssJsProcessor.setBasePath(basePath);
 		CssJsProcessor.setRepositoryPath(repositoryPath);
 		CssJsProcessor.setSettings(settings);
@@ -114,6 +114,7 @@ public class CppTpl2 {
 				CppOutput.writeCompiledTemplateFile2(result,result, compiledTemplateDir, clsName, cfg);
 			}
 		}
+		return result;
 	}
 	
 	
@@ -194,8 +195,8 @@ public class CppTpl2 {
 					//if(nocache || (!lastChanges.containsKey(tplFilePath)
 					//		|| Files.getLastModifiedTime(templatePath).toInstant().isAfter(lastChanges.get(tplFilePath)))) {
 					//Path cppFile = xmlConfig.getTplClsFile();
-					compileTemplate(cfg, basePath, repositoryPath, settings, clsName, templatePath,  TemplateConfig.getDestPath(), collectInlineJs, collectInlineCss, collectCppHeaderIncludes, debugMode, nocache,subtemplatesFunctions);
-					CppOutput.collectSubtemplatesCode(collectSubtemplateFunctionsCode, cfg, subtemplatesFunctions, null);
+					ParserResult result= compileTemplate(cfg, basePath, repositoryPath, settings, clsName, templatePath,  TemplateConfig.getDestPath(), collectInlineJs, collectInlineCss, collectCppHeaderIncludes, debugMode, nocache,subtemplatesFunctions);
+					CppOutput.collectSubtemplatesCode(collectSubtemplateFunctionsCode, cfg, subtemplatesFunctions, result);
 					//lastChanges.put(tplFilePath, Files.getLastModifiedTime(templatePath).toInstant());
 					//}
 				}

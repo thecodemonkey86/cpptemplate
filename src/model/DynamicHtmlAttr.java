@@ -22,6 +22,6 @@ public class DynamicHtmlAttr extends HtmlAttr{
 	@Override
 	public void toCppDoubleEscaped(StringBuilder out, StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {
 		directTextOutputBuffer.append(" ");
-		code.toCpp(out, directTextOutputBuffer, cfg, mainParserResult);
+		code.toCppDoubleEscaped(out, directTextOutputBuffer, cfg, mainParserResult);
 	}
 }

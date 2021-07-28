@@ -134,8 +134,10 @@ public class HtmlTag extends AbstractNode{
 		
 		if (attrs!=null) {
 			for(HtmlAttr a:attrs) {
-				if(a.getName().startsWith(HtmlParser.CPP_NS)) {
-					a.preProcessAttr(this);
+				if(a.getName()!=null) {
+					if(a.getName().startsWith(HtmlParser.CPP_NS)) {
+						a.preProcessAttr(this);
+					}
 				}
 					
 			}
