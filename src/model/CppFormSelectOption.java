@@ -64,7 +64,7 @@ public class CppFormSelectOption extends HtmlTag{
 					
 					out.append("if ").append(CodeUtil.parentheses(valueType.toCppCondition(selectedValueExpression,optionValue))).append(" {\n");
 					
-					directTextOutputBuffer.append(" selected=\"selected\"");
+					directTextOutputBuffer.append(" selected");
 					CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
 					out.append('\n');
 					CodeUtil.writeLine(out, "}");
@@ -120,7 +120,7 @@ public class CppFormSelectOption extends HtmlTag{
 					
 					out.append("if ").append(CodeUtil.parentheses(valueType.toCppCondition(selectedValueExpression,optionValue))).append(" {\n");
 					
-					directTextOutputBuffer.append(" selected=\"selected\"");
+					directTextOutputBuffer.append(StringEscapeUtils.escapeHtml4(" selected=\"selected\""));
 					CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
 					out.append('\n');
 					CodeUtil.writeLine(out, "}");
