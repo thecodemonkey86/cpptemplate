@@ -384,13 +384,13 @@ public class CppOutput {
 			if(!cfg.isRenderStatic()) {
 				CodeUtil.writeLine(sbSrc, "class "+compiledTplClassName+" : public HtmlTemplate{");
 				 
-				CodeUtil.writeLine(sbSrc, "public: template<class T> void renderBody(std::unique_ptr<T> data){");
+				CodeUtil.writeLine(sbSrc, "public: template<class T> void renderBody(T data){");
 				//if(cfg.isIncludeTranslations()) {
 					CodeUtil.writeLine(sbSrc, "auto translations = data->getTranslations();");
 				//}
 				CodeUtil.writeLine(sbSrc, out.toString());
 				CodeUtil.writeLine(sbSrc, "}");
-				CodeUtil.writeLine(sbSrc, "public: template<class T> void render(std::unique_ptr<T> data){");
+				CodeUtil.writeLine(sbSrc, "public: template<class T> void render(T data){");
 				
 				if(!jsLinks.isEmpty()) {
 					for(String jsLink : jsLinks) {
@@ -465,7 +465,7 @@ public class CppOutput {
 					}
 				}*/
 				
-				CodeUtil.writeLine(sbSrc, String.format("public: template<class T> inline static %s renderBody(std::unique_ptr<T> data%s){",cfg.isRenderToString() ? "QString" : "void" , cfg.isRenderToString()?"":",FCGX_Stream * out"));
+				CodeUtil.writeLine(sbSrc, String.format("public: template<class T> inline static %s renderBody(T data%s){",cfg.isRenderToString() ? "QString" : "void" , cfg.isRenderToString()?"":",FCGX_Stream * out"));
 				if(cfg.isIncludeTranslations()) {
 					CodeUtil.writeLine(sbSrc, "auto translations = data->getTranslations();");
 				}
@@ -480,7 +480,7 @@ public class CppOutput {
 			 
 			
 			
-			CodeUtil.writeLine(sbSrc, String.format("public: template<class T> inline static %s renderBody(std::unique_ptr<T> data%s){",cfg.isRenderToString() ? "QString" : "void" , cfg.isRenderToString()?"":",FCGX_Stream * out"));
+			CodeUtil.writeLine(sbSrc, String.format("public: template<class T> inline static %s renderBody(T data%s){",cfg.isRenderToString() ? "QString" : "void" , cfg.isRenderToString()?"":",FCGX_Stream * out"));
 			if(cfg.isIncludeTranslations()) {
 				CodeUtil.writeLine(sbSrc, "auto translations = data->getTranslations();");
 			}

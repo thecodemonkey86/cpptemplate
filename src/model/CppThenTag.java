@@ -29,6 +29,18 @@ public class CppThenTag extends HtmlTag {
 		CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
 		out.append("}\n");
 	}
+	@Override
+	public void toCppDoubleEscaped(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {
+		CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
+		out.append("{\n");
+		if (childNodes != null) { 
+			for(AbstractNode n:childNodes) {
+				n.toCppDoubleEscaped(out,directTextOutputBuffer,cfg, mainParserResult);
+			}
+		}
+		CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
+		out.append("}\n");
+	}
 	
 
 }

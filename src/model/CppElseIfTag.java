@@ -52,5 +52,26 @@ public class CppElseIfTag extends HtmlTag {
 		}
 	}
 	
+	@Override
+	public void toCppDoubleEscaped(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {
+		CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
+		out.append("else if ").append(CodeUtil.parentheses(getAttrByName("cond").getStringValue()));
+	
+		if (childNodes != null && childNodes.size() > 0) { 
+			if (!hasThenTag()) {
+				out.append("{\n");
+			}
+			for(AbstractNode n:childNodes) {
+				n.toCppDoubleEscaped(out,directTextOutputBuffer,cfg, mainParserResult);
+			}
+		} else {
+			out.append("{\n");
+		}
+		CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
+		if (!hasThenTag()) {
+			out.append("}\n");
+		}
+	}
+	
 
 }

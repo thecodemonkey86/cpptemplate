@@ -41,7 +41,18 @@ public class HtmlStyleTag extends HtmlTag{
 	@Override
 	public void toCppDoubleEscaped(StringBuilder out, StringBuilder directTextOutputBuffer, TemplateConfig cfg,
 			ParserResult mainParserResult) {
-		 // ignore
+		directTextOutputBuffer.append("<");
+		directTextOutputBuffer.append(tagName);
+		
+		if (attrs!=null) {
+			for(HtmlAttr a:attrs) {
+				a.toCppDoubleEscaped(out,directTextOutputBuffer,cfg, mainParserResult);
+			}
+		}
+		
+		directTextOutputBuffer.append(">");
+		directTextOutputBuffer.append(css);
+		directTextOutputBuffer.append("</").append(tagName).append('>');
 	}
 
 	@Override
