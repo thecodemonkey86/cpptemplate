@@ -34,11 +34,14 @@ public class RawOutputSection extends AbstractNode implements IAttrValueElement 
 	public void toCpp(StringBuilder out, StringBuilder directTextOutputBuffer, TemplateConfig cfg,
 			ParserResult mainParserResult) {
 		CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
-
+if(expression.contains("doubleEncode") ) {
+	System.out.println();
+}
 		int inlineIfThenIndex = -1;
 		int inlineIfElseIndex = -1;
 		boolean quot = false;
 		boolean escape = false;
+		int parenthesisCounter=0;
 		for (int i = 0; i < expression.length(); i++) {
 			if (escape) {
 				escape = false;
@@ -47,9 +50,13 @@ public class RawOutputSection extends AbstractNode implements IAttrValueElement 
 				escape = true;
 			} else if (expression.charAt(i) == '"') {
 				quot = !quot;
-			} else if (expression.charAt(i) == '?') {
+			} else if (expression.charAt(i) == '?' && parenthesisCounter==0) {
 				inlineIfThenIndex = i;
-			} else if (!quot && inlineIfThenIndex > -1 && expression.charAt(i) == ':') {
+			} else if (expression.charAt(i) == '(') {
+				parenthesisCounter++;
+			} else if (expression.charAt(i) == ')') {
+				parenthesisCounter--;
+			} else if (!quot && inlineIfThenIndex > -1 && expression.charAt(i) == ':' && parenthesisCounter==0) {
 				if (i + 1 < expression.length() && expression.charAt(i + 1) == ':') {
 					i++;
 					continue;
@@ -96,6 +103,7 @@ CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer,cfg);
 		int inlineIfElseIndex = -1;
 		boolean quot = false;
 		boolean escape = false;
+		int parenthesisCounter=0;
 		for(int i=0;i<expression.length();i++) {
 			if(escape) {
 				escape = false;
@@ -104,9 +112,13 @@ CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer,cfg);
 				escape = true;
 			} else if(expression.charAt(i) == '"') {
 				quot = !quot;
-			} else if(expression.charAt(i) == '?') {
+			} else if(expression.charAt(i) == '?'&& parenthesisCounter==0) {
 				inlineIfThenIndex = i;
-			} else if(!quot && inlineIfThenIndex > -1 && expression.charAt(i) == ':') {
+			} else if (expression.charAt(i) == '(') {
+				parenthesisCounter++;
+			} else if (expression.charAt(i) == ')') {
+				parenthesisCounter--;
+			} else if(!quot && inlineIfThenIndex > -1 && expression.charAt(i) == ':' && parenthesisCounter==0) {
 				if(i+1<expression.length() && expression.charAt(i+1) == ':') {
 					i++;
 					continue;
