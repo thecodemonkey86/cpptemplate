@@ -31,7 +31,7 @@ public class Util {
 				? 
 						latin1AsConstCharPtr 
 							? CodeUtil.quote(s)
-							: "QLatin1String"+CodeUtil.parentheses(CodeUtil.quote(s))
+							: "QStringLiteral"+CodeUtil.parentheses(CodeUtil.quote(s))
 				: "QString::fromUtf8"+CodeUtil.parentheses(CodeUtil.quote(s));
 	}
 	public static String qStringLiteral(String s) {
@@ -41,7 +41,7 @@ public class Util {
 		byte[] bytesUtf8 = s.getBytes(StandardCharsets.UTF_8);
 		byte[] bytesLatin1 = s.getBytes(StandardCharsets.ISO_8859_1);
 		return !toHtmlEscapedRequired && Arrays.equals(bytesUtf8, bytesLatin1) 
-				? "QLatin1String"
+				? "QStringLiteral"
 				: "QString::fromUtf8";
 	}
 	

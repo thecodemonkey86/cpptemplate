@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import util.Pair;
+import util.ParseUtil;
+
 public class CppIncludeTag {
 
 	
@@ -130,20 +133,39 @@ public class CppIncludeTag {
 			} else if (l0.startsWith(CPP_META)) {
 				HtmlMetaTag meta = new HtmlMetaTag();
 				metaTags.add(meta);
-				int quotStart=l0.indexOf("name=\"",CPP_META.length());
-				int quotEnd=l0.indexOf('"',quotStart+6);
-				if(quotStart > -1) {
-					meta.addAttr(new HtmlAttr("name", new AttrValue(l0.substring(quotStart+6,quotEnd)))) ;
+				{
+					int indexAttrName=l0.indexOf("name=");
+					if(indexAttrName>-1) {
+						Pair<Integer, Character> quotStart=ParseUtil.firstIndexOf(l0, '"','\'', indexAttrName);
+						int quotEnd=l0.indexOf(quotStart.getValue2(),quotStart.getValue1()+1);
+						if(quotStart.getValue1() > -1) {
+							meta.addAttr(new HtmlAttr("name", new AttrValue(l0.substring(quotStart.getValue1()+1,quotEnd)))) ;
+						}
+					}
+				}
+				{
+					int indexAttrContent=l0.indexOf("content=");
+					if(indexAttrContent>-1) {
+						Pair<Integer, Character> quotStart=ParseUtil.firstIndexOf(l0, '"','\'', indexAttrContent);
+						int quotEnd=l0.indexOf(quotStart.getValue2(),quotStart.getValue1()+1);
+						if(quotStart.getValue1() > -1) {
+							meta.addAttr(new HtmlAttr("content", new AttrValue(l0.substring(quotStart.getValue1()+1,quotEnd)))) ;
+						}
+					} else {
+						throw new IOException("meta tag content missing");
+					}
+				}
+				{
+					int indexAttrHttpEquiv=l0.indexOf("http-equiv=");
+					if(indexAttrHttpEquiv>-1) {
+						Pair<Integer, Character> quotStart=ParseUtil.firstIndexOf(l0, '"','\'', indexAttrHttpEquiv);
+						int quotEnd=l0.indexOf(quotStart.getValue2(),quotStart.getValue1()+1);
+						if(quotStart.getValue1() > -1) {
+							meta.addAttr(new HtmlAttr("http-equiv", new AttrValue(l0.substring(quotStart.getValue1()+1,quotEnd)))) ;
+						}
+					}
 				}
 				
-				quotStart=l0.indexOf("content=\"",CPP_CSS.length());
-				quotEnd=l0.indexOf('"',quotStart+9);
-				
-				if (quotStart > CPP_CSS.length() && quotEnd > quotStart) {
-					meta.addAttr(new HtmlAttr("content", new AttrValue(l0.substring(quotStart+9,quotEnd)))) ;
-				} else {
-					throw new IOException("syntax error");
-				}
 			} else if (l0.startsWith(CPP_LINK)) {
 				HtmlLinkTag link = new HtmlLinkTag();
 				linkTags.add(link);
