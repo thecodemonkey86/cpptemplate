@@ -32,8 +32,11 @@ public class TextNode extends AbstractNode {
 
 	@Override
 	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {
-		if (text.trim().length() > 0)
+		if (text.trim().length() > 0) {
 			directTextOutputBuffer.append(ParseUtil.dropWhitespaces(text) );
+		} else if (text.length()==1) {
+			directTextOutputBuffer.append(" ");
+		}
 	}
 	@Override
 	public void toCppDoubleEscaped(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {
