@@ -20,7 +20,7 @@ public class CppTranslate extends HtmlTag {
 		if(cfg.isRenderToString()) {
 			CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
 			if(hasAttr("args")) {
-				CodeUtil.writeLine(out, String.format("FastCgiOutput::writeHtmlEncodedToBuffer(translations->%s().arg(%s), %s);", getAttrByName("key").getStringValue(),cfg.getRenderToQStringVariableName(),getAttrByName("args").getStringValue()));
+				CodeUtil.writeLine(out, String.format("FastCgiOutput::writeHtmlEncodedToBuffer(translations->%s().arg(%s), %s);", getAttrByName("key").getStringValue(),getAttrByName("args").getStringValue(),cfg.getRenderToQStringVariableName()));
 			} else {
 				CodeUtil.writeLine(out, String.format("FastCgiOutput::writeHtmlEncodedToBuffer(translations->%s(), %s);", getAttrByName("key").getStringValue(),cfg.getRenderToQStringVariableName()));
 			}
