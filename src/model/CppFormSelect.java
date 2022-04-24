@@ -128,7 +128,7 @@ public class CppFormSelect extends HtmlTag{
 				
 				directTextOutputBuffer.append("<option value=\"");
 				CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
-				TemplateCodeUtil.writeExpression(out,varKey,cfg);
+				CodeUtil.writeLine(out, CppOutput.getFastCgiOutputMethodHtmlEncoded(varKey,cfg)); 
 				
 				if(value != null) {
 					TemplateCodeUtil.writeExpression(out,"'\"'",cfg);
@@ -141,7 +141,7 @@ public class CppFormSelect extends HtmlTag{
 					TemplateCodeUtil.writeExpression(out,"\"\\\">\"",cfg);;
 				}
 				
-				TemplateCodeUtil.writeExpression(out,varValue,cfg);
+				CodeUtil.writeLine(out, CppOutput.getFastCgiOutputMethodHtmlEncoded(varValue,cfg)); 
 				TemplateCodeUtil.writeExpression(out,"\"</option>\"",cfg);
 				out.append('\n');
 				CodeUtil.writeLine(out, "}");
@@ -231,7 +231,7 @@ public class CppFormSelect extends HtmlTag{
 				
 				directTextOutputBuffer.append( StringEscapeUtils.escapeHtml4("<option value=\""));
 				CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
-				TemplateCodeUtil.writeExpression(out,varKey,cfg);
+				CodeUtil.writeLine(out, CppOutput.getFastCgiOutputMethodHtmlEncoded(varKey,cfg)); 
 				
 				if(value != null) {
 					TemplateCodeUtil.writeExpression(out,CodeUtil.quote(StringEscapeUtils.escapeHtml4("\"")),cfg);
@@ -243,7 +243,7 @@ public class CppFormSelect extends HtmlTag{
 					TemplateCodeUtil.writeExpression(out,CodeUtil.quote(StringEscapeUtils.escapeHtml4("\">")),cfg);;
 				}
 				
-				TemplateCodeUtil.writeExpression(out,varValue,cfg);
+				CodeUtil.writeLine(out, CppOutput.getFastCgiOutputMethodHtmlEncoded(varValue,cfg)); 
 				TemplateCodeUtil.writeExpression(out,CodeUtil.quote(StringEscapeUtils.escapeHtml4("</option>")),cfg);
 				out.append('\n');
 				CodeUtil.writeLine(out, "}");
