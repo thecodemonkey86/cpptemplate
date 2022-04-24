@@ -245,17 +245,6 @@ public class HtmlParser {
 		}
 	}
 
-	/*
-	 * private CppSectionTag parseSectionTag() throws IOException { String endTag =
-	 * String.format("</%s:%s",CppSectionTag.TAG_NAME );
-	 * next(CppSectionTag.TAG_NAME.length() + 1); int startIndex = currentPos;
-	 * CppSectionTag tag = new CppSectionTag(); boolean quot = false; boolean escape
-	 * = false; while(!atEnd()) { if (!quot && currSubstrEquals(endTag)) {
-	 * tag.setHtml(html.substring(startIndex,currentPos)); return tag; } else
-	 * if(!escape && currChar() == '\"') { quot = !quot; } else if (!escape &&
-	 * currChar() == '\\') { escape = true; } else if (escape) { escape = false; }
-	 * next(); } throw new IOException("missing end tag: "+endTag); }
-	 */
 
 	private boolean checkSkipHtmlComment() throws IOException {
 		if (currSubstrEquals(HTML_COMMENT_START)) {
