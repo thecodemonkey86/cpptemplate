@@ -1,9 +1,10 @@
 package model;
 
 import io.parser.HtmlParser;
+import model.debugger.DebuggerVariableList;
+
 
 import java.io.IOException;
-
 import codegen.CodeUtil;
 import config.TemplateConfig;
 
@@ -34,5 +35,13 @@ public class CppRenderSectionTag extends HtmlTag {
 	public void setRenderTmpl(CppSectionTag renderTmpl) {
 		this.renderTmpl = renderTmpl;
 	}
-
+	
+	@Override
+	public void directRender(StringBuilder out,TemplateConfig cfg, ParserResult mainParserResult, DebuggerVariableList variables) throws IOException {
+		renderTmpl.directRender(out, cfg, mainParserResult, variables);
+	}
+	@Override
+	public void directRenderDoubleEncoded(StringBuilder out,TemplateConfig cfg, ParserResult mainParserResult, DebuggerVariableList variables) throws IOException {
+		renderTmpl.directRenderDoubleEncoded(out, cfg, mainParserResult, variables);
+	}
 }

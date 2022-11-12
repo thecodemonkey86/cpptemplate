@@ -1,2 +1,2 @@
-closureCompiler=D:\Programme\closurecompiler\compiler.jar
-yuiCompressor=D:\Programme\yuicompressor\yuicompressor-2.4.7.jar
+closureCompiler=%EXEC_PATH%\closure-compiler\closure-compiler-v20220601.jar
+yuiCompressor=%EXEC_PATH%\yuicompressor\yuicompressor-2.4.7.jar

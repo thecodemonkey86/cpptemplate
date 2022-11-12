@@ -2,10 +2,13 @@ package model;
 
 import java.io.IOException;
 
+import org.apache.commons.text.StringEscapeUtils;
+
 import codegen.CodeUtil;
 import config.TemplateConfig;
 import io.CppOutput;
 import io.parser.HtmlParser;
+import model.debugger.DebuggerVariableList;
 
 public class CppTranslate extends HtmlTag {
 	public static final String TAG_NAME = "translate" ;
@@ -45,6 +48,18 @@ public class CppTranslate extends HtmlTag {
 	public void walkTree(TemplateConfig tplCfg, WalkTreeAction action, ParserResult parserResult) throws IOException {
 		tplCfg.setIncludeTranslations(true);
 		super.walkTree(tplCfg, action, parserResult);
+	}
+	
+	@Override
+	public void directRender(StringBuilder out, TemplateConfig cfg, ParserResult mainParserResult,
+			DebuggerVariableList variables) throws IOException {
+	  out.append(StringEscapeUtils.escapeHtml4(variables.getStringAndIncrement("_tr"+getAttrByName("key").getStringValue()))); 
+	}
+	
+	@Override
+	public void directRenderDoubleEncoded(StringBuilder out, TemplateConfig cfg, ParserResult mainParserResult,
+			DebuggerVariableList variables) throws IOException {
+		out.append(StringEscapeUtils.escapeHtml4(StringEscapeUtils.escapeHtml4(variables.getStringAndIncrement("_tr"+getAttrByName("key").getStringValue())))); 
 	}
 
 }

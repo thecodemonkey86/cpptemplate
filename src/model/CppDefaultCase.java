@@ -2,7 +2,6 @@ package model;
 
 import io.CppOutput;
 import io.parser.HtmlParser;
-
 import java.io.IOException;
 
 import codegen.CodeUtil;
@@ -10,6 +9,20 @@ import config.TemplateConfig;
 
 public class CppDefaultCase extends HtmlTag {
 
+	
+	@Override
+	public void directRenderCollectVariables(StringBuilder out, TemplateConfig cfg, ParserResult mainParserResult) {
+		out.append("default:\n");
+		CodeUtil.writeLine(out, "{");
+		if (childNodes != null) { 
+			for(AbstractNode n:childNodes) {
+				n.directRenderCollectVariables(out, cfg, mainParserResult);			}
+		}
+		CodeUtil.writeLine(out, "}");
+		CodeUtil.writeLine(out, "break;");
+		
+	}
+	
 	@Override
 	public void toCpp(StringBuilder out, StringBuilder directTextOutputBuffer, TemplateConfig cfg,
 			ParserResult mainParserResult) {
@@ -50,6 +63,5 @@ public class CppDefaultCase extends HtmlTag {
 		super(TAG_NAME);
 		setNs(HtmlParser.CPP_NS);
 	}
-
 
 }

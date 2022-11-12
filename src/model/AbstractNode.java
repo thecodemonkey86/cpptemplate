@@ -3,8 +3,9 @@ package model;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import config.TemplateConfig;
+import model.debugger.DebuggerVariableList;
+
 
 public abstract class AbstractNode implements ITemplateItem{
 
@@ -28,17 +29,29 @@ public abstract class AbstractNode implements ITemplateItem{
 		return childNodes;
 	}
 	
-	/**
-	 * @param out
-	 * @throws IOException 
-	 */
-	public abstract void toCpp(StringBuilder out, StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) ;
 	
 	public void walkTree(TemplateConfig tplCfg,WalkTreeAction action,ParserResult parserResult) throws IOException {
 		action.currentNode(this, parserResult);
 		if (this.childNodes != null) {
 			for(AbstractNode n:childNodes) {
 				n.walkTree(tplCfg,action, parserResult);
+			}
+		}
+	}
+	
+	@Override
+	public void directRender(StringBuilder out,TemplateConfig cfg, ParserResult mainParserResult, DebuggerVariableList variables) throws IOException {
+		if (this.childNodes != null) {
+			for(AbstractNode n:childNodes) {
+				n.directRender(out, cfg, mainParserResult, variables);
+			}
+		}
+	}
+	@Override
+	public void directRenderDoubleEncoded(StringBuilder out,TemplateConfig cfg, ParserResult mainParserResult, DebuggerVariableList variables) throws IOException {
+		if (this.childNodes != null) {
+			for(AbstractNode n:childNodes) {
+				n.directRenderDoubleEncoded(out, cfg, mainParserResult, variables);
 			}
 		}
 	}

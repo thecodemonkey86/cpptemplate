@@ -34,9 +34,9 @@ public class RawOutputSection extends AbstractNode implements IAttrValueElement 
 	public void toCpp(StringBuilder out, StringBuilder directTextOutputBuffer, TemplateConfig cfg,
 			ParserResult mainParserResult) {
 		CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
-if(expression.contains("doubleEncode") ) {
-	System.out.println();
-}
+//if(expression.contains("doubleEncode") ) {
+//	System.out.println();
+//}
 		int inlineIfThenIndex = -1;
 		int inlineIfElseIndex = -1;
 		boolean quot = false;
@@ -164,5 +164,11 @@ CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer,cfg);
 	@Override
 	public boolean stringOutput() {
 		return false;
+	}
+
+	@Override
+	public void directRenderCollectVariables(StringBuilder out, TemplateConfig cfg, ParserResult mainParserResult) {
+		// TODO Auto-generated method stub
+		
 	}
 }

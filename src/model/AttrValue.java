@@ -1,7 +1,11 @@
 package model;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import config.TemplateConfig;
+import model.debugger.DebuggerVariableList;
+
 
 public class AttrValue {
 
@@ -36,6 +40,13 @@ public class AttrValue {
 			sb.append(e.toString());
 		}
 		return sb.toString();
+	}
+
+	public void directRender(StringBuilder out,TemplateConfig cfg, ParserResult mainParserResult, DebuggerVariableList variables) throws IOException {
+		for(IAttrValueElement e:elements) {
+			e.directRender(out, cfg, mainParserResult, variables);
+		}
+		
 	}
 
 }

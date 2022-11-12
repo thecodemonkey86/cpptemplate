@@ -2,12 +2,14 @@ package model;
 
 import io.CppOutput;
 import io.parser.HtmlParser;
+import model.debugger.DebuggerVariableList;
 import util.StringUtil;
+
 
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
-
+import java.util.HashMap;
 import codegen.CodeUtil;
 import config.TemplateConfig;
 
@@ -40,13 +42,19 @@ public class CppRenderSubtemplateTag extends HtmlTag {
 		}
 		
 	}
-	
+	static HashMap<String, ParserResult> subtemplateCache=new HashMap<String, ParserResult>();
 	@Override
 	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {
 		HtmlParser p = new HtmlParser();
 		try {
 			String subtemplateName = getAttrStringValue("name");
-			ParserResult result = p.parse(cfg,basePath.resolve(TemplateConfig.DIR_SUBTEMPLATES).resolve(subtemplateName +".html"),mainParserResult.getSubtemplatesFunctions());
+			ParserResult result = null;
+			if(subtemplateCache.containsKey(subtemplateName)) {
+				result = subtemplateCache.get(subtemplateName);
+			} else {
+				result =p.parse(cfg,basePath.resolve(TemplateConfig.DIR_SUBTEMPLATES).resolve(subtemplateName +".html"),mainParserResult.getSubtemplatesFunctions());
+				subtemplateCache.put(subtemplateName, result);
+			}
 			
 			if(hasAttr("args")) {
 				invokeSubTemplateMethod(out, directTextOutputBuffer, cfg, mainParserResult, result, subtemplateName,false);
@@ -66,7 +74,13 @@ public class CppRenderSubtemplateTag extends HtmlTag {
 		HtmlParser p = new HtmlParser();
 		try {
 			String subtemplateName = getAttrStringValue("name");
-			ParserResult result = p.parse(cfg,basePath.resolve(TemplateConfig.DIR_SUBTEMPLATES).resolve(subtemplateName +".html"),mainParserResult.getSubtemplatesFunctions());
+			ParserResult result = null;
+			if(subtemplateCache.containsKey(subtemplateName)) {
+				result = subtemplateCache.get(subtemplateName);
+			} else {
+				result =p.parse(cfg,basePath.resolve(TemplateConfig.DIR_SUBTEMPLATES).resolve(subtemplateName +".html"),mainParserResult.getSubtemplatesFunctions());
+				subtemplateCache.put(subtemplateName, result);
+			}
 			
 			if(hasAttr("args")) {
 				invokeSubTemplateMethod(out, directTextOutputBuffer, cfg, mainParserResult, result, subtemplateName,true);
@@ -79,4 +93,16 @@ public class CppRenderSubtemplateTag extends HtmlTag {
 		
 	}
 	
+	@Override
+	public void directRender(StringBuilder out,TemplateConfig cfg, ParserResult mainParserResult, DebuggerVariableList variables) throws IOException {
+		HtmlParser p = new HtmlParser();
+		String subtemplateName = getAttrStringValue("name");
+		ParserResult result = null;
+		if(subtemplateCache.containsKey(subtemplateName)) {
+			result = subtemplateCache.get(subtemplateName);
+		} else {
+			result =p.parse(cfg,basePath.resolve(TemplateConfig.DIR_SUBTEMPLATES).resolve(subtemplateName +".html"),mainParserResult.getSubtemplatesFunctions());
+			subtemplateCache.put(subtemplateName, result);
+		}
+	}
 }

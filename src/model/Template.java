@@ -3,6 +3,7 @@ package model;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import model.debugger.DebuggerVariableList;
 
 import config.TemplateConfig;
 import io.CppOutput;
@@ -17,7 +18,11 @@ public class Template implements ITemplateItem {
 	public void addTag(ITemplateItem tag) {
 		this.tags.add(tag);
 	}
-	
+	@Override
+	public void directRenderCollectVariables(StringBuilder out, TemplateConfig cfg, ParserResult mainParserResult) {
+		throw new RuntimeException("not implemented");
+		
+	}
 //	public void replaceRenderTags(Template tmpl, String name) throws IOException {
 //		for(int i=0;i<tags.size();i++) {
 //			if (tags.get(i) instanceof CppRenderTemplateTag) {
@@ -56,6 +61,26 @@ public class Template implements ITemplateItem {
 				n.toCppDoubleEscaped(out,directTextOutputBuffer,cfg, mainParserResult);
 			}
 			CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
+		}
+		
+	}
+
+	@Override
+	public void directRender(StringBuilder out,TemplateConfig cfg, ParserResult mainParserResult, DebuggerVariableList variables) throws IOException {
+		if (this.tags != null) {
+			for(ITemplateItem n:tags) {
+				n.directRender(out, cfg, mainParserResult, variables);
+			}
+		}
+		
+	}
+
+	@Override
+	public void directRenderDoubleEncoded(StringBuilder out,TemplateConfig cfg, ParserResult mainParserResult, DebuggerVariableList variables) throws IOException {
+		if (this.tags != null) {
+			for(ITemplateItem n:tags) {
+				n.directRenderDoubleEncoded(out, cfg, mainParserResult, variables);
+			}
 		}
 		
 	}

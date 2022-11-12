@@ -2,6 +2,8 @@ package model;
 
 import io.CppOutput;
 import io.parser.HtmlParser;
+import model.debugger.DebuggerVariableList;
+
 
 import java.io.IOException;
 
@@ -77,6 +79,19 @@ public class CppForTag extends HtmlTag {
 		CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer, cfg);
 		out.append("}\n");
 		
+	}
+	
+	@Override
+	public void directRender(StringBuilder out, TemplateConfig cfg, ParserResult mainParserResult,
+			DebuggerVariableList variables) throws IOException { 
+		Integer count= variables.getIntAndIncrement("_"+getAttrByName("each").getStringValue()+"Count");
+		if(count!=null) {
+			for(int i=0;i<count;i++) {
+				for(AbstractNode n:childNodes) {
+					n.directRender(out, cfg, mainParserResult, variables);
+				}
+			}
+		}
 	}
 
 }

@@ -1,7 +1,10 @@
 package model;
 
+import java.io.IOException;
+
 import config.TemplateConfig;
 import io.parser.HtmlParser;
+import model.debugger.DebuggerVariableList;
 
 public class CppSectionTag extends HtmlTag {
 
@@ -36,6 +39,16 @@ public class CppSectionTag extends HtmlTag {
 			}
 			if(hasAttr) {
 				new CppCodeTag("}").toCpp(out, directTextOutputBuffer, cfg, mainParserResult);
+			}
+		}
+	}
+	
+	@Override
+	public void directRender(StringBuilder out, TemplateConfig cfg, ParserResult mainParserResult,
+			DebuggerVariableList variables) throws IOException {
+		if (childNodes != null) { 
+			for(AbstractNode n:childNodes) {
+				n.directRender(out, cfg, mainParserResult, variables);
 			}
 		}
 	}

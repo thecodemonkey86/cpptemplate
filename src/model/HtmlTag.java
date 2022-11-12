@@ -10,6 +10,8 @@ import org.apache.commons.text.StringEscapeUtils;
 
 import config.TemplateConfig;
 import io.parser.HtmlParser;
+import model.debugger.DebuggerVariableList;
+
 
 public class HtmlTag extends AbstractNode{
 	public static final String INPUT_TAG = "input";
@@ -72,7 +74,9 @@ public class HtmlTag extends AbstractNode{
 		if (attrs!=null) {
 			for(HtmlAttr a:attrs) {
 				if(a.getName().startsWith(HtmlParser.CPP_NS)) {
-					a.preProcessAttr(this);
+					if(!a.isPreprocessed()) {
+						a.preProcessAttr(this);
+					}
 				}
 					
 			}
@@ -105,7 +109,9 @@ public class HtmlTag extends AbstractNode{
 			for(HtmlAttr a:attrs) {
 				if(a.getName()!=null) {
 					if(a.getName().startsWith(HtmlParser.CPP_NS)) {
-						a.preProcessAttr(this);
+						if(!a.isPreprocessed()) {
+							a.preProcessAttr(this);
+						}
 					}
 				}
 					
@@ -136,7 +142,9 @@ public class HtmlTag extends AbstractNode{
 			for(HtmlAttr a:attrs) {
 				if(a.getName()!=null) {
 					if(a.getName().startsWith(HtmlParser.CPP_NS)) {
-						a.preProcessAttr(this);
+						if(!a.isPreprocessed()) {
+							a.preProcessAttr(this);
+						}
 					}
 				}
 					
@@ -154,8 +162,37 @@ public class HtmlTag extends AbstractNode{
 		}
 		
 		if (!isVoidTag(tagName) ) {
-			directTextOutputBuffer.append(StringEscapeUtils.escapeHtml4("</")).append(tagName).append('>');
+			directTextOutputBuffer.append(StringEscapeUtils.escapeHtml4("</")).append(tagName).append(StringEscapeUtils.escapeHtml4(">"));
 		}
+	}
+	
+	@Override
+	public void directRenderCollectVariables(StringBuilder out, TemplateConfig cfg, ParserResult mainParserResult) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public void directRender(StringBuilder out,TemplateConfig cfg, ParserResult mainParserResult, DebuggerVariableList variables) throws IOException {
+		out.append("<");
+		out.append(tagName);
+		if (attrs!=null && !attrs.isEmpty()) {
+			for(HtmlAttr a:attrs) {
+				out.append(' ');
+				a.directRender(out, cfg, mainParserResult, variables);
+			}
+		}
+		out.append(">");
+		if (childNodes != null) { 
+			for(AbstractNode n:childNodes) {
+				n.directRender(out, cfg, mainParserResult, variables);
+			}
+		}
+		
+		if (!isVoidTag(tagName) ) {
+			out.append("</").append(tagName).append('>');
+		}
+		
 	}
 	
 	public String getNamespaceAndTagName() {

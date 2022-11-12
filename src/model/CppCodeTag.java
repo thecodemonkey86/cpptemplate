@@ -1,8 +1,11 @@
 package model;
 
+import java.io.IOException;
+
 import config.TemplateConfig;
 import io.CppOutput;
 import io.parser.HtmlParser;
+import model.debugger.DebuggerVariableList;
 
 public class CppCodeTag extends AbstractNode implements IAttrValueElement {
 	protected String code;
@@ -26,6 +29,24 @@ public class CppCodeTag extends AbstractNode implements IAttrValueElement {
 			.append(this.code)
 			.append(HtmlParser.CPP_CODE_END_TAG);
 		return sb.toString();
+	}
+	
+	@Override
+	public void directRenderCollectVariables(StringBuilder out, TemplateConfig cfg, ParserResult mainParserResult) {
+		String[] lines = code.split("\n");
+		StringBuilder sbTrimmed = new StringBuilder(code.length());
+		if(lines.length > 0) {
+			for(int i = 0; i < lines.length; i++) {
+				String trim = lines[i].trim();
+				if (trim.length() > 0) {
+					sbTrimmed.append(trim).append('\n');
+				}
+			}			
+		}
+		String trimmed = sbTrimmed.toString().trim();
+		if(trimmed.length()>0)
+			out.append(trimmed).append('\n');
+		
 	}
 
 	@Override
@@ -54,6 +75,16 @@ public class CppCodeTag extends AbstractNode implements IAttrValueElement {
 	@Override
 	public boolean stringOutput() {
 		return false;
+	}
+	
+	@Override
+	public void directRender(StringBuilder out, TemplateConfig cfg, ParserResult mainParserResult,
+			DebuggerVariableList variables) throws IOException {
+	}
+	
+	@Override
+	public void directRenderDoubleEncoded(StringBuilder out, TemplateConfig cfg, ParserResult mainParserResult,
+			DebuggerVariableList variables) throws IOException {
 	}
 
 }

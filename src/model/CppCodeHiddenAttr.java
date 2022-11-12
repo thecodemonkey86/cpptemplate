@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import codegen.CodeUtil;
 import config.TemplateConfig;
+import model.debugger.DebuggerVariableList;
 
 public class CppCodeHiddenAttr extends HtmlAttr {
 
@@ -24,7 +25,7 @@ public class CppCodeHiddenAttr extends HtmlAttr {
 	
 	@Override
 	public void preProcessAttr(HtmlTag tag) {
-		// TODO Auto-generated method stub
+		super.preProcessAttr(tag);
 		HtmlAttr attrClass;
 		if(tag.hasAttr("class")) {
 			attrClass = tag.getAttrByName("class");
@@ -39,4 +40,17 @@ public class CppCodeHiddenAttr extends HtmlAttr {
 		}
 	}
 	
+	@Override
+	public void directRender(StringBuilder out, TemplateConfig cfg, ParserResult mainParserResult,
+			DebuggerVariableList variables) throws IOException {
+		if(variables.getStringAndIncrement(getStringValue()).equals("1")) {
+			out.append(" ").append(NAME);
+		}
+	}
+	
+	@Override
+	public void directRenderDoubleEncoded(StringBuilder out, TemplateConfig cfg, ParserResult mainParserResult,
+			DebuggerVariableList variables) throws IOException {
+		directRender(out, cfg, mainParserResult, variables);
+	}
 }

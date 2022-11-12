@@ -138,7 +138,9 @@ public class ParserResult {
 				CppOutput.clearDirectTextOutputBuffer(out, directTextOutputBuffer,cfg);
 			}
 		} else {
-			throw new IOException();
+			for(CppSectionTag section:templateRegionTags) {
+				section.toCpp(out, directTextOutputBuffer, cfg, mainParserResult);
+			}
 		}
 		
 	}
@@ -267,7 +269,7 @@ public class ParserResult {
 	  subtemplatesFunctions.addSubtemplatesAsFunction(subtemplate, doubleEncode);
 		
 	}
-	
+
 	
 	
 	

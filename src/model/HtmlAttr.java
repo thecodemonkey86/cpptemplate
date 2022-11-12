@@ -1,10 +1,13 @@
 package model;
 
 
+import java.io.IOException;
 import org.apache.commons.text.StringEscapeUtils;
 
 import config.TemplateConfig;
 import io.CppOutput;
+import model.debugger.DebuggerVariableList;
+
 
 public class HtmlAttr implements ITemplateItem{
 
@@ -46,6 +49,15 @@ public class HtmlAttr implements ITemplateItem{
 //		return valueSeparatorChar;
 //	}
 
+	
+	@Override
+	public void directRenderCollectVariables(StringBuilder out, TemplateConfig cfg, ParserResult mainParserResult) {
+		for(IAttrValueElement e: value.getElements()) {
+			e.directRenderCollectVariables(out, cfg, mainParserResult);
+		}
+		
+	}
+	
 	@Override
 	public void toCpp(StringBuilder out,StringBuilder directTextOutputBuffer, TemplateConfig cfg, ParserResult mainParserResult) {
 		char valueSeparatorChar = '"';
@@ -54,7 +66,7 @@ public class HtmlAttr implements ITemplateItem{
 		directTextOutputBuffer.append(name)
 			.append('=')
 			.append(valueSeparatorChar);
-		
+
 		for(IAttrValueElement e: value.getElements()) {
 			if (e.stringOutput()) {
 				directTextOutputBuffer.append(e.toString() );
@@ -99,7 +111,29 @@ public class HtmlAttr implements ITemplateItem{
 		return sb.toString();
 	}
 
+	boolean preprocessed=false;
+	
+	public boolean isPreprocessed() {
+		return preprocessed;
+	}
+	
 	public void preProcessAttr(HtmlTag tag) {
+		preprocessed=true;
+	}
+
+	public void directRender(StringBuilder out,TemplateConfig cfg, ParserResult mainParserResult, DebuggerVariableList variables) throws IOException {
+		out.append(name);
+		out.append("=\"");
+		value.directRender(out, cfg, mainParserResult, variables);
+		out.append('"');
+	}
+	
+	
+	public void directRenderDoubleEncoded(StringBuilder out,TemplateConfig cfg, ParserResult mainParserResult, DebuggerVariableList variables) throws IOException {
 		
+		out.append(StringEscapeUtils.escapeHtml4(name));
+		out.append("=&quot;");
+		value.directRender(out, cfg, mainParserResult, variables);
+		out.append("&quot;");
 	}
 }

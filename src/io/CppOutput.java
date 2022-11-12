@@ -235,6 +235,7 @@ public class CppOutput {
 		
 			boolean singleQuot = false;
 			boolean doubleQuot = false;
+			boolean backtickQuot = false;
 			boolean escape = false;
 			 
 			int start=0;
@@ -268,17 +269,19 @@ public class CppOutput {
 						escape = true;
 						break;
 					case '\"':
-						if(!singleQuot)
+						if(!singleQuot && !backtickQuot)
 							doubleQuot = !doubleQuot;
 						break;
 					case '\'':
-						if(!doubleQuot)
+						if(!doubleQuot && !backtickQuot)
 							singleQuot = !singleQuot;
 						
 						break;
-		
+					case '`':
+						backtickQuot = !backtickQuot;
+						break;
 					case '{':
-						if(singleQuot||doubleQuot) {
+						if(singleQuot||doubleQuot||backtickQuot) {
 						if(js.charAt(i+1 ) == '{' && js.charAt(i+2 )=='{' ) {
 							CppOutput.addOutputChunksPlainHtml(sbInlineJs, js.substring(start,i), settings.getLineWidth(),null);
 							start = i+3;

@@ -7,6 +7,8 @@ import org.apache.commons.text.StringEscapeUtils;
 import codegen.CodeUtil;
 import config.TemplateConfig;
 import io.CppOutput;
+import model.debugger.DebuggerVariableList;
+
 
 public class QStringHtmlEscapedOutputSection extends AbstractNode implements IAttrValueElement {
 
@@ -196,7 +198,26 @@ public class QStringHtmlEscapedOutputSection extends AbstractNode implements IAt
 	}
 
 	@Override
+	public void directRender(StringBuilder out, TemplateConfig cfg, ParserResult mainParserResult,
+			DebuggerVariableList variables) throws IOException {
+		out.append(StringEscapeUtils.escapeHtml4(variables.getStringAndIncrement(expression)));
+	}
+	
+	@Override
+	public void directRenderDoubleEncoded(StringBuilder out, TemplateConfig cfg, ParserResult mainParserResult,
+			DebuggerVariableList variables) throws IOException {
+		out.append(StringEscapeUtils.escapeHtml4(StringEscapeUtils.escapeHtml4(variables.getStringAndIncrement(expression))));
+	}
+	
+	
+	@Override
 	public boolean stringOutput() {
 		return false;
+	}
+
+	@Override
+	public void directRenderCollectVariables(StringBuilder out, TemplateConfig cfg, ParserResult mainParserResult) {
+		// TODO Auto-generated method stub
+		
 	}
 }

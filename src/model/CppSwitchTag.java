@@ -2,6 +2,9 @@ package model;
 
 import io.CppOutput;
 import io.parser.HtmlParser;
+import model.debugger.DebuggerVariableList;
+import model.debugger.Variable;
+
 
 import java.io.IOException;
 
@@ -48,4 +51,57 @@ public class CppSwitchTag extends HtmlTag {
 		CodeUtil.writeLine(out, "}");
 	}
 
+	@Override
+	public void directRender(StringBuilder out, TemplateConfig cfg, ParserResult mainParserResult,
+			DebuggerVariableList variables) throws IOException {
+//		
+//		super.directRender(out, cfg, mainParserResult, variables+1);
+		String cond = variables.getStringAndIncrement(getAttrByName("cond").getStringValue());
+		if (childNodes != null) { 
+			boolean caseMatched=false;
+			for(AbstractNode n:childNodes) {
+				if(n instanceof CppCaseTag) {
+					if(Variable.eq(cond,variables.getStringAndIncrement(((CppCaseTag)n).getAttrByName("value").getStringValue()))) {
+						n.directRender(out, cfg, mainParserResult, variables);
+						caseMatched = true;
+						break;
+					}
+				}
+			}
+			
+			if(!caseMatched) {
+				for(AbstractNode n:childNodes) {
+					if(n instanceof CppDefaultCase) {
+						n.directRender(out, cfg, mainParserResult, variables);
+					}
+				}
+			}
+		}
+	
+		
+	}
+	
+	@Override
+	public void directRenderDoubleEncoded(StringBuilder out, TemplateConfig cfg, ParserResult mainParserResult,
+			DebuggerVariableList  variables) throws IOException {
+		if (childNodes != null) { 
+			boolean caseMatched=false;
+			for(AbstractNode n:childNodes) {
+				if(n instanceof CppCaseTag) {
+					if(Variable.eq(variables.getStringAndIncrement(getAttrByName("cond").getStringValue()),variables.getStringAndIncrement(((CppCaseTag)n).getAttrByName("value").getStringValue()))) {
+						n.directRenderDoubleEncoded(out, cfg, mainParserResult, variables);
+						break;
+					}
+				}
+			}
+			
+			if(!caseMatched) {
+				for(AbstractNode n:childNodes) {
+					if(n instanceof CppDefaultCase) {
+						n.directRenderDoubleEncoded(out, cfg, mainParserResult, variables);
+					}
+				}
+			}
+		}
+	}
 }

@@ -2,13 +2,19 @@ package model;
 
 import io.CppOutput;
 import io.parser.HtmlParser;
+import util.TemplateCodeUtil;
 
 import java.io.IOException;
-
 import codegen.CodeUtil;
 import config.TemplateConfig;
 
 public class CppCaseTag extends HtmlTag {
+
+	
+	@Override
+	public void directRenderCollectVariables(StringBuilder out, TemplateConfig cfg, ParserResult mainParserResult)	{
+		TemplateCodeUtil.cppDirectRenderAddVariable(out, getAttrByName("value").getStringValue());
+	}
 
 	@Override
 	public void toCpp(StringBuilder out, StringBuilder directTextOutputBuffer, TemplateConfig cfg,
